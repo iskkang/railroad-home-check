@@ -11,6 +11,7 @@ form.addEventListener('submit', async (event) => {
   const address = addressInput.value.trim();
   if (!address) return;
 
+  trackEvent('property_check_started');
   setLoading(true, 'Locating the property…');
   results.classList.add('hidden');
 
@@ -26,10 +27,12 @@ form.addEventListener('submit', async (event) => {
     setStatus('Checking nearby FRA grade-crossing records…');
     const report = await fetchJSON(`/api/crossings?lat=${geo.lat}&lon=${geo.lon}`);
     renderReport({ ...report, matchedAddress: geo.matchedAddress || address });
+    trackEvent('property_check_completed');
     statusBox.classList.add('hidden');
     results.classList.remove('hidden');
     results.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (error) {
+    trackEvent('property_check_failed');
     console.error(error);
     setError(error.message || 'We could not complete this check. Please try another full U.S. street address.');
   } finally {
@@ -42,6 +45,12 @@ async function fetchJSON(url, options = {}) {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
   return data;
+}
+
+function trackEvent(eventName) {
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', eventName);
+  }
 }
 
 function setLoading(isLoading, message) {
