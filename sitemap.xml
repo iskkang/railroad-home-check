@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://railroad-home-check.vercel.app/</loc>
-    <lastmod>2026-08-07</lastmod>
-  </url>
-  <url>
-    <loc>https://railroad-home-check.vercel.app/privacy.html</loc>
-    <lastmod>2026-08-07</lastmod>
-  </url>
+  <url><loc>https://railroad-home-check.vercel.app/</loc><lastmod>2026-08-07</lastmod></url>
+  <url><loc>https://railroad-home-check.vercel.app/privacy.html</loc><lastmod>2026-08-07</lastmod></url>
+  <url><loc>https://railroad-home-check.vercel.app/buying-house-near-railroad-tracks/</loc><lastmod>2026-08-07</lastmod></url>
+  <url><loc>https://railroad-home-check.vercel.app/how-many-trains-pass-near-my-house/</loc><lastmod>2026-08-07</lastmod></url>
+  <url><loc>https://railroad-home-check.vercel.app/train-horns-near-house/</loc><lastmod>2026-08-07</lastmod></url>
+  <url><loc>https://railroad-home-check.vercel.app/quiet-zone-homebuyer-guide/</loc><lastmod>2026-08-07</lastmod></url>
+  <url><loc>https://railroad-home-check.vercel.app/freight-train-noise-at-night/</loc><lastmod>2026-08-07</lastmod></url>
+  <url><loc>https://railroad-home-check.vercel.app/how-close-is-too-close-to-train-tracks/</loc><lastmod>2026-08-07</lastmod></url>
+  <url><loc>https://railroad-home-check.vercel.app/railroad-crossing-accident-history/</loc><lastmod>2026-08-07</lastmod></url>
+  <url><loc>https://railroad-home-check.vercel.app/railroad-vibration-homebuyer-checklist/</loc><lastmod>2026-08-07</lastmod></url>
+  <url><loc>https://railroad-home-check.vercel.app/buying-house-near-freight-railroad/</loc><lastmod>2026-08-07</lastmod></url>
+  <url><loc>https://railroad-home-check.vercel.app/railroad-noise-home-inspection-checklist/</loc><lastmod>2026-08-07</lastmod></url>
 </urlset>
