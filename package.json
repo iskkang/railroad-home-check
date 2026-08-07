@@ -1,0 +1,8 @@
+{
+  "name": "railroad-home-check-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Homebuyer railroad due-diligence MVP using official FRA grade-crossing data.",
+  "engines": { "node": ">=20" }
+}

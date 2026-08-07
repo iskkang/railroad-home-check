@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Check nearby railroad crossings, reported train movements, quiet-zone status, speeds, and recent crossing incidents before buying a home." />
+  <title>Railroad Home Check — Know the tracks before you buy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Railroad Home Check home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 40 40" fill="none"><rect x="7" y="5" width="26" height="24" rx="7" stroke="currentColor" stroke-width="2.5"/><path d="M12 13h16M13 24h14M15 29l-4 6M25 29l4 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="14" cy="20" r="2" fill="currentColor"/><circle cx="26" cy="20" r="2" fill="currentColor"/></svg>
+      </span>
+      <span>Railroad Home Check</span>
+    </a>
+    <a class="source-link" href="https://data.transportation.gov/Railroads/Crossing-Inventory-Data-Form-71-Current/m2f8-22s6" target="_blank" rel="noreferrer">FRA data source ↗</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow">FREE HOME-BUYER DUE DILIGENCE</div>
+      <h1>Know the tracks<br><span>before you buy.</span></h1>
+      <p class="hero-copy">Enter a U.S. address to check nearby railroad crossings, reported daytime and nighttime train movements, quiet-zone status, speeds, and recent crossing incidents.</p>
+
+      <form id="searchForm" class="search-box">
+        <label for="address" class="sr-only">U.S. property address</label>
+        <div class="input-wrap">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.2 7-12A7 7 0 1 0 5 9c0 6.8 7 12 7 12Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="9" r="2.4" stroke="currentColor" stroke-width="1.8"/></svg>
+          <input id="address" autocomplete="street-address" placeholder="Enter a U.S. property address" required />
+        </div>
+        <button type="submit" id="searchButton">Check railroad impact</button>
+      </form>
+      <div class="microcopy">No account. No payment. Official federal data.</div>
+    </section>
+
+    <section id="status" class="status hidden" aria-live="polite"></section>
+
+    <section id="results" class="results hidden" aria-live="polite">
+      <div class="result-heading">
+        <div>
+          <div class="eyebrow">PROPERTY CHECK</div>
+          <h2 id="resultAddress"></h2>
+        </div>
+        <div id="attentionBadge" class="attention-badge"></div>
+      </div>
+
+      <div class="summary-grid">
+        <article class="metric-card">
+          <div class="metric-label">Nearest crossing</div>
+          <div class="metric-value" id="distanceValue">—</div>
+          <div class="metric-note" id="crossingStreet">—</div>
+        </article>
+        <article class="metric-card">
+          <div class="metric-label">Day thru trains</div>
+          <div class="metric-value" id="dayValue">—</div>
+          <div class="metric-note">FRA-reported estimate, 6 AM–6 PM</div>
+        </article>
+        <article class="metric-card night-card">
+          <div class="metric-label">Night thru trains</div>
+          <div class="metric-value" id="nightValue">—</div>
+          <div class="metric-note">FRA-reported estimate, 6 PM–6 AM</div>
+        </article>
+        <article class="metric-card">
+          <div class="metric-label">Quiet zone</div>
+          <div class="metric-value compact" id="quietValue">—</div>
+          <div class="metric-note" id="quietNote">—</div>
+        </article>
+      </div>
+
+      <div class="two-col">
+        <article class="panel takeaway-panel">
+          <div class="panel-kicker">HOMEBUYER TAKEAWAY</div>
+          <h3 id="takeawayTitle"></h3>
+          <p id="takeawayText"></p>
+          <div class="checklist">
+            <div><span>1</span><p>Visit the property during the evening and late night, not only during an open house.</p></div>
+            <div><span>2</span><p>Ask immediate neighbors specifically about overnight trains, horns, vibration, and idling.</p></div>
+            <div><span>3</span><p>Verify windows and bedrooms facing the rail corridor; actual indoor noise varies by structure and terrain.</p></div>
+          </div>
+        </article>
+
+        <article class="panel details-panel">
+          <div class="panel-kicker">NEAREST CROSSING DETAILS</div>
+          <dl class="detail-list">
+            <div><dt>Crossing ID</dt><dd id="crossingId">—</dd></div>
+            <div><dt>Railroad</dt><dd id="railroadName">—</dd></div>
+            <div><dt>Train-count year</dt><dd id="countYear">—</dd></div>
+            <div><dt>Typical speed</dt><dd id="speedRange">—</dd></div>
+            <div><dt>Maximum timetable speed</dt><dd id="maxSpeed">—</dd></div>
+            <div><dt>Recent crossing incidents</dt><dd id="incidentCount">—</dd></div>
+          </dl>
+        </article>
+      </div>
+
+      <div class="nearby-wrap">
+        <div class="section-title-row">
+          <div>
+            <div class="eyebrow">NEARBY CROSSINGS</div>
+            <h3>What else is close to this property?</h3>
+          </div>
+          <span class="radius-label">within ~3 miles</span>
+        </div>
+        <div id="crossingList" class="crossing-list"></div>
+      </div>
+
+      <article class="methodology">
+        <h3>How to read this report</h3>
+        <p>Railroad Home Check uses the Federal Railroad Administration's Grade Crossing Inventory. Train counts are reported estimates, not live schedules. A quiet-zone designation means routine horn sounding is restricted at covered public crossings, but horns may still be used in emergencies and other permitted circumstances. Distance is straight-line distance from the geocoded property point to the crossing—not distance to the rail line itself.</p>
+      </article>
+    </section>
+
+    <section class="why-section">
+      <div class="eyebrow">WHY THIS EXISTS</div>
+      <h2>A listing says “near transit.”<br>It rarely says <em>how near.</em></h2>
+      <div class="why-grid">
+        <article><strong>Night traffic matters</strong><p>A line that looks quiet at noon can have meaningful overnight freight activity.</p></article>
+        <article><strong>Crossings matter</strong><p>Routine horn use is tied to public grade crossings and quiet-zone rules, not simply track distance.</p></article>
+        <article><strong>Official data is hard to read</strong><p>We translate federal crossing records into the questions a home buyer actually asks.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Data: U.S. Department of Transportation / Federal Railroad Administration. This site is an independent informational tool and is not affiliated with the FRA, DOT, a railroad, a real-estate broker, or a home inspector.</p>
+    <p>Not a noise measurement, safety certification, appraisal, or substitute for on-site due diligence.</p>
+  </footer>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
