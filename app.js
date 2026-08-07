@@ -15,7 +15,14 @@ form.addEventListener('submit', async (event) => {
   results.classList.add('hidden');
 
   try {
-    const geo = await fetchJSON(`/api/geocode?address=${encodeURIComponent(address)}`);
+    const geo = await fetchJSON('/api/geocode', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ address })
+    });
     setStatus('Checking nearby FRA grade-crossing records…');
     const report = await fetchJSON(`/api/crossings?lat=${geo.lat}&lon=${geo.lon}`);
     renderReport({ ...report, matchedAddress: geo.matchedAddress || address });
@@ -30,8 +37,8 @@ form.addEventListener('submit', async (event) => {
   }
 });
 
-async function fetchJSON(url) {
-  const response = await fetch(url);
+async function fetchJSON(url, options = {}) {
+  const response = await fetch(url, options);
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
   return data;

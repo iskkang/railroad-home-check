@@ -1,7 +1,25 @@
 export default async function handler(req, res) {
+  res.setHeader('Cache-Control', 'no-store');
+
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST');
+    return res.status(405).json({ error: 'Method not allowed. Use POST.' });
+  }
+
+  let body = req.body || {};
+  if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch {
+      return res.status(400).json({ error: 'Invalid JSON request body.' });
+    }
+  }
+
   try {
-    const address = String(req.query.address || '').trim();
-    if (!address || address.length < 6) return res.status(400).json({ error: 'Enter a complete U.S. street address.' });
+    const address = String(body.address || '').trim();
+    if (!address || address.length < 6 || address.length > 250) {
+      return res.status(400).json({ error: 'Enter a complete U.S. street address.' });
+    }
 
     const params = new URLSearchParams({
       address,
@@ -13,9 +31,10 @@ export default async function handler(req, res) {
     if (!response.ok) throw new Error(`Census geocoder returned ${response.status}`);
     const data = await response.json();
     const match = data?.result?.addressMatches?.[0];
-    if (!match?.coordinates) return res.status(404).json({ error: 'We could not match that address. Try a full street address with city, state, and ZIP code.' });
+    if (!match?.coordinates) {
+      return res.status(404).json({ error: 'We could not match that address. Try a full street address with city, state, and ZIP code.' });
+    }
 
-    res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=604800');
     return res.status(200).json({
       lat: Number(match.coordinates.y),
       lon: Number(match.coordinates.x),
