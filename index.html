@@ -3,12 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Check nearby railroad crossings, reported train movements, quiet-zone status, speeds, and recent crossing incidents before buying a home." />
-  <title>Railroad Home Check — Know the tracks before you buy</title>
+  <meta name="description" content="Enter a U.S. property address to check nearby railroad crossings, reported day and night train traffic, quiet-zone status, speeds, and incidents." />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="theme-color" content="#f5f4ef" />
+  <link rel="canonical" href="https://railroad-home-check.vercel.app/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Railroad Home Check" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:title" content="Railroad Home Check | Trains & Crossings Near a Home" />
+  <meta property="og:description" content="Check nearby railroad crossings, reported train traffic, quiet-zone status, speeds, and incidents before buying a home." />
+  <meta property="og:url" content="https://railroad-home-check.vercel.app/" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Railroad Home Check | Trains & Crossings Near a Home" />
+  <meta name="twitter:description" content="Check nearby railroad crossings, reported train traffic, quiet-zone status, speeds, and incidents before buying a home." />
+
+  <title>Railroad Home Check | Trains & Crossings Near a Home</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://railroad-home-check.vercel.app/#website",
+        "url": "https://railroad-home-check.vercel.app/",
+        "name": "Railroad Home Check",
+        "description": "A free home-buyer tool for checking nearby railroad crossings and FRA-reported train activity.",
+        "inLanguage": "en-US"
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://railroad-home-check.vercel.app/#app",
+        "url": "https://railroad-home-check.vercel.app/",
+        "name": "Railroad Home Check",
+        "description": "Check nearby railroad crossings, reported day and night train traffic, quiet-zone status, speeds, and recent crossing incidents for a U.S. property address.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "en-US",
+        "isAccessibleForFree": true,
+        "areaServed": {
+          "@type": "Country",
+          "name": "United States"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "featureList": [
+          "Nearest reported grade crossing",
+          "Reported daytime and nighttime thru-train movements",
+          "FRA quiet-zone status",
+          "Reported train speeds",
+          "Recent six-year crossing incident count"
+        ],
+        "isPartOf": {
+          "@id": "https://railroad-home-check.vercel.app/#website"
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <header class="site-header">
@@ -23,19 +82,19 @@
 
   <main>
     <section class="hero">
-      <div class="eyebrow">FREE HOME-BUYER DUE DILIGENCE</div>
-      <h1>Know the tracks<br><span>before you buy.</span></h1>
-      <p class="hero-copy">Enter a U.S. address to check nearby railroad crossings, reported daytime and nighttime train movements, quiet-zone status, speeds, and recent crossing incidents.</p>
+      <div class="eyebrow">FREE RAILROAD CHECK FOR HOME BUYERS</div>
+      <h1>Check railroad activity<br><span>before you buy a home.</span></h1>
+      <p class="hero-copy">Enter a U.S. property address to check nearby railroad crossings, FRA-reported daytime and nighttime train traffic, quiet-zone status, speeds, and recent crossing incidents.</p>
 
       <form id="searchForm" class="search-box">
         <label for="address" class="sr-only">U.S. property address</label>
         <div class="input-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.2 7-12A7 7 0 1 0 5 9c0 6.8 7 12 7 12Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="9" r="2.4" stroke="currentColor" stroke-width="1.8"/></svg>
-          <input id="address" autocomplete="street-address" placeholder="Enter a U.S. property address" required />
+          <input id="address" autocomplete="street-address" placeholder="Paste a U.S. property or listing address" aria-describedby="privacyNote" required />
         </div>
         <button type="submit" id="searchButton">Check railroad impact</button>
       </form>
-      <div class="microcopy">No account. No payment. Your address is used only to run this check. We do not save it or use it for any other purpose.</div>
+      <div class="microcopy" id="privacyNote">No account. No payment. Your address is used only to run this check. We do not save it or use it for any other purpose.</div>
     </section>
 
     <section id="status" class="status hidden" aria-live="polite"></section>
@@ -121,6 +180,53 @@
         <article><strong>Night traffic matters</strong><p>A line that looks quiet at noon can have meaningful overnight freight activity.</p></article>
         <article><strong>Crossings matter</strong><p>Routine horn use is tied to public grade crossings and quiet-zone rules, not simply track distance.</p></article>
         <article><strong>Official data is hard to read</strong><p>We translate federal crossing records into the questions a home buyer actually asks.</p></article>
+      </div>
+    </section>
+
+    <section class="info-section" aria-labelledby="report-features-title">
+      <div class="eyebrow">WHAT THE REPORT SHOWS</div>
+      <h2 id="report-features-title">Check train activity and railroad crossings near a property</h2>
+      <p class="section-intro">Railroad Home Check turns official Federal Railroad Administration records into a practical property report. It helps buyers identify questions worth investigating before an offer or inspection.</p>
+      <div class="info-grid">
+        <article>
+          <h3>Reported train frequency near an address</h3>
+          <p>Review FRA estimates for daytime and nighttime thru-train movements at nearby reported crossings. The figures are historical estimates, not a live train schedule.</p>
+        </article>
+        <article>
+          <h3>Railroad quiet-zone status</h3>
+          <p>See whether the nearest reported crossing has a federal quiet-zone designation. Quiet zones restrict routine horn sounding but do not guarantee silence.</p>
+        </article>
+        <article>
+          <h3>Crossing distance, speed, and incidents</h3>
+          <p>Compare straight-line distance to the nearest reported grade crossing, available train-speed fields, and recent six-year crossing incidents.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="faq-section" aria-labelledby="faq-title">
+      <div class="eyebrow">COMMON QUESTIONS</div>
+      <h2 id="faq-title">Buying a home near railroad tracks</h2>
+      <div class="faq-list">
+        <details>
+          <summary>How can I check train activity near a house?</summary>
+          <p>Enter a complete U.S. property or listing address. The tool locates the property with the U.S. Census Geocoder and checks nearby FRA grade-crossing records for reported train movements and other available fields.</p>
+        </details>
+        <details>
+          <summary>Does the report show the distance to railroad tracks?</summary>
+          <p>No. It measures straight-line distance from the geocoded property point to nearby reported grade crossings. A rail line may be closer than the nearest crossing.</p>
+        </details>
+        <details>
+          <summary>What does a railroad quiet zone mean?</summary>
+          <p>A federal quiet-zone designation restricts routine locomotive horn sounding at covered public crossings. Horns may still sound in emergencies and other permitted circumstances, so a quiet zone is not a guarantee of silence.</p>
+        </details>
+        <details>
+          <summary>Are the reported train counts live?</summary>
+          <p>No. Train counts are FRA-reported estimates, and the report displays the train-count year when available. Rail operations can change after the reported year.</p>
+        </details>
+        <details>
+          <summary>Can this predict railroad noise or vibration inside a home?</summary>
+          <p>No. Actual conditions depend on terrain, buildings, windows, train operations, horns, switching, and other local factors. Visit the property at different times and ask nearby residents before making a decision.</p>
+        </details>
       </div>
     </section>
   </main>
