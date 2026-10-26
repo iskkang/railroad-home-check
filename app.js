@@ -34,6 +34,7 @@ form.addEventListener('submit', async (event) => {
     trackEvent('property_check_completed');
     statusBox.classList.add('hidden');
     results.classList.remove('hidden');
+    $('loadMap').click();
     results.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (error) {
     trackEvent('property_check_failed');
@@ -476,8 +477,8 @@ function renderTmasProfile(station,kind,body,report) {
 
 function organizeReport(report) {
   const nearest = report.crossings?.[0];
-  $('overviewRail').textContent='Not loaded';$('overviewRailNote').textContent='Load surroundings below';
-  $('overviewRoad').textContent='Not loaded';$('overviewRoadNote').textContent='Annual average vehicles / day';
+  $('overviewRail').textContent='Loading…';$('overviewRailNote').textContent='Looking up mapped rail lines';
+  $('overviewRoad').textContent='Loading…';$('overviewRoadNote').textContent='Annual average vehicles / day';
   $('overviewNight').textContent=nearest ? displayCount(nearest.nightTrains,nearest.lessThanOne,nearest.weeklyTrains) : 'Not available';
   $('overviewNightNote').textContent=nearest ? '6 PM–6 AM · Count year: '+(nearest.trainCountYear || 'not reported') : 'No crossing returned within 3.25 mi';
   const targets=[['roadTrafficPanel','paneRoad','Annual average traffic on reported road segments within 1 mile. Not live congestion.'],['railDistancePanel','paneRail','Approximate distance to mapped rail centerlines within 3.25 miles.'],['tmasPanel','paneHourly','December 2023 reference station observations. Same-road connection is not verified.']];
@@ -500,7 +501,7 @@ function selectReportTab(name) {
   tab.addEventListener('keydown',e=>{const keys=['ArrowRight','ArrowLeft','Home','End'];if(!keys.includes(e.key))return;e.preventDefault();const names=['Road','Rail','Hourly'];const next=e.key==='Home'?0:e.key==='End'?2:(i+(e.key==='ArrowRight'?1:2))%3;selectReportTab(names[next]);$('tab'+names[next]).focus();});
 });
 $('loadMap').addEventListener('click',()=>{
-  if(!currentReport || !propertyMap)return;
+  if(!currentReport)return;
   [['roadTrafficPanel','overviewRoad'],['railDistancePanel','overviewRail']].forEach(([id,overview])=>{const btn=$(id)?.querySelector('button');if(btn&&!btn.disabled){$(overview).textContent='Loading…';btn.click();}});
 });
 function updateRailOverview(report,meters) {

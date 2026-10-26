@@ -112,7 +112,7 @@
         </div>
         <button type="submit" id="searchButton">Check this address</button>
       </form>
-      <div class="microcopy" id="privacyNote">No account. No payment. Comparisons stay in this tab until you refresh. Sharing a link includes the property address.</div>
+      <div class="microcopy" id="privacyNote">No account. Search loads Census, ArcGIS and OpenStreetMap data. Shared links include the address.</div>
       <button type="button" id="tryExample" class="text-button">Try an example: Santa Ana, CA →</button>
       <div class="steps-strip"><span>01 · Enter an address</span><span>02 · Explore the map</span><span>03 · Compare your shortlist</span></div>
     </section>
@@ -124,8 +124,8 @@
       <div class="report-actions compact-actions"><button type="button" id="addCompare" class="action-button">Compare</button><button type="button" id="shareReport" class="action-button secondary">Share address</button><button type="button" id="printReport" class="action-button secondary">Print / PDF</button><span class="small-note">Shared links include the address.</span></div>
       <p id="actionStatus" role="status" class="small-note"></p><input id="shareLink" class="hidden share-link" readonly aria-label="Copyable property report link" />
       <div class="overview-grid" aria-label="Key facts">
-        <article class="overview-card"><div class="metric-label">NEAREST MAPPED RAIL LINE</div><div class="overview-value" id="overviewRail">Not loaded</div><div class="metric-note" id="overviewRailNote">Load surroundings below</div></article>
-        <article class="overview-card"><div class="metric-label">NEAREST ROAD WITH A COUNT</div><div class="overview-value" id="overviewRoad">Not loaded</div><div class="metric-note" id="overviewRoadNote">Annual average vehicles / day</div></article>
+        <article class="overview-card"><div class="metric-label">NEAREST MAPPED RAIL LINE</div><div class="overview-value" id="overviewRail">Loading…</div><div class="metric-note" id="overviewRailNote">Looking up mapped rail lines</div></article>
+        <article class="overview-card"><div class="metric-label">NEAREST ROAD WITH A COUNT</div><div class="overview-value" id="overviewRoad">Loading…</div><div class="metric-note" id="overviewRoadNote">Annual average vehicles / day</div></article>
         <article class="overview-card"><div class="metric-label">NIGHT TRAINS AT NEAREST CROSSING</div><div class="overview-value" id="overviewNight">—</div><div class="metric-note" id="overviewNightNote">Reported estimate · 6 PM–6 AM</div></article>
       </div>
       <p class="overview-caveat">These facts describe different locations. They are not a combined noise or safety score.</p>
@@ -134,8 +134,8 @@
         <h3 id="mapTitle">Explore the surroundings</h3>
         <p class="small-note">Your approximate property location, mapped rail lines, and nearby road segments. Use the details below to understand each source.</p>
         <div class="map-legend"><span>● Property</span><span>① Rail crossings</span><span>━ Blue: rail lines</span><span>━ Purple: road traffic</span></div>
-        <button type="button" id="loadMap" class="action-button">Load map & surrounding data</button>
-        <p class="small-note" id="mapNotice">Loading sends the viewed area and IP address to OpenStreetMap and the property coordinates to ArcGIS for road and rail data.</p>
+        <button type="button" id="loadMap" class="action-button">Retry loading map & data</button>
+        <p class="small-note" id="mapNotice">Search automatically requests map tiles from OpenStreetMap and road/rail data from ArcGIS. These providers receive your IP address and the requested area or coordinates.</p>
         <div id="propertyMap" class="hidden" aria-label="Property and railroad crossing map"></div>
       </section>
 
