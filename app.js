@@ -80,6 +80,7 @@ function renderReport(report) {
   showRoadTraffic(report);
   showRailDistance(report);
   resetMap();
+  organizeReport(report);
   $('actionStatus').textContent = '';
   $('shareLink').classList.add('hidden');
   $('reportData').classList.toggle('hidden', !nearest);
@@ -259,7 +260,7 @@ function resetMap() {
   if (propertyMap) { propertyMap.remove(); propertyMap = null; }
   $('propertyMap').classList.add('hidden');
   $('loadMap').classList.remove('hidden');
-  $('mapNotice').textContent = 'Loading the map requests map tiles for this area from OpenStreetMap, which receives your IP address and the viewed area.';
+  $('mapNotice').textContent = 'Loading sends the viewed area and IP address to OpenStreetMap and the property coordinates to ArcGIS for road and rail data.';
 }
 $('loadMap').addEventListener('click', () => {
   if (!currentReport) return;
@@ -322,6 +323,7 @@ function showRailDistance(report) {
       const paths = data.features.flatMap(f => f.geometry?.paths || []);
       const meters = nearestRailMeters(report.lat, report.lon, paths);
       if (currentReport !== report) return;
+      updateRailOverview(report, meters);
       status.textContent = Number.isFinite(meters) && meters <= 5230.368
         ? 'Nearest mapped rail line: approximately '+(meters < 160.9344 ? Math.round(meters/0.3048)+' ft' : (meters/1609.344).toFixed(2)+' mi')+'. This is rail-line distance, separate from crossing distance. Operating status and train counts on this line have not been verified.'
         : 'No mapped rail line found within 3.25 miles. Missing data is possible; this does not establish that no tracks exist.';
@@ -335,6 +337,7 @@ function showRailDistance(report) {
       btn.textContent = 'Rail-line check complete';
     } catch {
       if (currentReport !== report) return;
+      $('overviewRail').textContent = 'Unavailable'; $('overviewRailNote').textContent = 'Retry in Rail & crossings';
       status.textContent = 'Rail-line distance is unavailable. Your crossing report is still available. Try again.';
       btn.disabled = false;
     }
@@ -374,6 +377,7 @@ function showRoadTraffic(report) {
       if (data.error || !Array.isArray(data.features) || data.exceededTransferLimit) throw Error('Incomplete traffic data');
       if (currentReport !== report) return;
       const rows = trafficRows(data.features,report.lat,report.lon);
+      updateRoadOverview(report, rows);
       if (!rows.length) {
         status.textContent = 'No road segments with reported traffic counts were returned within 1 mile. This is a data gap, not evidence of low traffic.';
         button.textContent = 'Traffic check complete'; return;
@@ -401,6 +405,7 @@ function showRoadTraffic(report) {
       button.textContent = 'Traffic check complete'; trackEvent('road_traffic_checked');
     } catch {
       if(currentReport!==report)return;
+      $('overviewRoad').textContent='Unavailable'; $('overviewRoadNote').textContent='Retry in Road traffic';
       status.textContent='Road traffic data is unavailable. Try again; your railroad report is still available.';button.disabled=false;
     }
   });
@@ -467,4 +472,45 @@ function renderTmasProfile(station,kind,body,report) {
   const legend=document.createElement('p');legend.className='small-note';legend.textContent='Dark bars: 10 PM–6 AM hours. Orange bars: other hours. Height: mean vehicles/hour over complete observation days.';body.append(legend);
   const details=document.createElement('details'),title=document.createElement('summary');title.textContent='View exact hourly counts';details.append(title);const table=document.createElement('table');const thead=document.createElement('thead');thead.innerHTML='<tr><th scope="col">Hour starting</th><th scope="col">Mean vehicles / hour</th></tr>';table.append(thead);const tbody=document.createElement('tbody');p.hours.forEach((v,h)=>{const tr=document.createElement('tr');const td=document.createElement('td');td.textContent=String(h).padStart(2,'0')+':00';const count=document.createElement('td');count.textContent=v.toLocaleString('en-US');tr.append(td,count);tbody.append(tr)});table.append(tbody);const tableWrap=document.createElement('div');tableWrap.className='table-scroll';tableWrap.append(table);details.append(tableWrap);body.append(details);
   const locate=document.createElement('button');locate.type='button';locate.className='action-button secondary';locate.textContent='Show this reference station on map';locate.addEventListener('click',()=>{if(currentReport!==report)return;if(!propertyMap)$('loadMap').click();if(!propertyMap)return;if(report.tmasMarker)propertyMap.removeLayer(report.tmasMarker);const popup=document.createElement('div');popup.textContent=station.state+' '+station.id+' · '+(station.location||'TMAS station')+' · Reference station; same-road connection unverified.';report.tmasMarker=L.circleMarker([station.lat,station.lon],{radius:9,color:'#233e55',fillOpacity:0.9}).addTo(propertyMap).bindPopup(popup).openPopup();propertyMap.fitBounds([[report.lat,report.lon],[station.lat,station.lon]],{padding:[30,30]});$('propertyMap').scrollIntoView({behavior:'smooth',block:'center'});});body.append(locate);
+}
+
+function organizeReport(report) {
+  const nearest = report.crossings?.[0];
+  $('overviewRail').textContent='Not loaded';$('overviewRailNote').textContent='Load surroundings below';
+  $('overviewRoad').textContent='Not loaded';$('overviewRoadNote').textContent='Annual average vehicles / day';
+  $('overviewNight').textContent=nearest ? displayCount(nearest.nightTrains,nearest.lessThanOne,nearest.weeklyTrains) : 'Not available';
+  $('overviewNightNote').textContent=nearest ? '6 PM–6 AM · Count year: '+(nearest.trainCountYear || 'not reported') : 'No crossing returned within 3.25 mi';
+  const targets=[['roadTrafficPanel','paneRoad','Annual average traffic on reported road segments within 1 mile. Not live congestion.'],['railDistancePanel','paneRail','Approximate distance to mapped rail centerlines within 3.25 miles.'],['tmasPanel','paneHourly','December 2023 reference station observations. Same-road connection is not verified.']];
+  targets.forEach(([id,target,description])=>{
+    const panel=$(id);$(target).prepend(panel);
+    const source=document.createElement('details');source.className='data-disclosure';
+    const summary=document.createElement('summary');summary.textContent='Source, coverage & limitations';source.append(summary);
+    panel.querySelectorAll('p.small-note:not([role="status"])').forEach(p=>source.append(p));
+    const intro=document.createElement('p');intro.className='small-note';intro.textContent=description;
+    panel.querySelector('h3').after(intro);panel.append(source);
+  });
+  selectReportTab('Road');
+}
+function selectReportTab(name) {
+  ['Road','Rail','Hourly'].forEach(n=>{const active=n===name;const tab=$('tab'+n);tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;$('pane'+n).classList.toggle('hidden',!active);});
+  if(propertyMap)propertyMap.invalidateSize();
+}
+['Road','Rail','Hourly'].forEach((name,i)=>{
+  const tab=$('tab'+name);tab.addEventListener('click',()=>selectReportTab(name));
+  tab.addEventListener('keydown',e=>{const keys=['ArrowRight','ArrowLeft','Home','End'];if(!keys.includes(e.key))return;e.preventDefault();const names=['Road','Rail','Hourly'];const next=e.key==='Home'?0:e.key==='End'?2:(i+(e.key==='ArrowRight'?1:2))%3;selectReportTab(names[next]);$('tab'+names[next]).focus();});
+});
+$('loadMap').addEventListener('click',()=>{
+  if(!currentReport || !propertyMap)return;
+  [['roadTrafficPanel','overviewRoad'],['railDistancePanel','overviewRail']].forEach(([id,overview])=>{const btn=$(id)?.querySelector('button');if(btn&&!btn.disabled){$(overview).textContent='Loading…';btn.click();}});
+});
+function updateRailOverview(report,meters) {
+  if(currentReport!==report)return;
+  $('overviewRail').textContent=Number.isFinite(meters)&&meters<=5230.368 ? (meters<160.9344?Math.round(meters/0.3048)+' ft':(meters/1609.344).toFixed(2)+' mi') : 'None returned';
+  $('overviewRailNote').textContent='Mapped centerline · Approximate distance';
+}
+function updateRoadOverview(report,rows) {
+  if(currentReport!==report)return;
+  const nearest=rows[0];
+  $('overviewRoad').textContent=nearest ? Number(nearest.a.AADT).toLocaleString('en-US') : 'Not reported';
+  $('overviewRoadNote').textContent=nearest ? 'vehicles/day · '+(nearest.a.DATA_YEAR||'Year unknown')+' · '+nearest.name : 'No counts returned within 1 mi';
 }
