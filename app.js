@@ -76,6 +76,7 @@ function setError(message) {
 function renderReport(report) {
   const nearest = report.crossings?.[0];
   currentReport = report;
+  showTmasPatterns(report);
   showRoadTraffic(report);
   showRailDistance(report);
   resetMap();
@@ -416,4 +417,54 @@ function trafficRows(features,lat,lon) {
     else groups.set(key,{...row,paths:[...row.paths]});
   }
   return [...groups.values()];
+}
+
+let tmasIndexPromise;
+const tmasStateCache = new Map();
+function tmasDistance(lat1,lon1,lat2,lon2) {
+  const rad=Math.PI/180, a=Math.sin((lat2-lat1)*rad/2)**2+Math.cos(lat1*rad)*Math.cos(lat2*rad)*Math.sin((lon2-lon1)*rad/2)**2;
+  return 3958.7613*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function showTmasPatterns(report) {
+  let panel=$('tmasPanel');
+  if(!panel){panel=document.createElement('section');panel.id='tmasPanel';panel.className='panel map-panel';$('reportData').before(panel);}
+  panel.innerHTML='<div class="panel-kicker">NIGHTTIME ROAD TRAFFIC · HISTORICAL SAMPLE</div><h3>What happens on nearby roads after dark?</h3><p class="small-note">December 2023 station observations, not current traffic or an annual average. Holiday and seasonal patterns may differ. Each profile covers one reported direction/lane stream only, not necessarily the whole road. Nearby stations are reference locations; we have not verified that they are on the same road as this property.</p><button type="button" class="action-button">Explore nearby hourly traffic</button><p role="status" class="small-note"></p><div class="tmas-content"></div><p class="small-note">Source: <a href="https://www.fhwa.dot.gov/policyinformation/tables/tmasdata/" target="_blank" rel="noreferrer">FHWA TMAS hourly volume and station records</a>; station coordinates: USDOT/BTS. At least 14 complete observed days per profile. Missing hours/days are not treated as zero. This sample does not establish noise levels or nighttime truck counts.</p>';
+  const button=panel.querySelector('button'),status=panel.querySelector('[role="status"]'),content=panel.querySelector('.tmas-content');
+  button.addEventListener('click',async()=>{
+    button.disabled=true;status.textContent='Finding nearby stations with usable hourly observations…';
+    try {
+      if(!tmasIndexPromise)tmasIndexPromise=fetchJSON('/data/tmas/index.json').catch(e=>{tmasIndexPromise=null;throw e;});
+      const index=await tmasIndexPromise;
+      const nearby=index.stations.map(s=>({state:s[0],id:s[1],lat:s[2],lon:s[3],miles:tmasDistance(report.lat,report.lon,s[2],s[3])})).filter(s=>s.miles<=10).sort((a,b)=>a.miles-b.miles).slice(0,3);
+      if(currentReport!==report)return;
+      if(!nearby.length){status.textContent='No matched station with at least 14 complete December 2023 days was found within 10 miles. This is missing coverage, not evidence of quiet roads.';button.textContent='Station search complete';return;}
+      const states=[...new Set(nearby.map(s=>s.state))];
+      await Promise.all(states.map(async state=>{if(!tmasStateCache.has(state))tmasStateCache.set(state,await fetchJSON('/data/tmas/'+state+'.json'));}));
+      if(currentReport!==report)return;
+      const stations=nearby.map(n=>({...tmasStateCache.get(n.state).stations.find(s=>s.id===n.id),miles:n.miles})).filter(s=>s.profiles);
+      if(!stations.length)throw Error('Station profile unavailable');
+      status.textContent='Nearest available stations within 10 miles. Select a station and verify its road/location before applying its pattern to a home.';
+      const label=document.createElement('label');label.textContent='Reference station ';const select=document.createElement('select');select.style.cssText='max-width:100%;padding:10px;margin:10px 0';
+      stations.forEach((s,i)=>{const o=document.createElement('option');o.value=i;o.textContent=s.state+' '+s.id+' · '+s.miles.toFixed(2)+' mi · '+(s.location||'Location description unavailable');select.append(o)});label.append(select);
+      const groupLabel=document.createElement('label');groupLabel.textContent=' Observation days ';const group=document.createElement('select');group.style.cssText='padding:10px;margin:10px';
+      for(const [value,text] of [['all','All observed days'],['weekday','Weekdays'],['weekend','Weekends']]){const o=document.createElement('option');o.value=value;o.textContent=text;group.append(o)}groupLabel.append(group);
+      const body=document.createElement('div');content.replaceChildren(label,groupLabel,body);
+      const render=()=>renderTmasProfile(stations[Number(select.value)],group.value,body,report);
+      select.addEventListener('change',render);group.addEventListener('change',render);render();button.textContent='Station profiles loaded';trackEvent('hourly_traffic_explored');
+    }catch{if(currentReport!==report)return;status.textContent='Hourly station data is unavailable. Try again; the HPMS road traffic report remains available.';button.disabled=false;}
+  });
+}
+function renderTmasProfile(station,kind,body,report) {
+  const p=station.profiles[kind];body.replaceChildren();
+  const text=document.createElement('p');text.className='small-note';
+  text.textContent=(station.location||'Station '+station.id)+' · '+station.state+' '+station.id+' · '+station.miles.toFixed(2)+' miles from property. Reported direction code '+station.direction+', lane code '+station.lane+'. Observations: '+station.start+' to '+station.end+'. '+p.days+' complete '+kind+' days. The selected stream is not a verified count for all directions or lanes. Hours follow the source record; timezone and daylight-saving conventions have not been independently verified.';body.append(text);
+  if(!p.days||!p.hours){const empty=document.createElement('p');empty.textContent='No complete days in this selection.';body.append(empty);return;}
+  const night=[22,23,0,1,2,3,4,5].reduce((n,h)=>n+p.hours[h],0),total=p.hours.reduce((a,b)=>a+b,0);
+  const summary=document.createElement('p');summary.textContent='Average recorded volume during 10 PM–6 AM hours: '+Math.round(night).toLocaleString('en-US')+' vehicles per observed day ('+(total?(night/total*100).toFixed(1):'0.0')+'% of the recorded daily volume). These eight hours are summed within each calendar-day record, not matched across consecutive nights.';body.append(summary);
+  const chart=document.createElement('div');chart.setAttribute('role','img');chart.setAttribute('aria-label','24-hour average vehicle counts. Exact values are in the expandable table below.');chart.style.cssText='display:flex;align-items:flex-end;gap:3px;height:190px;padding:15px 4px 24px;border-bottom:1px solid #ccd0c9;margin:18px 0 30px';
+  const max=Math.max(...p.hours,1);
+  p.hours.forEach((value,h)=>{const bar=document.createElement('div');bar.style.cssText='position:relative;flex:1;min-width:0;background:'+(h>=22||h<6?'#233e55':'#be5a35')+';height:'+Math.max(1,value/max*100)+'%';bar.title=String(h).padStart(2,'0')+':00 — '+Math.round(value).toLocaleString('en-US')+' vehicles/hour';if([0,6,12,18,23].includes(h)){const tick=document.createElement('span');tick.style.cssText='position:absolute;bottom:-22px;left:0;font-size:10px';tick.textContent=String(h).padStart(2,'0');bar.append(tick)}chart.append(bar)});body.append(chart);
+  const legend=document.createElement('p');legend.className='small-note';legend.textContent='Dark bars: 10 PM–6 AM hours. Orange bars: other hours. Height: mean vehicles/hour over complete observation days.';body.append(legend);
+  const details=document.createElement('details'),title=document.createElement('summary');title.textContent='View exact hourly counts';details.append(title);const table=document.createElement('table');const thead=document.createElement('thead');thead.innerHTML='<tr><th scope="col">Hour starting</th><th scope="col">Mean vehicles / hour</th></tr>';table.append(thead);const tbody=document.createElement('tbody');p.hours.forEach((v,h)=>{const tr=document.createElement('tr');const td=document.createElement('td');td.textContent=String(h).padStart(2,'0')+':00';const count=document.createElement('td');count.textContent=v.toLocaleString('en-US');tr.append(td,count);tbody.append(tr)});table.append(tbody);details.append(table);body.append(details);
+  const locate=document.createElement('button');locate.type='button';locate.className='action-button secondary';locate.textContent='Show this reference station on map';locate.addEventListener('click',()=>{if(currentReport!==report)return;if(!propertyMap)$('loadMap').click();if(!propertyMap)return;if(report.tmasMarker)propertyMap.removeLayer(report.tmasMarker);const popup=document.createElement('div');popup.textContent=station.state+' '+station.id+' · '+(station.location||'TMAS station')+' · Reference station; same-road connection unverified.';report.tmasMarker=L.circleMarker([station.lat,station.lon],{radius:9,color:'#233e55',fillOpacity:0.9}).addTo(propertyMap).bindPopup(popup).openPopup();propertyMap.fitBounds([[report.lat,report.lon],[station.lat,station.lon]],{padding:[30,30]});$('propertyMap').scrollIntoView({behavior:'smooth',block:'center'});});body.append(locate);
 }
