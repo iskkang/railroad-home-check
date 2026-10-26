@@ -1,5 +1,4 @@
-const FRA_ARCGIS = 'https://fragis.fra.dot.gov/arcgis/rest/services/FRA/FRAGradeX_iOS/MapServer/0/query';
-const CURRENT_FORM71_API = 'https://data.transportation.gov/resource/xp92-5xme.json';
+const CURRENT_FORM71_API = 'https://data.transportation.gov/resource/m2f8-22s6.json';
 const INCIDENTS_API = 'https://data.transportation.gov/resource/uwah-u9bn.json';
 
 export default async function handler(req, res) {
@@ -10,51 +9,41 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid U.S. coordinates.' });
     }
 
-    // ~3.2 mile initial search box. We compute exact Haversine distance after retrieval.
-    const latDelta = 0.05;
-    const lonDelta = 0.05 / Math.max(Math.cos(lat * Math.PI / 180), 0.25);
-    const envelope = `${lon-lonDelta},${lat-latDelta},${lon+lonDelta},${lat+latDelta}`;
-
+    // Query the published Form 71 dataset directly; the legacy FRA map
+    // service can fail independently of the inventory data portal.
     const params = new URLSearchParams({
-      where: '1=1',
-      geometry: envelope,
-      geometryType: 'esriGeometryEnvelope',
-      inSR: '4326',
-      spatialRel: 'esriSpatialRelIntersects',
-      outFields: '*',
-      returnGeometry: 'true',
-      outSR: '4326',
-      f: 'json'
+      '$select': 'crossingid,street,cityname,railroadcode,railroadname,latitude,longitude,totaldaylightthrutrains,totalnighttimethrutrains,trainsperweek,movementsperdaycode,trainsperyear,maximumtimetablespeed,minimumspeedrangeovercrossing,maximumspeedrangeovercrossing,whistlebancode,crossingclosed',
+      '$where': `within_circle(geocoded_lat_long, ${lat}, ${lon}, 5230.368) AND crossingclosed = 'No' AND crossingpositioncode = '1'`,
+      '$order': `distance_in_meters(geocoded_lat_long, 'POINT (${lon} ${lat})') ASC, crossingid ASC`,
+      '$limit': '100'
     });
+    const response = await fetch(`${CURRENT_FORM71_API}?${params}`, {
+      headers: { 'Accept': 'application/json', 'User-Agent': 'RailroadHomeCheck/0.1' },
+      signal: AbortSignal.timeout(15000)
+    });
+    if (!response.ok) throw new Error(`FRA inventory returned ${response.status}: ${(await response.text()).slice(0, 500)}`);
+    const rows = await response.json();
+    if (!Array.isArray(rows)) throw new Error('Unexpected FRA inventory response');
 
-    const response = await fetch(`${FRA_ARCGIS}?${params}`, { headers: { 'User-Agent': 'RailroadHomeCheck/0.1' } });
-    if (!response.ok) throw new Error(`FRA map service returned ${response.status}`);
-    const data = await response.json();
-    if (data.error) throw new Error(data.error.message || 'FRA map service error');
-
-    let crossings = (data.features || []).map((feature) => normalize(feature, lat, lon))
+    let crossings = rows.map(row => normalize({ attributes: {
+      ...row, railroad: row.railroadcode, daythru: row.totaldaylightthrutrains,
+      nghtthru: row.totalnighttimethrutrains, weektrnmov: row.trainsperweek,
+      lt1mov: String(row.movementsperdaycode) === '1' ? 'YES' : 'NO',
+      yeartrnmov: row.trainsperyear, maxttspd: row.maximumtimetablespeed,
+      minspd: row.minimumspeedrangeovercrossing, maxspd: row.maximumspeedrangeovercrossing,
+      whistban: row.whistlebancode
+    } }, lat, lon))
       .filter(c => Number.isFinite(c.distanceMiles) && c.distanceMiles <= 3.25)
-      .sort((a,b) => a.distanceMiles - b.distanceMiles)
+      .sort((a, b) => a.distanceMiles - b.distanceMiles)
       .slice(0, 20);
 
     if (crossings.length) {
-      const ids = crossings.map(c => c.crossingId).filter(Boolean);
-      const [detailMap, incidentMap] = await Promise.all([getCurrentDetails(ids), getIncidents(ids)]);
-      crossings = crossings.map(c => {
-        const detail = detailMap.get(c.crossingId) || {};
-        return {
-          ...c,
-          ...detail,
-          // Preserve the spatially-derived fields even if a detail row is incomplete.
-          distanceMiles: c.distanceMiles,
-          lat: c.lat,
-          lon: c.lon,
-          street: detail.street || c.street,
-          railroadCode: detail.railroadCode || c.railroadCode,
-          quietZone: detail.quietZone?.code !== null && detail.quietZone?.code !== undefined ? detail.quietZone : c.quietZone,
-          incidentCount: incidentMap.has(c.crossingId) ? incidentMap.get(c.crossingId) : 0
-        };
-      });
+      const incidentMap = await getIncidents(crossings.map(c => c.crossingId).filter(Boolean));
+      crossings = crossings.map(c => ({
+        ...c,
+        // A failed incident lookup is unknown, never evidence of zero incidents.
+        incidentCount: incidentMap === null ? null : (incidentMap.get(c.crossingId) ?? 0)
+      }));
     }
 
     res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=604800');
@@ -106,46 +95,6 @@ function quietZone(raw) {
 }
 
 
-async function getCurrentDetails(crossingIds) {
-  const map = new Map();
-  if (!crossingIds.length) return map;
-  try {
-    const unique = [...new Set(crossingIds)].slice(0, 20);
-    const inClause = unique.map(id => `'${String(id).replaceAll("'", "''")}'`).join(',');
-    const params = new URLSearchParams({
-      '$select': 'crossingid,railroad,street,daythru,nghtthru,weektrnmov,lt1mov,yeartrnmov,maxttspd,minspd,maxspd,whistban',
-      '$where': `crossingid in (${inClause})`,
-      '$limit': '100'
-    });
-    const headers = { 'User-Agent': 'RailroadHomeCheck/0.1' };
-    if (process.env.SOCRATA_APP_TOKEN) headers['X-App-Token'] = process.env.SOCRATA_APP_TOKEN;
-    const r = await fetch(`${CURRENT_FORM71_API}?${params}`, { headers });
-    if (!r.ok) return map;
-    const rows = await r.json();
-    for (const row of rows || []) {
-      const id = text(row.crossingid);
-      if (!id) continue;
-      map.set(id, {
-        crossingId: id,
-        railroadCode: text(row.railroad),
-        street: text(row.street),
-        dayTrains: number(row.daythru),
-        nightTrains: number(row.nghtthru),
-        weeklyTrains: number(row.weektrnmov),
-        lessThanOne: ['1','YES','Y'].includes(value(row.lt1mov).toUpperCase()),
-        trainCountYear: number(row.yeartrnmov),
-        maxTimetableSpeed: number(row.maxttspd),
-        typicalMinSpeed: number(row.minspd),
-        typicalMaxSpeed: number(row.maxspd),
-        quietZone: quietZone(value(row.whistban))
-      });
-    }
-  } catch (e) {
-    console.warn('current Form 71 enrichment skipped', e);
-  }
-  return map;
-}
-
 async function getIncidents(crossingIds) {
   const map = new Map();
   if (!crossingIds.length) return map;
@@ -153,17 +102,19 @@ async function getIncidents(crossingIds) {
     const unique = [...new Set(crossingIds)].slice(0, 20);
     const inClause = unique.map(id => `'${String(id).replaceAll("'", "''")}'`).join(',');
     const params = new URLSearchParams({
-      '$select': 'crossingid,count(*) as incident_count',
-      '$where': `crossingid in (${inClause})`,
-      '$group': 'crossingid',
+      '$select': 'gradecrossingid,count(*) as incident_count',
+      '$where': `gradecrossingid in (${inClause})`,
+      '$group': 'gradecrossingid',
       '$limit': '100'
     });
-    const r = await fetch(`${INCIDENTS_API}?${params}`, { headers: { 'User-Agent': 'RailroadHomeCheck/0.1' } });
-    if (!r.ok) return map;
+    const r = await fetch(`${INCIDENTS_API}?${params}`, { headers: { 'User-Agent': 'RailroadHomeCheck/0.1' }, signal: AbortSignal.timeout(5000) });
+    if (!r.ok) throw new Error(`Incident service returned ${r.status}`);
     const rows = await r.json();
-    for (const row of rows || []) map.set(String(row.crossingid), Number(row.incident_count || 0));
+    if (!Array.isArray(rows)) throw new Error('Unexpected incident response');
+    for (const row of rows || []) map.set(String(row.gradecrossingid), Number(row.incident_count || 0));
   } catch (e) {
     console.warn('incident lookup skipped', e);
+    return null;
   }
   return map;
 }
