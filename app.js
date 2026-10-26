@@ -20,7 +20,8 @@ form.addEventListener('submit', async (event) => {
   currentReport = null;
 
   try {
-    const geo = await fetchJSON('/api/geocode', {
+    cancelSuggestions();
+    const geo = validSelectedPoint(chosenLocation) && address === chosenLocation.label ? {lat:chosenLocation.lat,lon:chosenLocation.lon,matchedAddress:chosenLocation.label} : await fetchJSON('/api/geocode', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -185,6 +186,7 @@ function escapeHTML(value='') {
 
 $('tryExample').addEventListener('click', () => {
   if (button.disabled) return;
+  chosenLocation=null; cancelSuggestions();
   addressInput.value = '200 N Main St, Santa Ana, CA 92701';
   trackEvent('example_check_started');
   form.requestSubmit();
@@ -192,6 +194,7 @@ $('tryExample').addEventListener('click', () => {
 
 $('printReport').addEventListener('click', () => { if (currentReport) window.print(); });
 $('compareAnother').addEventListener('click', () => {
+  chosenLocation=null; cancelSuggestions();
   addressInput.value = '';
   form.scrollIntoView({ behavior: 'smooth', block: 'center' });
   addressInput.focus({ preventScroll: true });
@@ -247,15 +250,15 @@ function renderComparison() {
 $('shareReport').addEventListener('click', async () => {
   if (!currentReport) return;
   const url = new URL(location.pathname, location.origin);
-  url.hash = new URLSearchParams({ address: currentReport.matchedAddress }).toString();
+  url.hash = new URLSearchParams({ address: currentReport.matchedAddress,lat:currentReport.lat,lon:currentReport.lon }).toString();
   try {
     await navigator.clipboard.writeText(url.href);
-    $('actionStatus').textContent = 'Link copied. It includes this property address.';
+    $('actionStatus').textContent = 'Link copied. It includes this property address and coordinates.';
     trackEvent('report_link_copied');
   } catch {
     $('shareLink').value = url.href;
     $('shareLink').classList.remove('hidden'); $('shareLink').select();
-    $('actionStatus').textContent = 'Copy the link below. It includes this property address.';
+    $('actionStatus').textContent = 'Copy the link below. It includes this property address and coordinates.';
   }
 });
 function resetMap() {
@@ -274,31 +277,36 @@ $('loadMap').addEventListener('click', () => {
     maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(propertyMap);
   tiles.on('tileerror', () => { $('mapNotice').textContent = 'Some map tiles are unavailable. Pins and the crossing list remain available; refresh to retry.'; });
-  const marker = (point, title, content, className, text) => {
+  currentReport.crossingLayer=L.layerGroup().addTo(propertyMap);
+  const marker = (point, title, content, className, text, target=propertyMap) => {
     const popup = document.createElement('div'); popup.textContent = content;
-    return L.marker(point, { title, icon: L.divIcon({ className, html: text, iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(propertyMap).bindPopup(popup);
+    return L.marker(point, { title, icon: L.divIcon({ className, html: text, iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(target).bindPopup(popup);
   };
   marker(home, 'Property (approximate location)', currentReport.matchedAddress + ' — approximate geocoded location', 'home-pin', 'H');
   const points = [home];
   currentReport.crossings.forEach((c, i) => {
     if (!Number.isFinite(c.lat) || !Number.isFinite(c.lon)) return;
     const point = [c.lat, c.lon]; points.push(point);
-    marker(point, `Crossing ${i + 1}: ${c.street || c.crossingId}`, `${c.street || c.crossingId} · ${c.distanceMiles.toFixed(2)} mi from property · Night movements: ${numberOrDash(c.nightTrains)} · Count year: ${c.trainCountYear || 'Not reported'}`, i === 0 ? 'crossing-pin nearest-pin' : 'crossing-pin', String(i + 1));
+    marker(point, `Crossing ${i + 1}: ${c.street || c.crossingId}`, `${c.street || c.crossingId} · ${c.distanceMiles.toFixed(2)} mi from property · Night movements: ${numberOrDash(c.nightTrains)} · Count year: ${c.trainCountYear || 'Not reported'}`, i === 0 ? 'crossing-pin nearest-pin' : 'crossing-pin', String(i + 1),currentReport.crossingLayer);
   });
   if (points.length > 1) propertyMap.fitBounds(points, { padding: [35, 35], maxZoom: 15 });
   L.control.scale({ imperial: true, metric: false }).addTo(propertyMap);
+  applyTopicMap();
   trackEvent('property_map_opened');
 });
 if (window.sharedPropertyAddress && window.sharedPropertyAddress.length <= 250) {
   addressInput.value = window.sharedPropertyAddress;
   setStatus('Shared address loaded. Select “Check this address” to retrieve the current report.');
 }
-window.sharedPropertyAddress = '';
+
 
 window.addEventListener('hashchange', () => {
-  const shared = new URLSearchParams(location.hash.slice(1)).get('address');
+  const shareParams = new URLSearchParams(location.hash.slice(1));
+  const shared = shareParams.get('address');
   if (location.hash) history.replaceState(null, '', location.pathname + location.search);
   if (shared && shared.length <= 250 && !button.disabled) {
+    const point={lat:Number(shareParams.get('lat')),lon:Number(shareParams.get('lon'))};
+    chosenLocation=shareParams.has('lat')&&shareParams.has('lon')&&validSelectedPoint(point)?{...point,label:shared,source:'Shared location'}:null;
     addressInput.value = shared;
     setStatus('Shared address loaded. Select “Check this address” to retrieve the current report.');
     form.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -332,7 +340,8 @@ function showRailDistance(report) {
       if (paths.length) {
         if (!propertyMap) $('loadMap').click();
         if (propertyMap) {
-          L.polyline(paths.map(path=>path.map(([lon,lat])=>[lat,lon])),{color:'#626b73',weight:3,opacity:0.85,dashArray:'6 5'}).addTo(propertyMap).bindTooltip('Mapped rail centerline · USDOT/BTS · operating status unverified');
+          report.railLayer=L.polyline(paths.map(path=>path.map(([lon,lat])=>[lat,lon])),{color:'#626b73',weight:3,opacity:0.85,dashArray:'6 5'}).addTo(propertyMap).bindTooltip('Mapped rail centerline · USDOT/BTS · operating status unverified');
+          applyTopicMap(report);
           status.textContent += ' Gray dashed lines on the map show the mapped rail network.';
         }
       }
@@ -471,7 +480,7 @@ function renderTmasProfile(station,kind,body,report) {
   p.hours.forEach((value,h)=>{const bar=document.createElement('div');bar.style.cssText='position:relative;flex:1;min-width:0;background:'+(h>=22||h<6?'#233e55':'#be5a35')+';height:'+Math.max(1,value/max*100)+'%';bar.title=String(h).padStart(2,'0')+':00 — '+Math.round(value).toLocaleString('en-US')+' vehicles/hour';if([0,6,12,18,23].includes(h)){const tick=document.createElement('span');tick.style.cssText='position:absolute;bottom:-22px;left:0;font-size:10px';tick.textContent=String(h).padStart(2,'0');bar.append(tick)}chart.append(bar)});body.append(chart);
   const legend=document.createElement('p');legend.className='small-note';legend.textContent='Dark bars: 10 PM–6 AM hours. Orange bars: other hours. Height: mean vehicles/hour over complete observation days.';body.append(legend);
   const details=document.createElement('details'),title=document.createElement('summary');title.textContent='View exact hourly counts';details.append(title);const table=document.createElement('table');const thead=document.createElement('thead');thead.innerHTML='<tr><th scope="col">Hour starting</th><th scope="col">Mean vehicles / hour</th></tr>';table.append(thead);const tbody=document.createElement('tbody');p.hours.forEach((v,h)=>{const tr=document.createElement('tr');const td=document.createElement('td');td.textContent=String(h).padStart(2,'0')+':00';const count=document.createElement('td');count.textContent=v.toLocaleString('en-US');tr.append(td,count);tbody.append(tr)});table.append(tbody);const tableWrap=document.createElement('div');tableWrap.className='table-scroll';tableWrap.append(table);details.append(tableWrap);body.append(details);
-  const locate=document.createElement('button');locate.type='button';locate.className='action-button secondary';locate.textContent='Show this reference station on map';locate.addEventListener('click',()=>{if(currentReport!==report)return;if(!propertyMap)$('loadMap').click();if(!propertyMap)return;if(report.tmasMarker)propertyMap.removeLayer(report.tmasMarker);const popup=document.createElement('div');popup.textContent=station.state+' '+station.id+' · '+(station.location||'TMAS station')+' · Reference station; same-road connection unverified.';report.tmasMarker=L.circleMarker([station.lat,station.lon],{radius:9,color:'#233e55',fillOpacity:0.9}).addTo(propertyMap).bindPopup(popup).openPopup();propertyMap.fitBounds([[report.lat,report.lon],[station.lat,station.lon]],{padding:[30,30]});$('propertyMap').scrollIntoView({behavior:'smooth',block:'center'});});body.append(locate);
+  const locate=document.createElement('button');locate.type='button';locate.className='action-button secondary';locate.textContent='Show this reference station on map';locate.addEventListener('click',()=>{if(currentReport!==report||!layerVisible(layer.id))return;if(!propertyMap)$('loadMap').click();if(!propertyMap)return;if(report.tmasMarker)propertyMap.removeLayer(report.tmasMarker);const popup=document.createElement('div');popup.textContent=station.state+' '+station.id+' · '+(station.location||'TMAS station')+' · Reference station; same-road connection unverified.';report.tmasMarker=L.circleMarker([station.lat,station.lon],{radius:9,color:'#233e55',fillOpacity:0.9}).addTo(propertyMap).bindPopup(popup).openPopup();propertyMap.fitBounds([[report.lat,report.lon],[station.lat,station.lon]],{padding:[30,30]});$('propertyMap').scrollIntoView({behavior:'smooth',block:'center'});});body.append(locate);
 }
 
 function organizeReport(report) {
@@ -482,23 +491,15 @@ function organizeReport(report) {
   $('overviewNightNote').textContent=nearest ? '6 PM–6 AM · Count year: '+(nearest.trainCountYear || 'not reported') : 'No crossing returned within 3.25 mi';
   const targets=[['roadTrafficPanel','paneRoad','Annual average traffic on reported road segments within 1 mile. Not live congestion.'],['railDistancePanel','paneRail','Approximate distance to mapped rail centerlines within 3.25 miles.'],['tmasPanel','paneHourly','December 2023 reference station observations. Same-road connection is not verified.']];
   targets.forEach(([id,target,description])=>{
-    const panel=$(id);$(target).prepend(panel);
+    const panel=$(id);$(target).append(panel);
     const source=document.createElement('details');source.className='data-disclosure';
     const summary=document.createElement('summary');summary.textContent='Source, coverage & limitations';source.append(summary);
     panel.querySelectorAll('p.small-note:not([role="status"])').forEach(p=>source.append(p));
     const intro=document.createElement('p');intro.className='small-note';intro.textContent=description;
     panel.querySelector('h3').after(intro);panel.append(source);
   });
-  selectReportTab('Road');
+
 }
-function selectReportTab(name) {
-  ['Road','Rail','Hourly'].forEach(n=>{const active=n===name;const tab=$('tab'+n);tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;$('pane'+n).classList.toggle('hidden',!active);});
-  if(propertyMap)propertyMap.invalidateSize();
-}
-['Road','Rail','Hourly'].forEach((name,i)=>{
-  const tab=$('tab'+name);tab.addEventListener('click',()=>selectReportTab(name));
-  tab.addEventListener('keydown',e=>{const keys=['ArrowRight','ArrowLeft','Home','End'];if(!keys.includes(e.key))return;e.preventDefault();const names=['Road','Rail','Hourly'];const next=e.key==='Home'?0:e.key==='End'?2:(i+(e.key==='ArrowRight'?1:2))%3;selectReportTab(names[next]);$('tab'+names[next]).focus();});
-});
 $('loadMap').addEventListener('click',()=>{
   if(!currentReport)return;
   [['roadTrafficPanel','overviewRoad'],['railDistancePanel','overviewRail']].forEach(([id,overview])=>{const btn=$(id)?.querySelector('button');if(btn&&!btn.disabled){$(overview).textContent='Loading…';btn.click();}});
@@ -542,6 +543,7 @@ function drawTrafficVolumes(report,rows,features) {
     const band=trafficVolumeBand(row.a.AADT);
     draw(row.paths,row.name+' · '+Number(row.a.AADT).toLocaleString('en-US')+' vehicles/day (AADT) · '+band.label+' band · Data year: '+(row.a.DATA_YEAR||'Not reported'),band.color,5);
   });
+  applyTopicMap(report);
 }
 
 const CONTEXT_LAYERS=[
@@ -557,9 +559,9 @@ const CONTEXT_LAYERS=[
   {id:'crime',label:'Reported incidents · NYC',source:'crime',color:'#455f86'}
 ];
 function showNearbyContext(report) {
-  const host=$('propertyMap').closest('.map-panel');
-  let panel=$('nearbyContext');if(!panel){panel=document.createElement('details');panel.id='nearbyContext';panel.className='nearby-context';host.append(panel);}
-  panel.innerHTML='<summary>Nearby places & local reports <span class="small-note">Optional map layers</span></summary><p class="small-note">Facility and municipal layers cover approximately half a mile; airports cover 10 miles and EPA air records cover 1 mile. The aviation-noise layer is regional 2022 modeling, not a home noise estimate. Facilities do not establish actual noise, odor, emissions, or health impacts. NYC report layers do not cover other cities; no records is not a quietness or safety rating. Selecting a layer queries public data services through this site.</p><div class="context-toggles"></div><div class="context-results"></div>';
+  const host=$('contextControls');
+  let panel=$('nearbyContext');if(!panel){panel=document.createElement('section');panel.id='nearbyContext';panel.className='nearby-context';host.append(panel);}
+  panel.innerHTML='<div class="context-toggles"></div><details class="context-help"><summary>About these optional layers</summary><p class="small-note">Facilities and local reports use approximately half a mile; airport references cover 10 miles and EPA air records 1 mile. Aviation-noise shading is regional 2022 modeling, not a property noise estimate. Selecting a topic may load its default sources. Municipal records currently support NYC only. Facility proximity and missing records do not establish noise, odor, exposure or safety.</p></details>';
   const state={enabled:new Set(),responses:{},requests:{},groups:{}};report.nearbyContext=state;
   const sections={};
   [['environment','Air & environmental context'],['facilities','Nearby facilities'],['reports','Local reports · NYC only']].forEach(([key,title])=>{
@@ -568,7 +570,7 @@ function showNearbyContext(report) {
     const row=document.createElement('div');row.className='context-toggles';fieldset.append(row);panel.querySelector('.context-toggles').append(fieldset);sections[key]=row;
   });
   CONTEXT_LAYERS.forEach(layer=>{
-    const label=document.createElement('label');label.className='context-toggle';
+    const label=document.createElement('label');label.className='context-toggle';label.dataset.layer=layer.id;
     const input=document.createElement('input');input.type='checkbox';input.setAttribute('aria-label',layer.label);
     const dot=document.createElement('span');dot.className='context-dot';dot.style.background=layer.color;
     label.append(input,dot,document.createTextNode(layer.label));sections[['aviation','aviationNoise','odor','epa'].includes(layer.id)?'environment':layer.source==='facilities'?'facilities':'reports'].append(label);
@@ -582,11 +584,12 @@ function showNearbyContext(report) {
           await state.requests[layer.source];
         }
         if(currentReport!==report)return;
-        if(state.enabled.has(layer.id))drawContextLayer(report,layer);
+        if(state.enabled.has(layer.id)&&layerVisible(layer.id))drawContextLayer(report,layer);
         renderContextResults(report,panel);trackEvent('nearby_layer_opened');
-      }catch(e){if(currentReport!==report)return;state.enabled.delete(layer.id);input.checked=false;renderContextResults(report,panel);const error=document.createElement('p');error.className='small-note';error.setAttribute('role','status');error.textContent=layer.label+': '+e.message;panel.querySelector('.context-results').append(error);}
+      }catch(e){if(currentReport!==report)return;state.enabled.delete(layer.id);input.checked=false;renderContextResults(report,panel);const error=document.createElement('p');error.className='small-note';error.setAttribute('role','status');error.textContent=layer.label+': '+e.message;$('contextResults').append(error);}
     });
   });
+  selectTopic(currentTopic);
 }
 function contextItems(report,layer){const data=report.nearbyContext.responses[layer.source];return(data?.items||[]).filter(i=>layer.source!=='facilities'||i.category===layer.id);}
 function drawContextLayer(report,layer){
@@ -596,7 +599,7 @@ function drawContextLayer(report,layer){
   if(data?.tileUrl){
     const tiles=L.tileLayer(data.tileUrl,{opacity:0.5,maxNativeZoom:14,maxZoom:19,attribution:'Aviation model © USDOT BTS · 2022 · regional context'}).addTo(propertyMap);
     state.groups[layer.id]=tiles;
-    tiles.on('tileerror',()=>{if(currentReport!==report||state.groups[layer.id]!==tiles)return;if(state.noiseTileWarning)return;state.noiseTileWarning=true;const warning=document.createElement('p');warning.className='small-note';warning.setAttribute('role','status');warning.textContent='Some aviation-noise tiles are unavailable. An unshaded area does not establish low noise or no aircraft activity.';$('nearbyContext').querySelector('.context-results').append(warning);});
+    tiles.on('tileerror',()=>{if(currentReport!==report||state.groups[layer.id]!==tiles)return;if(state.noiseTileWarning)return;state.noiseTileWarning=true;const warning=document.createElement('p');warning.className='small-note';warning.setAttribute('role','status');warning.textContent='Some aviation-noise tiles are unavailable. An unshaded area does not establish low noise or no aircraft activity.';$('contextResults').append(warning);});
     return;
   }
   const group=L.layerGroup().addTo(propertyMap);state.groups[layer.id]=group;
@@ -608,11 +611,11 @@ function drawContextLayer(report,layer){
   });
 }
 function renderContextResults(report,panel){
-  const container=panel.querySelector('.context-results');container.replaceChildren();const state=report.nearbyContext;
-  CONTEXT_LAYERS.filter(l=>state.enabled.has(l.id)).forEach(layer=>{
+  const container=$('contextResults');container.replaceChildren();const state=report.nearbyContext;
+  CONTEXT_LAYERS.filter(l=>state.enabled.has(l.id)&&layerVisible(l.id)).forEach(layer=>{
     const data=state.responses[layer.source],card=document.createElement('details');card.className='context-result';const summary=document.createElement('summary');
     const items=contextItems(report,layer);
-    summary.textContent=layer.label+' · '+(!data?'Loading…':data.supported===false?'Not supported here':data.tileUrl?'2022 regional model':items.length+(data.truncated?' shown · source limit reached':' returned'));card.append(summary);
+    summary.textContent=layer.label+' · '+(!data?'Loading…':data.supported===false?'Not supported here':data.tileUrl?'Overlay enabled':items.length+(data.truncated?' shown · source limit reached':' returned'));card.append(summary);
     if(!data){container.append(card);return;}
     const note=document.createElement('p');note.className='small-note';note.textContent=data.note||'';card.append(note);
     if(data.supported!==false){
@@ -631,3 +634,118 @@ function renderContextResults(report,panel){
     container.append(card);
   });
 }
+
+// Address candidates and explicit coordinate selection.
+let chosenLocation=null,pickerMap=null,pickerMarker=null,pickerPoint=null,pickerLabel='',suggestionTimer=null,suggestionAbort=null,suggestionSequence=0,activeSuggestion=-1,suggestionItems=[];
+function validSelectedPoint(point){return point&&Number.isFinite(point.lat)&&Number.isFinite(point.lon)&&point.lat>=18&&point.lat<=72&&point.lon>=-180&&point.lon<=-60;}
+function closeSuggestions(){suggestionItems=[];activeSuggestion=-1;$('addressSuggestions').replaceChildren();$('addressSuggestions').classList.add('hidden');addressInput.setAttribute('aria-expanded','false');addressInput.removeAttribute('aria-activedescendant');}
+function cancelSuggestions(){clearTimeout(suggestionTimer);suggestionSequence++;suggestionAbort?.abort();closeSuggestions();}
+addressInput.addEventListener('input',()=>{
+  chosenLocation=null;cancelSuggestions();$('addressHelp').textContent='Choose a candidate, enter a full U.S. address, or position a pin on the map.';
+  const query=addressInput.value.trim();if(query.length<5)return;
+  const sequence=suggestionSequence;
+  suggestionTimer=setTimeout(async()=>{
+    suggestionAbort=new AbortController();
+    try{
+      const r=await fetch('/api/autocomplete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query}),signal:suggestionAbort.signal});const data=await r.json();
+      if(sequence!==suggestionSequence||addressInput.value.trim()!==query)return;
+      if(!r.ok)throw Error(data.error||'Suggestions unavailable');
+      suggestionItems=data.items||[];const list=$('addressSuggestions');list.replaceChildren();
+      if(!suggestionItems.length){$('addressHelp').textContent='No candidates returned. Submit the full address or use the map.';closeSuggestions();return;}
+      suggestionItems.forEach((item,i)=>{
+        const option=document.createElement('li');option.id='addressOption'+i;option.role='option';option.setAttribute('aria-selected','false');
+        const btn=document.createElement('button');btn.type='button';btn.tabIndex=-1;btn.textContent=item.label+(item.preciseAddress?'':' — street/place; confirm pin');btn.addEventListener('click',()=>chooseSuggestion(item));option.append(btn);list.append(option);
+      });list.classList.remove('hidden');addressInput.setAttribute('aria-expanded','true');
+    }catch(e){if(e.name!=='AbortError'&&sequence===suggestionSequence)$('addressHelp').textContent='Suggestions unavailable. Submit a full address or choose on the map.';}
+  },700);
+});
+addressInput.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){cancelSuggestions();return;}
+  if(!suggestionItems.length)return;
+  if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();activeSuggestion=(activeSuggestion+(e.key==='ArrowDown'?1:suggestionItems.length-1)+suggestionItems.length)%suggestionItems.length;[...$('addressSuggestions').children].forEach((li,i)=>li.setAttribute('aria-selected',String(i===activeSuggestion)));addressInput.setAttribute('aria-activedescendant','addressOption'+activeSuggestion);}
+  else if(e.key==='Enter'&&activeSuggestion>=0){e.preventDefault();chooseSuggestion(suggestionItems[activeSuggestion]);}
+  else if(e.key==='Tab')closeSuggestions();
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.address-search-area'))cancelSuggestions();});
+function chooseSuggestion(item){
+  cancelSuggestions();if(!validSelectedPoint(item))return;
+  addressInput.value=item.label;chosenLocation=null;
+  $('addressHelp').textContent='Candidate selected. Confirm its approximate position on the map before running the check.';
+  openLocationPicker({lat:item.lat,lon:item.lon,label:item.label});
+}
+function setPickerPoint(lat,lon,keepLabel=false){
+  const point={lat:Number(lat),lon:Number(lon)};if(!validSelectedPoint(point)){$('pickerStatus').textContent='Choose coordinates within the supported U.S. bounds.';return;}
+  if(!keepLabel)pickerLabel='';pickerPoint=point;
+  $('pickLat').value=point.lat.toFixed(6);$('pickLon').value=point.lon.toFixed(6);$('useMapPoint').disabled=false;
+  $('pickerStatus').textContent='Selected: '+point.lat.toFixed(6)+', '+point.lon.toFixed(6)+'. Confirm the pin, then run the check.';
+  if(pickerMap&&window.L){
+    if(pickerMarker)pickerMarker.setLatLng([point.lat,point.lon]);
+    else{pickerMarker=L.marker([point.lat,point.lon],{draggable:true,icon:L.divIcon({className:'home-pin',html:'H',iconSize:[30,30],iconAnchor:[15,15]})}).addTo(pickerMap);pickerMarker.on('dragend',()=>{const p=pickerMarker.getLatLng();setPickerPoint(p.lat,p.lng);});}
+  }
+}
+function openLocationPicker(initial){
+  $('locationPicker').classList.remove('hidden');cancelSuggestions();
+  const center=validSelectedPoint(initial)?initial:currentReport?{lat:currentReport.lat,lon:currentReport.lon}:null;
+  pickerPoint=null;pickerLabel=initial?.label||'';$('useMapPoint').disabled=true;$('pickLat').value='';$('pickLon').value='';
+  $('pickerStatus').textContent='Zoom to your area and click the property location. You can also enter coordinates below.';
+  if(window.L){
+    if(!pickerMap){pickerMap=L.map('locationPickerMap',{scrollWheelZoom:true}).setView(center?[center.lat,center.lon]:[39.5,-98.35],center?16:4);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(pickerMap);pickerMap.on('click',e=>setPickerPoint(e.latlng.lat,e.latlng.lng));}
+    else{if(pickerMarker){pickerMap.removeLayer(pickerMarker);pickerMarker=null;}pickerMap.invalidateSize();pickerMap.setView(center?[center.lat,center.lon]:[39.5,-98.35],center?16:4);}
+    if(validSelectedPoint(initial))setPickerPoint(initial.lat,initial.lon,true);
+  }else{$('pickerStatus').textContent='The map could not load. Enter latitude and longitude below to select the location.';}
+  $('locationPicker').scrollIntoView({behavior:'smooth',block:'center'});
+}
+$('chooseOnMap').addEventListener('click',()=>openLocationPicker(chosenLocation||null));
+$('closePicker').addEventListener('click',()=>$('locationPicker').classList.add('hidden'));
+$('applyCoordinates').addEventListener('click',()=>{if(!$('pickLat').value.trim()||!$('pickLon').value.trim()){$('pickerStatus').textContent='Enter both latitude and longitude.';return;}setPickerPoint(Number($('pickLat').value),Number($('pickLon').value));if(pickerMap&&pickerPoint)pickerMap.setView([pickerPoint.lat,pickerPoint.lon],16);});
+$('useMapPoint').addEventListener('click',()=>{
+  if(button.disabled||!validSelectedPoint(pickerPoint))return;
+  const label=pickerLabel||'Map-selected location ('+pickerPoint.lat.toFixed(6)+', '+pickerPoint.lon.toFixed(6)+')';
+  chosenLocation={...pickerPoint,label,source:'Confirmed map point'};addressInput.value=label;$('locationPicker').classList.add('hidden');cancelSuggestions();form.requestSubmit();
+});
+
+// Three topics drive both the map and the detail content.
+let currentTopic='sound';
+const TOPIC_CONTENT={sound:{title:'Sound & transport',description:'Road traffic, rail activity, airports and selected nearby sound sources. These are reported/modelled facts, not indoor noise predictions.'},living:{title:'Living environment',description:'Mapped wastewater/waste sites, EPA air-program facilities, and industrial locations. Proximity is not evidence of actual odor, emissions, or exposure.'},records:{title:'Local records & risks',description:'Noise complaints, public construction and reported incidents. Municipal records currently cover NYC only; no records or unsupported coverage is not a safety rating.'}};
+function topicForLayer(id){return ['odor','epa','industrial'].includes(id)?'living':['noise','construction','crime'].includes(id)?'records':'sound';}
+function layerVisible(id){return topicForLayer(id)===currentTopic;}
+function applyTopicMap(report=currentReport){
+  if(!report||report!==currentReport||!propertyMap)return;
+  [report.crossingLayer,report.railLayer,report.trafficLayer].filter(Boolean).forEach(layer=>{if(currentTopic==='sound'){if(!propertyMap.hasLayer(layer))layer.addTo(propertyMap);}else if(propertyMap.hasLayer(layer))propertyMap.removeLayer(layer);});
+  const state=report.nearbyContext;
+  if(state)Object.entries(state.groups).forEach(([id,layer])=>{if(state.enabled.has(id)&&layerVisible(id)){if(!propertyMap.hasLayer(layer))layer.addTo(propertyMap);}else if(propertyMap.hasLayer(layer))propertyMap.removeLayer(layer);});
+}
+function selectTopic(topic,{loadDefaults=true}={}){
+  if(!TOPIC_CONTENT[topic])return;currentTopic=topic;
+  ['sound','living','records'].forEach(t=>{const tab=$('topic'+t);const active=t===topic;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;});
+  $('topicDescription').textContent=TOPIC_CONTENT[topic].description;$('mapTitle').textContent=TOPIC_CONTENT[topic].title;
+  document.querySelector('.overview-grid').classList.toggle('hidden',topic!=='sound');document.querySelector('.overview-caveat').classList.toggle('hidden',topic!=='sound');
+  document.querySelector('.traffic-legend').classList.toggle('hidden',topic!=='sound');document.querySelector('.map-legend').classList.toggle('hidden',topic!=='sound');
+  document.querySelector('.report-details').classList.toggle('hidden',topic!=='sound');
+  const panel=$('nearbyContext');
+  if(panel){
+    panel.querySelectorAll('[data-layer]').forEach(label=>label.classList.toggle('hidden',!layerVisible(label.dataset.layer)));
+    panel.querySelectorAll('fieldset').forEach(group=>group.classList.toggle('hidden',![...group.querySelectorAll('[data-layer]')].some(el=>!el.classList.contains('hidden'))));
+    if(currentReport?.nearbyContext)renderContextResults(currentReport,panel);
+  }
+  applyTopicMap();
+  if(loadDefaults&&currentReport?.nearbyContext){
+    const state=currentReport.nearbyContext;state.topicLoaded??=new Set();
+    if(!state.topicLoaded.has(topic)){
+      state.topicLoaded.add(topic);
+      const defaults=topic==='living'?['odor','epa']:topic==='records'?['noise','construction','crime']:[];
+      defaults.forEach(id=>{const input=panel.querySelector('[data-layer="'+id+'"] input');if(input&&!input.checked){input.checked=true;input.dispatchEvent(new Event('change'));}});
+    }
+  }
+}
+['sound','living','records'].forEach((topic,i)=>{
+  const tab=$('topic'+topic);tab.addEventListener('click',()=>selectTopic(topic));
+  tab.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const list=['sound','living','records'];const j=e.key==='Home'?0:e.key==='End'?2:(i+(e.key==='ArrowRight'?1:2))%3;selectTopic(list[j]);$('topic'+list[j]).focus();});
+});
+
+if(validSelectedPoint(window.sharedPropertyPoint)&&window.sharedPropertyAddress){
+  chosenLocation={...window.sharedPropertyPoint,label:window.sharedPropertyAddress,source:'Shared location'};
+}
+window.sharedPropertyPoint=null;
+
+window.sharedPropertyAddress='';

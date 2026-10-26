@@ -39,13 +39,13 @@
   <main class="legal-page">
     <div class="eyebrow">PRIVACY</div>
     <h1>Privacy Policy</h1>
-    <p class="legal-updated">Last updated: October 26, 2026</p>
+    <p class="legal-updated">Last updated: October 27, 2026</p>
     <p class="legal-lede">This policy explains how Railroad Home Check processes property addresses, measures site usage, and uses advertising services. The service is an independent informational tool for U.S. home buyers.</p>
 
     <section>
       <h2>Property addresses</h2>
-      <p>A property address is used only to locate the property and generate the requested railroad report. It is sent to the U.S. Census Geocoder for location matching and then used to query nearby Federal Railroad Administration records.</p>
-      <p>Railroad Home Check does not store property addresses in a database, sell them, reuse them for marketing, or include them in Analytics event parameters. Ordinary searches send addresses to our geocoding endpoint in a POST request body. If you choose to share, the copied link includes the matched address in its URL fragment. Anyone with that link can read the address. On opening the page, we read and remove that fragment before loading analytics and advertising scripts. The recipient must select the search button to run a new report.</p>
+      <p>A property address or manually selected coordinate is used to locate the property and generate the requested surroundings report. A submitted full address may be sent to the U.S. Census Geocoder. As you type at least five characters, a debounced request sends the query through our server to Photon (operated by komoot using OpenStreetMap data) to obtain candidate locations. Suggestions are approximate and require map confirmation. Opening the position picker requests OpenStreetMap tiles for the viewed area. A confirmed pin bypasses address matching and uses the selected coordinates for the report.</p>
+      <p>Railroad Home Check does not store property addresses in a database, sell them, reuse them for marketing, or include them in Analytics event parameters. Ordinary searches send addresses to our geocoding endpoint in a POST request body. If you choose to share, the copied link includes the displayed address/label and coordinates in its URL fragment. Anyone with that link can read the address and coordinates. On opening the page, we read and remove that fragment before loading analytics and advertising scripts. The recipient must select the search button to run a new report at the shared coordinates.</p>
     </section>
 
     <section>
@@ -93,7 +93,7 @@
     <section>
       <h2>Changes and questions</h2>
       <p>We may update this policy when the service or its providers change. The updated date at the top of this page will show the latest revision.</p>
-      <p>Questions may be submitted through the project's <a href="https://github.com/iskkang/railroad-home-check/issues" target="_blank" rel="noreferrer">GitHub issue tracker</a>. Do not post property addresses or other sensitive information in a public issue.</p>
+      <p>Photon is a public service with limited capacity and no guaranteed availability; the manual coordinate picker and full-address search remain available when suggestions fail. See <a href="https://github.com/komoot/photon" target="_blank" rel="noreferrer">Photon service documentation</a> for provider information.</p><p>Questions may be submitted through the project's <a href="https://github.com/iskkang/railroad-home-check/issues" target="_blank" rel="noreferrer">GitHub issue tracker</a>. Do not post property addresses or other sensitive information in a public issue.</p>
     </section>
   </main>
 

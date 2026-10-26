@@ -6,7 +6,9 @@
 
   <script>
     // Read shared addresses before third-party scripts run, then clear the URL.
-    window.sharedPropertyAddress = new URLSearchParams(location.hash.slice(1)).get('address') || '';
+    const sharedParams = new URLSearchParams(location.hash.slice(1));
+    window.sharedPropertyAddress = sharedParams.get('address') || '';
+    window.sharedPropertyPoint = sharedParams.has('lat') && sharedParams.has('lon') ? {lat:Number(sharedParams.get('lat')),lon:Number(sharedParams.get('lon'))} : null;
     if (location.hash) history.replaceState(null, '', location.pathname + location.search);
   </script>
   <!-- Google tag (gtag.js) -->
@@ -104,16 +106,25 @@
       <h1>Before you fall for a home,<br><span>check its surroundings.</span></h1>
       <p class="hero-copy">Explore nearby road traffic, rail lines, and reported nighttime train activity. One address. A clearer picture before your next viewing.</p>
 
-      <form id="searchForm" class="search-box">
+      <div class="address-search-area"><form id="searchForm" class="search-box">
         <label for="address" class="sr-only">U.S. property address</label>
         <div class="input-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.2 7-12A7 7 0 1 0 5 9c0 6.8 7 12 7 12Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="9" r="2.4" stroke="currentColor" stroke-width="1.8"/></svg>
-          <input id="address" autocomplete="street-address" placeholder="Paste a U.S. property or listing address" aria-describedby="privacyNote" required />
+          <input id="address" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="addressSuggestions" aria-expanded="false" placeholder="Paste a U.S. property or listing address" aria-describedby="privacyNote" required />
         </div>
         <button type="submit" id="searchButton">Check this address</button>
-      </form>
-      <div class="microcopy" id="privacyNote">No account. Search loads Census, ArcGIS and OpenStreetMap data. Shared links include the address.</div>
+      </form><ul id="addressSuggestions" role="listbox" class="hidden address-suggestions" aria-label="Address candidates"></ul></div>
+      <div class="microcopy" id="privacyNote">Suggestions use Photon/OpenStreetMap as you type. Searches use Census, ArcGIS and OpenStreetMap. Shared links include the address and coordinates.</div>
+      <p id="addressHelp" class="small-note" role="status">Choose a candidate, enter a full U.S. address, or position a pin on the map.</p>
+      <button type="button" id="chooseOnMap" class="text-button">Choose location on map</button><span class="small-note"> · </span>
       <button type="button" id="tryExample" class="text-button">Try an example: Santa Ana, CA →</button>
+      <section id="locationPicker" class="panel hidden location-picker" aria-label="Choose property location">
+        <div class="section-title-row"><h3>Confirm the property pin</h3><button type="button" id="closePicker" class="text-button">Close</button></div>
+        <p class="small-note">Click the map or drag the pin. Candidate locations are approximate; a street/place match is not a house location. Map tiles are supplied by OpenStreetMap.</p>
+        <div id="locationPickerMap" aria-label="Property location picker"></div>
+        <div class="coordinate-inputs"><label>Latitude<input id="pickLat" type="number" step="any" min="18" max="72" /></label><label>Longitude<input id="pickLon" type="number" step="any" min="-180" max="-60" /></label><button type="button" id="applyCoordinates" class="action-button secondary">Position pin</button></div>
+        <p id="pickerStatus" class="small-note" role="status"></p><button type="button" id="useMapPoint" class="action-button" disabled>Run check at this location</button>
+      </section>
       <div class="steps-strip"><span>01 · Enter an address</span><span>02 · Explore the map</span><span>03 · Compare your shortlist</span></div>
     </section>
 
@@ -121,14 +132,20 @@
 
     <section id="results" class="results hidden" aria-live="polite">
       <div class="result-heading"><div><div class="eyebrow">YOUR SURROUNDINGS REPORT</div><h2 id="resultAddress"></h2><p class="small-note">A clearer view of nearby roads and rail. Reported data, with dates and sources.</p></div><div id="attentionBadge" class="attention-badge"></div></div>
-      <div class="report-actions compact-actions"><button type="button" id="addCompare" class="action-button">Compare</button><button type="button" id="shareReport" class="action-button secondary">Share address</button><button type="button" id="printReport" class="action-button secondary">Print / PDF</button><span class="small-note">Shared links include the address.</span></div>
+      <div class="report-actions compact-actions"><button type="button" id="addCompare" class="action-button">Compare</button><button type="button" id="shareReport" class="action-button secondary">Share address</button><button type="button" id="printReport" class="action-button secondary">Print / PDF</button><span class="small-note">Shared links include the address and coordinates.</span></div>
       <p id="actionStatus" role="status" class="small-note"></p><input id="shareLink" class="hidden share-link" readonly aria-label="Copyable property report link" />
+<div class="topic-tabs" role="tablist" aria-label="Surroundings category">
+<button type="button" role="tab" id="topicsound" aria-controls="topicContent" aria-selected="true">Sound</button>
+<button type="button" role="tab" id="topicliving" aria-controls="topicContent" aria-selected="false" tabindex="-1">Living environment</button>
+<button type="button" role="tab" id="topicrecords" aria-controls="topicContent" aria-selected="false" tabindex="-1">Local records & risks</button></div>
+<p id="topicDescription" class="small-note"></p><div id="topicContent" role="tabpanel" aria-labelledby="topicsound" tabindex="0">
       <div class="overview-grid" aria-label="Key facts">
         <article class="overview-card"><div class="metric-label">NEAREST MAPPED RAIL LINE</div><div class="overview-value" id="overviewRail">Loading…</div><div class="metric-note" id="overviewRailNote">Looking up mapped rail lines</div></article>
         <article class="overview-card"><div class="metric-label">NEAREST ROAD WITH A COUNT</div><div class="overview-value" id="overviewRoad">Loading…</div><div class="metric-note" id="overviewRoadNote">Annual average vehicles / day</div></article>
         <article class="overview-card"><div class="metric-label">NIGHT TRAINS AT NEAREST CROSSING</div><div class="overview-value" id="overviewNight">—</div><div class="metric-note" id="overviewNightNote">Reported estimate · 6 PM–6 AM</div></article>
       </div>
       <p class="overview-caveat">These facts describe different locations. They are not a combined noise or safety score.</p>
+      <div id="contextControls"></div>
             <section class="map-panel panel" aria-labelledby="mapTitle">
         <div class="panel-kicker">YOUR PROPERTY, IN CONTEXT</div>
         <h3 id="mapTitle">Explore the surroundings</h3>
@@ -139,15 +156,11 @@
         <div id="propertyMap" class="hidden" aria-label="Property and railroad crossing map"></div>
       </section>
 
+<div id="contextResults" class="context-results"></div>
       <section class="report-details" aria-label="Detailed findings">
         <div class="details-heading"><h3>Look closer</h3><p class="small-note">Choose the information you need.</p></div>
-        <div class="report-tabs" role="tablist" aria-label="Report category">
-          <button type="button" role="tab" id="tabRoad" aria-controls="paneRoad" aria-selected="true">Road traffic</button>
-          <button type="button" role="tab" id="tabRail" aria-controls="paneRail" aria-selected="false" tabindex="-1">Rail & crossings</button>
-          <button type="button" role="tab" id="tabHourly" aria-controls="paneHourly" aria-selected="false" tabindex="-1">Hourly patterns <span>2023 sample</span></button>
-        </div>
-        <div id="paneRoad" role="tabpanel" aria-labelledby="tabRoad" tabindex="0"></div>
-        <div id="paneRail" role="tabpanel" aria-labelledby="tabRail" tabindex="0" class="hidden">      <div id="emptyReport" class="panel hidden"><h3>Address found. No nearby grade crossings returned.</h3><p>No open, at-grade FRA crossings were returned within 3.25 miles. This does not mean there are no nearby tracks, trains, noise, or vibration.</p></div>      <div id="reportData">
+        <details id="paneRoad" class="sound-section" open><summary>Road traffic</summary></details>
+        <details id="paneRail" class="sound-section"><summary>Rail lines & crossing records</summary>      <div id="emptyReport" class="panel hidden"><h3>Address found. No nearby grade crossings returned.</h3><p>No open, at-grade FRA crossings were returned within 3.25 miles. This does not mean there are no nearby tracks, trains, noise, or vibration.</p></div>      <div id="reportData">
       <div class="summary-grid">
         <article class="metric-card">
           <div class="metric-label">Nearest crossing</div>
@@ -208,9 +221,10 @@
       </div>
 
       </div>
-</div>
-        <div id="paneHourly" role="tabpanel" aria-labelledby="tabHourly" tabindex="0" class="hidden"></div>
+</details>
+        <details id="paneHourly" class="sound-section"><summary>Hourly road patterns · December 2023 reference sample</summary></details>
       </section>
+      </div>
       <details class="methodology"><summary>How to interpret this report</summary><p>Distances are approximate straight-line distances to different mapped features. Train and vehicle counts refer to their reported locations and periods. Quiet-zone rules restrict routine horns but do not eliminate train noise. TMAS profiles are historical reference station patterns, not verified counts for the property road. Visit the home at different times to assess actual noise and vibration.</p></details>
     </section>
 
