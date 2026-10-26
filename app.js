@@ -82,6 +82,7 @@ function renderReport(report) {
   showRailDistance(report);
   resetMap();
   organizeReport(report);
+  showNearbyContext(report);
   $('actionStatus').textContent = '';
   $('shareLink').classList.add('hidden');
   $('reportData').classList.toggle('hidden', !nearest);
@@ -540,5 +541,71 @@ function drawTrafficVolumes(report,rows,features) {
   rows.forEach(row=>{
     const band=trafficVolumeBand(row.a.AADT);
     draw(row.paths,row.name+' · '+Number(row.a.AADT).toLocaleString('en-US')+' vehicles/day (AADT) · '+band.label+' band · Data year: '+(row.a.DATA_YEAR||'Not reported'),band.color,5);
+  });
+}
+
+const CONTEXT_LAYERS=[
+  {id:'nightlife',label:'Bars & venues',source:'facilities',color:'#7c3aed'},
+  {id:'emergency',label:'Emergency facilities',source:'facilities',color:'#087e8b'},
+  {id:'industrial',label:'Industrial / warehouses',source:'facilities',color:'#906335'},
+  {id:'noise',label:'Noise complaints · NYC',source:'noise',color:'#c58a10'},
+  {id:'construction',label:'Public construction · NYC',source:'construction',color:'#b65b22'},
+  {id:'crime',label:'Reported incidents · NYC',source:'crime',color:'#455f86'}
+];
+function showNearbyContext(report) {
+  const host=$('propertyMap').closest('.map-panel');
+  let panel=$('nearbyContext');if(!panel){panel=document.createElement('details');panel.id='nearbyContext';panel.className='nearby-context';host.append(panel);}
+  panel.innerHTML='<summary>Nearby places & local reports <span class="small-note">Optional map layers</span></summary><p class="small-note">Choose layers within approximately half a mile. A nearby facility is not proof of noise. NYC report layers do not cover other cities; no records is not a quietness or safety rating. Selecting a layer queries public data services through this site.</p><div class="context-toggles"></div><div class="context-results"></div>';
+  const state={enabled:new Set(),responses:{},requests:{},groups:{}};report.nearbyContext=state;
+  CONTEXT_LAYERS.forEach(layer=>{
+    const label=document.createElement('label');label.className='context-toggle';
+    const input=document.createElement('input');input.type='checkbox';input.setAttribute('aria-label',layer.label);
+    const dot=document.createElement('span');dot.className='context-dot';dot.style.background=layer.color;
+    label.append(input,dot,document.createTextNode(layer.label));panel.querySelector('.context-toggles').append(label);
+    input.addEventListener('change',async()=>{
+      if(currentReport!==report)return;
+      if(!input.checked){state.enabled.delete(layer.id);if(state.groups[layer.id]&&propertyMap)propertyMap.removeLayer(state.groups[layer.id]);delete state.groups[layer.id];renderContextResults(report,panel);return;}
+      state.enabled.add(layer.id);renderContextResults(report,panel);
+      try{
+        if(!state.responses[layer.source]){
+          if(!state.requests[layer.source])state.requests[layer.source]=fetchJSON('/api/nearby?'+new URLSearchParams({layer:layer.source,lat:report.lat,lon:report.lon})).then(d=>state.responses[layer.source]=d).catch(e=>{delete state.requests[layer.source];throw e;});
+          await state.requests[layer.source];
+        }
+        if(currentReport!==report)return;
+        if(state.enabled.has(layer.id))drawContextLayer(report,layer);
+        renderContextResults(report,panel);trackEvent('nearby_layer_opened');
+      }catch(e){if(currentReport!==report)return;state.enabled.delete(layer.id);input.checked=false;renderContextResults(report,panel);const error=document.createElement('p');error.className='small-note';error.setAttribute('role','status');error.textContent=layer.label+': '+e.message;panel.querySelector('.context-results').append(error);}
+    });
+  });
+}
+function contextItems(report,layer){const data=report.nearbyContext.responses[layer.source];return(data?.items||[]).filter(i=>layer.source!=='facilities'||i.category===layer.id);}
+function drawContextLayer(report,layer){
+  if(currentReport!==report)return;if(!propertyMap)$('loadMap').click();if(!propertyMap)return;
+  const state=report.nearbyContext;if(state.groups[layer.id])propertyMap.removeLayer(state.groups[layer.id]);
+  const group=L.layerGroup().addTo(propertyMap);state.groups[layer.id]=group;
+  contextItems(report,layer).forEach(item=>{
+    const popup=document.createElement('div'),title=document.createElement('strong');title.textContent=item.name;popup.append(title);
+    const text=document.createElement('p');text.textContent=[item.type,item.date?(item.dateLabel||'Reported')+': '+item.date:null,item.hours,item.status].filter(Boolean).join(' · ');popup.append(text);
+    const note=document.createElement('small');note.textContent=layer.id==='crime'?'Approximate reported location; not a conviction or risk rating.':'Approximate source location; not a noise measurement.';popup.append(note);
+    L.circleMarker([item.lat,item.lon],{radius:layer.source==='facilities'?7:5,color:layer.color,fillColor:layer.color,fillOpacity:0.7,weight:2}).addTo(group).bindPopup(popup);
+  });
+}
+function renderContextResults(report,panel){
+  const container=panel.querySelector('.context-results');container.replaceChildren();const state=report.nearbyContext;
+  CONTEXT_LAYERS.filter(l=>state.enabled.has(l.id)).forEach(layer=>{
+    const data=state.responses[layer.source],card=document.createElement('details');card.className='context-result';const summary=document.createElement('summary');
+    const items=contextItems(report,layer);
+    summary.textContent=layer.label+' · '+(!data?'Loading…':data.supported===false?'Not supported here':items.length+(data.truncated?' shown · source limit reached':' returned'));card.append(summary);
+    if(!data){container.append(card);return;}
+    const note=document.createElement('p');note.className='small-note';note.textContent=data.note||'';card.append(note);
+    if(data.supported!==false){
+      const period=document.createElement('p');period.className='small-note';period.textContent=(data.windowStart?'Requested period: '+data.windowStart+' to '+data.windowEnd+'. ':'')+'Retrieved: '+String(data.fetchedAt||'').slice(0,10)+'. '+(data.truncated?'Partial list; do not treat this as a total count. ':'')+'Displayed locations are approximate.';card.append(period);
+      if(!items.length){const empty=document.createElement('p');empty.className='small-note';empty.textContent='No matching mapped records returned. This may reflect missing coverage.';card.append(empty);}
+      const list=document.createElement('ul');list.className='context-list';
+      items.slice(0,20).forEach(item=>{const li=document.createElement('li');li.textContent=item.name+' · '+[item.type,item.date?(item.dateLabel||'Reported')+' '+item.date:null,item.hours].filter(Boolean).join(' · ');list.append(li)});card.append(list);
+      if(items.length>20){const more=document.createElement('p');more.className='small-note';more.textContent='List shows the first 20; all returned locations are plotted on the map.';card.append(more);}
+      const source=document.createElement('a');source.href=data.sourceUrl;source.target='_blank';source.rel='noreferrer';source.textContent=data.source||'Source';card.append(source);
+    }
+    container.append(card);
   });
 }
