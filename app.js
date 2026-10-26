@@ -89,7 +89,7 @@ function renderReport(report) {
 
   const assessment = assess(nearest);
   const badge = $('attentionBadge');
-  badge.className = `attention-badge ${assessment.level}`;
+  badge.className = 'attention-badge';
   badge.textContent = assessment.badge;
   $('takeawayTitle').textContent = assessment.title;
   $('takeawayText').textContent = assessment.text;
@@ -129,31 +129,32 @@ function numberOrDash(value, suffix='') {
 }
 
 function assess(c) {
-  const miles = c.distanceMiles;
-  const night = Number(c.nightTrains || 0);
-  const total = Number(c.dayTrains || 0) + night;
-  const quiet = c.quietZone.code;
-  const countYear = c.trainCountYear ? ` The reported train-count year is ${c.trainCountYear}.` : '';
-  const noQuiet = quiet === '0' || quiet === null;
+  const count = value => value === null || value === undefined || String(value).trim() === ''
+    ? null : (Number.isFinite(Number(value)) && Number(value) >= 0 ? Number(value) : null);
+  const night = count(c.nightTrains);
+  const day = count(c.dayTrains);
+  const nightText = night === null
+    ? 'Nighttime thru-train movements were not reported.'
+    : `FRA reports an estimated ${night} nighttime thru-train movements (6 PM–6 AM) at this crossing.`;
+  const dayText = day === null
+    ? 'Daytime thru-train movements were not reported.'
+    : `The daytime estimate is ${day} movements (6 AM–6 PM).`;
+  const yearText = c.trainCountYear
+    ? `Reported train-count year: ${c.trainCountYear}. These are historical estimates, not live schedules.`
+    : 'The train-count year is not reported; these estimates are not live schedules.';
+  const quietText = {
+    '1': 'A 24-hour quiet zone is reported: routine horn sounding is restricted, but exceptions apply. Train noise and vibration may still occur.',
+    '2': 'A partial quiet zone is reported: horn restrictions apply only at designated times. Train noise and vibration may still occur.',
+    '3': 'Chicago-excused status is reported. Verify applicable horn rules and local conditions.',
+    '0': 'No quiet-zone designation is reported. Horns may be sounded.'
+  }[c.quietZone?.code] || 'Quiet-zone status is not reported; horn restrictions cannot be determined from this record.';
 
-  if (miles <= 0.3 && night >= 4 && noQuiet) {
-    return {
-      level: 'high', badge: 'HIGH ATTENTION',
-      title: 'Rail activity deserves an in-person night check.',
-      text: `The nearest FRA crossing is ${miles.toFixed(2)} miles away and reports about ${night} nighttime thru-train movements during normal operating periods. No federal quiet-zone designation is reported for this crossing. This does not predict indoor noise, but it is enough to make an evening and late-night visit important before making an offer.${countYear}`
-    };
-  }
-  if (miles <= 0.6 && (night >= 1 || total >= 5)) {
-    return {
-      level: 'moderate', badge: 'MODERATE ATTENTION',
-      title: 'Close enough that rail activity should be part of your due diligence.',
-      text: `The nearest FRA crossing is ${miles.toFixed(2)} miles away. FRA inventory data reports ${night || 'some'} nighttime thru-train movement${night === 1 ? '' : 's'} and ${total || 'reported'} total day/night movements. Actual sound and vibration vary significantly by terrain, structures, train operations, and whether horns are routinely used.${countYear}`
-    };
-  }
   return {
-    level: 'lower', badge: 'LOWER ATTENTION',
-    title: 'The nearest reported crossing is less likely to dominate the property decision.',
-    text: `The nearest FRA crossing is ${miles.toFixed(2)} miles away and the inventory does not show a combination of very close distance and substantial nighttime thru traffic. That is not a guarantee of quiet: rail lines, switching activity, terrain, and unreported operational changes can still matter. Verify conditions on site.${countYear}`
+    badge: 'ON-SITE CHECK RECOMMENDED',
+    title: night === null
+      ? `Nearest crossing: ${c.distanceMiles.toFixed(2)} mi · Night traffic not reported`
+      : `Nearest crossing: ${c.distanceMiles.toFixed(2)} mi · ${night} nighttime movements reported`,
+    text: `${nightText} ${dayText} ${yearText} ${quietText} Distance is to the nearest reported crossing, not the nearest rail line; tracks may be closer. This report does not rate noise or safety. Visit during the evening and late night to assess actual conditions.`
   };
 }
 
