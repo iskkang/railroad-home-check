@@ -586,7 +586,7 @@ function showNearbyContext(report) {
         if(currentReport!==report)return;
         if(state.enabled.has(layer.id)&&layerVisible(layer.id))drawContextLayer(report,layer);
         renderContextResults(report,panel);trackEvent('nearby_layer_opened');
-      }catch(e){if(currentReport!==report)return;state.enabled.delete(layer.id);input.checked=false;renderContextResults(report,panel);const error=document.createElement('p');error.className='small-note';error.setAttribute('role','status');error.textContent=layer.label+': '+e.message;$('contextResults').append(error);}
+      }catch(e){if(currentReport!==report)return;state.enabled.delete(layer.id);input.checked=false;renderContextResults(report,panel);const error=document.createElement('p');error.className='small-note';error.setAttribute('role','status');error.textContent=layer.label+': '+e.message;if(layerVisible(layer.id))$('contextResults').append(error);}
     });
   });
   selectTopic(currentTopic);
@@ -718,6 +718,7 @@ function applyTopicMap(report=currentReport){
 function selectTopic(topic,{loadDefaults=true}={}){
   if(!TOPIC_CONTENT[topic])return;currentTopic=topic;
   ['sound','living','records'].forEach(t=>{const tab=$('topic'+t);const active=t===topic;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;});
+  $('topicContent').setAttribute('aria-labelledby','topic'+topic);
   $('topicDescription').textContent=TOPIC_CONTENT[topic].description;$('mapTitle').textContent=TOPIC_CONTENT[topic].title;
   document.querySelector('.overview-grid').classList.toggle('hidden',topic!=='sound');document.querySelector('.overview-caveat').classList.toggle('hidden',topic!=='sound');
   document.querySelector('.traffic-legend').classList.toggle('hidden',topic!=='sound');document.querySelector('.map-legend').classList.toggle('hidden',topic!=='sound');
@@ -727,6 +728,10 @@ function selectTopic(topic,{loadDefaults=true}={}){
     panel.querySelectorAll('[data-layer]').forEach(label=>label.classList.toggle('hidden',!layerVisible(label.dataset.layer)));
     panel.querySelectorAll('fieldset').forEach(group=>group.classList.toggle('hidden',![...group.querySelectorAll('[data-layer]')].some(el=>!el.classList.contains('hidden'))));
     if(currentReport?.nearbyContext)renderContextResults(currentReport,panel);
+  }
+  if(currentReport?.nearbyContext){
+    const state=currentReport.nearbyContext;
+    CONTEXT_LAYERS.filter(layer=>state.enabled.has(layer.id)&&layerVisible(layer.id)&&state.responses[layer.source]&&!state.groups[layer.id]).forEach(layer=>drawContextLayer(currentReport,layer));
   }
   applyTopicMap();
   if(loadDefaults&&currentReport?.nearbyContext){
