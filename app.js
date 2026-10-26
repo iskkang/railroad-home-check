@@ -331,8 +331,8 @@ function showRailDistance(report) {
       if (paths.length) {
         if (!propertyMap) $('loadMap').click();
         if (propertyMap) {
-          L.polyline(paths.map(path=>path.map(([lon,lat])=>[lat,lon])),{color:'#455f86',weight:3,opacity:0.85}).addTo(propertyMap).bindTooltip('Mapped rail centerline · USDOT/BTS · operating status unverified');
-          status.textContent += ' Blue lines on the map show the mapped rail network.';
+          L.polyline(paths.map(path=>path.map(([lon,lat])=>[lat,lon])),{color:'#626b73',weight:3,opacity:0.85,dashArray:'6 5'}).addTo(propertyMap).bindTooltip('Mapped rail centerline · USDOT/BTS · operating status unverified');
+          status.textContent += ' Gray dashed lines on the map show the mapped rail network.';
         }
       }
       btn.textContent = 'Rail-line check complete';
@@ -380,6 +380,7 @@ function showRoadTraffic(report) {
       const rows = trafficRows(data.features,report.lat,report.lon);
       updateRoadOverview(report, rows);
       if (!rows.length) {
+        if (propertyMap) drawTrafficVolumes(report, [], data.features);
         status.textContent = 'No road segments with reported traffic counts were returned within 1 mile. This is a data gap, not evidence of low traffic.';
         button.textContent = 'Traffic check complete'; return;
       }
@@ -397,11 +398,8 @@ function showRoadTraffic(report) {
       });table.append(body);container.replaceChildren(table);
       if (!propertyMap) $('loadMap').click();
       if (propertyMap) {
-        shown.forEach((row,i)=>{
-          const popup=document.createElement('div');popup.textContent=String(i+1)+'. '+row.name+' · '+fmt(row.a.AADT)+' vehicles/day (AADT) · Data year: '+(row.a.DATA_YEAR || 'Not reported');
-          L.polyline(row.paths.map(path=>path.map(([lon,lat])=>[lat,lon])),{color:'#a13c78',weight:6,opacity:0.75}).addTo(propertyMap).bindPopup(popup);
-        });
-        status.textContent += ' Purple lines on the map show these road segments; click a line for its count.';
+        drawTrafficVolumes(report, rows, data.features);
+        status.textContent += ' The map colors all '+rows.length+' returned counted road groups by fixed daily-volume bands; the table lists the nearest '+shown.length+'. Gray overlays have no reported count. Uncolored streets may have no coverage.';
       }
       button.textContent = 'Traffic check complete'; trackEvent('road_traffic_checked');
     } catch {
@@ -478,7 +476,7 @@ function renderTmasProfile(station,kind,body,report) {
 function organizeReport(report) {
   const nearest = report.crossings?.[0];
   $('overviewRail').textContent='Loading…';$('overviewRailNote').textContent='Looking up mapped rail lines';
-  $('overviewRoad').textContent='Loading…';$('overviewRoadNote').textContent='Annual average vehicles / day';
+  $('overviewRoad').textContent='Loading…';$('overviewRoad').closest('.overview-card').style.borderTopColor='#9ca3af';$('overviewRoadNote').textContent='Annual average vehicles / day';
   $('overviewNight').textContent=nearest ? displayCount(nearest.nightTrains,nearest.lessThanOne,nearest.weeklyTrains) : 'Not available';
   $('overviewNightNote').textContent=nearest ? '6 PM–6 AM · Count year: '+(nearest.trainCountYear || 'not reported') : 'No crossing returned within 3.25 mi';
   const targets=[['roadTrafficPanel','paneRoad','Annual average traffic on reported road segments within 1 mile. Not live congestion.'],['railDistancePanel','paneRail','Approximate distance to mapped rail centerlines within 3.25 miles.'],['tmasPanel','paneHourly','December 2023 reference station observations. Same-road connection is not verified.']];
@@ -512,6 +510,35 @@ function updateRailOverview(report,meters) {
 function updateRoadOverview(report,rows) {
   if(currentReport!==report)return;
   const nearest=rows[0];
+  $('overviewRoad').closest('.overview-card').style.borderTopColor=trafficVolumeBand(nearest?.a.AADT).color;
   $('overviewRoad').textContent=nearest ? Number(nearest.a.AADT).toLocaleString('en-US') : 'Not reported';
   $('overviewRoadNote').textContent=nearest ? 'vehicles/day · '+(nearest.a.DATA_YEAR||'Year unknown')+' · '+nearest.name : 'No counts returned within 1 mi';
+}
+
+function trafficVolumeBand(value) {
+  if(value===null || value===undefined || String(value).trim()==='' || !Number.isFinite(Number(value)) || Number(value)<0)return {color:'#9ca3af',label:'Not reported'};
+  const n=Number(value);
+  if(n<5000)return {color:'#2563eb',label:'Under 5,000'};
+  if(n<15000)return {color:'#0d9488',label:'5,000–14,999'};
+  if(n<30000)return {color:'#eab308',label:'15,000–29,999'};
+  if(n<60000)return {color:'#ea580c',label:'30,000–59,999'};
+  return {color:'#dc2626',label:'60,000+'};
+}
+function drawTrafficVolumes(report,rows,features) {
+  if(currentReport!==report || !propertyMap)return;
+  if(report.trafficLayer)propertyMap.removeLayer(report.trafficLayer);
+  const group=L.layerGroup().addTo(propertyMap);report.trafficLayer=group;
+  const draw=(paths,content,color,weight)=>{
+    const popup=document.createElement('div');popup.textContent=content;
+    L.polyline(paths.map(path=>path.map(([lon,lat])=>[lat,lon])),{color,weight,opacity:0.85}).addTo(group).bindPopup(popup);
+  };
+  features.forEach(feature=>{
+    const a=feature.attributes||{},paths=feature.geometry?.paths||[];
+    if(trafficVolumeBand(a.AADT).label!=='Not reported'||nearestRailMeters(report.lat,report.lon,paths)>1609.344)return;
+    draw(paths,(a.RouteName||a.ROUTE_ID||'Road segment')+' · Traffic count not reported · Data year: '+(a.DATA_YEAR||'Not reported'),'#9ca3af',3);
+  });
+  rows.forEach(row=>{
+    const band=trafficVolumeBand(row.a.AADT);
+    draw(row.paths,row.name+' · '+Number(row.a.AADT).toLocaleString('en-US')+' vehicles/day (AADT) · '+band.label+' band · Data year: '+(row.a.DATA_YEAR||'Not reported'),band.color,5);
+  });
 }
