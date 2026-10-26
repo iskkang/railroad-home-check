@@ -39,15 +39,20 @@
   <main class="legal-page">
     <div class="eyebrow">PRIVACY</div>
     <h1>Privacy Policy</h1>
-    <p class="legal-updated">Last updated: August 7, 2026</p>
+    <p class="legal-updated">Last updated: October 26, 2026</p>
     <p class="legal-lede">This policy explains how Railroad Home Check processes property addresses, measures site usage, and uses advertising services. The service is an independent informational tool for U.S. home buyers.</p>
 
     <section>
       <h2>Property addresses</h2>
       <p>A property address is used only to locate the property and generate the requested railroad report. It is sent to the U.S. Census Geocoder for location matching and then used to query nearby Federal Railroad Administration records.</p>
-      <p>Railroad Home Check does not store property addresses in a database, sell them, reuse them for marketing, or include them in Analytics event parameters. Addresses are sent to our geocoding endpoint in a POST request body rather than in the page URL.</p>
+      <p>Railroad Home Check does not store property addresses in a database, sell them, reuse them for marketing, or include them in Analytics event parameters. Ordinary searches send addresses to our geocoding endpoint in a POST request body. If you choose to share, the copied link includes the matched address in its URL fragment. Anyone with that link can read the address. On opening the page, we read and remove that fragment before loading analytics and advertising scripts. The recipient must select the search button to run a new report.</p>
     </section>
 
+    <section>
+      <h2>Maps, comparisons, and printed reports</h2>
+      <p>Comparison reports are held in this browser tab's memory, not in a server database or browser persistent storage. Refreshing or closing the tab clears them. Printed or saved PDF reports contain the displayed addresses and results.</p>
+      <p>Interactive maps load only after you choose to show them. Map tiles are provided by OpenStreetMap, whose servers receive your IP address and the area of the map requested. Property addresses are not sent in map tile requests. See the <a href="https://osmfoundation.org/wiki/Privacy_Policy" target="_blank" rel="noreferrer">OpenStreetMap Foundation privacy policy</a>.</p>
+    </section>
     <section>
       <h2>Google Analytics</h2>
       <p>We use Google Analytics to understand aggregate site traffic and whether property checks start, complete, or fail. Google Analytics may use cookies and similar technologies to collect information such as page views, device and browser information, and general interaction data.</p>

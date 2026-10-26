@@ -4,13 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <script>
+    // Read shared addresses before third-party scripts run, then clear the URL.
+    window.sharedPropertyAddress = new URLSearchParams(location.hash.slice(1)).get('address') || '';
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+  </script>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZNQKK7MNDB"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-ZNQKK7MNDB');
+    gtag('config', 'G-ZNQKK7MNDB', { page_location: location.origin + location.pathname });
   </script>
 
   <!-- Google AdSense -->
@@ -34,6 +39,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
   <link rel="stylesheet" href="/styles.css" />
   <script type="application/ld+json">
   {
@@ -95,8 +101,8 @@
   <main>
     <section class="hero">
       <div class="eyebrow">FREE RAILROAD CHECK FOR HOME BUYERS</div>
-      <h1>Check railroad activity<br><span>before you buy a home.</span></h1>
-      <p class="hero-copy">Enter a U.S. property address to check nearby railroad crossings, FRA-reported daytime and nighttime train traffic, quiet-zone status, speeds, and recent crossing incidents.</p>
+      <h1>Buying near railroad tracks?<br><span>Check the nights, too.</span></h1>
+      <p class="hero-copy">See reported nighttime train activity, map nearby crossings, and compare homes before your next viewing. Free U.S. property checks using official FRA records.</p>
 
       <form id="searchForm" class="search-box">
         <label for="address" class="sr-only">U.S. property address</label>
@@ -104,9 +110,11 @@
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.2 7-12A7 7 0 1 0 5 9c0 6.8 7 12 7 12Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="9" r="2.4" stroke="currentColor" stroke-width="1.8"/></svg>
           <input id="address" autocomplete="street-address" placeholder="Paste a U.S. property or listing address" aria-describedby="privacyNote" required />
         </div>
-        <button type="submit" id="searchButton">Check railroad impact</button>
+        <button type="submit" id="searchButton">Check this address</button>
       </form>
-      <div class="microcopy" id="privacyNote">No account. No payment. Your address is used only to run this check. We do not save it or use it for any other purpose.</div>
+      <div class="microcopy" id="privacyNote">No account. No payment. Comparisons stay in this tab until you refresh. Sharing a link includes the property address.</div>
+      <button type="button" id="tryExample" class="text-button">Try an example: Santa Ana, CA →</button>
+      <div class="steps-strip"><span>01 · Check an address</span><span>02 · Understand the surroundings</span><span>03 · Compare your shortlist</span></div>
     </section>
 
     <section id="status" class="status hidden" aria-live="polite"></section>
@@ -120,6 +128,16 @@
         <div id="attentionBadge" class="attention-badge"></div>
       </div>
 
+      <div class="report-actions">
+        <button type="button" id="addCompare" class="action-button">Add to comparison</button>
+        <button type="button" id="shareReport" class="action-button secondary">Share this address</button>
+        <button type="button" id="printReport" class="action-button secondary">Print / save PDF</button>
+      </div>
+      <p class="small-note">Shared links include this address and rerun the check when opened; they are not a snapshot. Only share addresses you are comfortable disclosing.</p>
+      <p id="actionStatus" role="status" class="small-note"></p>
+      <input id="shareLink" class="hidden share-link" readonly aria-label="Copyable property report link" />
+      <div id="emptyReport" class="panel hidden"><h3>Address found. No nearby grade crossings returned.</h3><p>No open, at-grade FRA crossings were returned within 3.25 miles. This does not mean there are no nearby tracks, trains, noise, or vibration.</p></div>
+      <div id="reportData">
       <div class="summary-grid">
         <article class="metric-card">
           <div class="metric-label">Nearest crossing</div>
@@ -179,12 +197,28 @@
         <div id="crossingList" class="crossing-list"></div>
       </div>
 
+      </div>
+      <section class="map-panel panel" aria-labelledby="mapTitle">
+        <div class="panel-kicker">PUT THE NUMBERS IN CONTEXT</div>
+        <h3 id="mapTitle">Your property and nearby crossings</h3>
+        <p class="small-note">The property pin is an approximate geocoded location. Numbered pins are FRA crossings, ordered by distance. This map does not measure the distance to tracks or predict noise.</p>
+        <div class="map-legend"><span>● Property</span><span>① Nearest crossing</span><span>② Other crossings</span></div>
+        <button type="button" id="loadMap" class="action-button">Show interactive map</button>
+        <p class="small-note" id="mapNotice">Loading the map requests map tiles for this area from OpenStreetMap, which receives your IP address and the viewed area.</p>
+        <div id="propertyMap" class="hidden" aria-label="Property and railroad crossing map"></div>
+      </section>
       <article class="methodology">
         <h3>How to read this report</h3>
         <p>Railroad Home Check uses the Federal Railroad Administration's Grade Crossing Inventory. Train counts are reported estimates, not live schedules. A quiet-zone designation means routine horn sounding is restricted at covered public crossings, but horns may still be used in emergencies and other permitted circumstances. Distance is straight-line distance from the geocoded property point to the crossing—not distance to the rail line itself.</p>
       </article>
     </section>
 
+    <section id="comparison" class="comparison-section hidden" aria-labelledby="compareTitle">
+      <div class="eyebrow">YOUR SHORTLIST</div><h2 id="compareTitle">Compare the facts. Visit the homes.</h2>
+      <p class="small-note">Up to three properties in this tab. Refreshing clears your shortlist. Counts describe each home's nearest reported crossing, not total trains around the home; the same trains may pass several crossings.</p>
+      <div id="comparisonTable" class="table-scroll" tabindex="0" aria-label="Property comparison"></div>
+      <div class="report-actions"><button type="button" id="compareAnother" class="action-button">Check another address</button><button type="button" id="clearComparison" class="action-button secondary">Clear comparison</button></div>
+    </section>
     <section class="why-section">
       <div class="eyebrow">WHY THIS EXISTS</div>
       <h2>A listing says “near transit.”<br>It rarely says <em>how near.</em></h2>
@@ -244,7 +278,7 @@
   </main>
 
   <footer>
-    <p><strong>Address privacy:</strong> The address is sent to the U.S. Census Geocoder only to locate the property. Railroad Home Check does not store it in a database, sell it, or reuse it for marketing.</p>
+    <p><strong>Address privacy:</strong> Addresses are sent to the U.S. Census Geocoder. Comparisons are held only in this tab’s memory. Shared links contain an address; maps request the viewed area from OpenStreetMap. We do not store addresses in a database or use them for marketing.</p>
     <p><strong>Analytics:</strong> We use Google Analytics, which may use cookies, to measure aggregate site traffic and property-check completion rates. Property addresses are not sent in Analytics events.</p>
     <p>Data: U.S. Department of Transportation / Federal Railroad Administration. This site is an independent informational tool and is not affiliated with the FRA, DOT, a railroad, a real-estate broker, or a home inspector.</p>
     <p>Not a noise measurement, safety certification, appraisal, or substitute for on-site due diligence.</p>
@@ -254,6 +288,7 @@
     </nav>
   </footer>
 
+  <script src="/vendor/leaflet/leaflet.js" defer></script>
   <script src="/app.js" defer></script>
 </body>
 </html>

@@ -3,17 +3,21 @@ const addressInput = document.getElementById('address');
 const button = document.getElementById('searchButton');
 const statusBox = document.getElementById('status');
 const results = document.getElementById('results');
+let currentReport = null;
+let propertyMap = null;
+const shortlist = [];
 
 const $ = (id) => document.getElementById(id);
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
-  const address = addressInput.value.trim();
+  const address = addressInput.value.replace(/\+/g, ' ').replace(/\s+/g, ' ').trim();
   if (!address) return;
 
   trackEvent('property_check_started');
   setLoading(true, 'Locating the property…');
   results.classList.add('hidden');
+  currentReport = null;
 
   try {
     const geo = await fetchJSON('/api/geocode', {
@@ -26,7 +30,7 @@ form.addEventListener('submit', async (event) => {
     });
     setStatus('Checking nearby FRA grade-crossing records…');
     const report = await fetchJSON(`/api/crossings?lat=${geo.lat}&lon=${geo.lon}`);
-    renderReport({ ...report, matchedAddress: geo.matchedAddress || address });
+    renderReport({ ...report, lat: geo.lat, lon: geo.lon, matchedAddress: geo.matchedAddress || address });
     trackEvent('property_check_completed');
     statusBox.classList.add('hidden');
     results.classList.remove('hidden');
@@ -55,7 +59,7 @@ function trackEvent(eventName) {
 
 function setLoading(isLoading, message) {
   button.disabled = isLoading;
-  button.textContent = isLoading ? 'Checking…' : 'Check railroad impact';
+  button.textContent = isLoading ? 'Checking…' : 'Check this address';
   if (isLoading) setStatus(message || 'Checking…');
 }
 
@@ -71,7 +75,17 @@ function setError(message) {
 
 function renderReport(report) {
   const nearest = report.crossings?.[0];
-  if (!nearest) throw new Error('No FRA crossing records were found within approximately 3 miles of this address.');
+  currentReport = report;
+  resetMap();
+  $('actionStatus').textContent = '';
+  $('shareLink').classList.add('hidden');
+  $('reportData').classList.toggle('hidden', !nearest);
+  $('emptyReport').classList.toggle('hidden', !!nearest);
+  $('resultAddress').textContent = report.matchedAddress;
+  if (!nearest) {
+    $('attentionBadge').textContent = 'NO CROSSINGS RETURNED';
+    return;
+  }
 
   $('resultAddress').textContent = report.matchedAddress;
   $('distanceValue').textContent = nearest.distanceMiles < 0.1 ? `${Math.round(nearest.distanceMiles * 5280)} ft` : `${nearest.distanceMiles.toFixed(2)} mi`;
@@ -161,3 +175,126 @@ function assess(c) {
 function escapeHTML(value='') {
   return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]));
 }
+
+
+$('tryExample').addEventListener('click', () => {
+  if (button.disabled) return;
+  addressInput.value = '200 N Main St, Santa Ana, CA 92701';
+  trackEvent('example_check_started');
+  form.requestSubmit();
+});
+
+$('printReport').addEventListener('click', () => { if (currentReport) window.print(); });
+$('compareAnother').addEventListener('click', () => {
+  addressInput.value = '';
+  form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  addressInput.focus({ preventScroll: true });
+});
+$('clearComparison').addEventListener('click', () => { shortlist.length = 0; renderComparison(); });
+$('addCompare').addEventListener('click', () => {
+  if (!currentReport) return;
+  if (shortlist.some(r => r.matchedAddress === currentReport.matchedAddress)) {
+    $('actionStatus').textContent = 'This address is already in your comparison.';
+    return;
+  }
+  if (shortlist.length >= 3) {
+    $('actionStatus').textContent = 'Your comparison has three homes. Remove one below to add another.';
+    $('comparison').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  shortlist.push(currentReport);
+  renderComparison();
+  trackEvent('property_added_to_comparison');
+  $('actionStatus').textContent = 'Added to comparison. Check another address to build your shortlist.';
+  $('comparison').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+function renderComparison() {
+  $('comparison').classList.toggle('hidden', shortlist.length === 0);
+  const table = document.createElement('table');
+  const header = document.createElement('tr');
+  const label = document.createElement('th'); label.textContent = 'Nearest crossing facts'; label.scope = 'col'; header.append(label);
+  shortlist.forEach((report, i) => {
+    const cell = document.createElement('th'); cell.scope = 'col';
+    const name = document.createElement('p'); name.textContent = report.matchedAddress; cell.append(name);
+    const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'text-button'; remove.textContent = 'Remove';
+    remove.setAttribute('aria-label', `Remove ${report.matchedAddress}`);
+    remove.addEventListener('click', () => { shortlist.splice(i, 1); renderComparison(); }); cell.append(remove); header.append(cell);
+  });
+  const head = document.createElement('thead'); head.append(header); table.append(head);
+  const body = document.createElement('tbody');
+  const fields = [
+    ['Crossing distance (not tracks)', c => `${c.distanceMiles.toFixed(2)} mi`],
+    ['Night movements · 6 PM–6 AM', c => numberOrDash(c.nightTrains)],
+    ['Day movements · 6 AM–6 PM', c => numberOrDash(c.dayTrains)],
+    ['Train-count year', c => c.trainCountYear || 'Not reported'],
+    ['Quiet-zone status', c => c.quietZone?.label || 'Not reported'],
+    ['Crossing street', c => c.street || 'Not reported'],
+    ['Railroad', c => c.railroadName || c.railroadCode || 'Not reported']
+  ];
+  fields.forEach(([name, format]) => {
+    const row = document.createElement('tr'); const th = document.createElement('th'); th.scope = 'row'; th.textContent = name; row.append(th);
+    shortlist.forEach(report => { const td = document.createElement('td'); td.textContent = report.crossings?.[0] ? format(report.crossings[0]) : 'No crossing returned'; row.append(td); });
+    body.append(row);
+  });
+  table.append(body); $('comparisonTable').replaceChildren(table);
+}
+$('shareReport').addEventListener('click', async () => {
+  if (!currentReport) return;
+  const url = new URL(location.pathname, location.origin);
+  url.hash = new URLSearchParams({ address: currentReport.matchedAddress }).toString();
+  try {
+    await navigator.clipboard.writeText(url.href);
+    $('actionStatus').textContent = 'Link copied. It includes this property address.';
+    trackEvent('report_link_copied');
+  } catch {
+    $('shareLink').value = url.href;
+    $('shareLink').classList.remove('hidden'); $('shareLink').select();
+    $('actionStatus').textContent = 'Copy the link below. It includes this property address.';
+  }
+});
+function resetMap() {
+  if (propertyMap) { propertyMap.remove(); propertyMap = null; }
+  $('propertyMap').classList.add('hidden');
+  $('loadMap').classList.remove('hidden');
+  $('mapNotice').textContent = 'Loading the map requests map tiles for this area from OpenStreetMap, which receives your IP address and the viewed area.';
+}
+$('loadMap').addEventListener('click', () => {
+  if (!currentReport) return;
+  if (!window.L) { $('mapNotice').textContent = 'The map could not load. The crossing list and report are still available. Refresh to retry.'; return; }
+  $('propertyMap').classList.remove('hidden'); $('loadMap').classList.add('hidden');
+  const home = [currentReport.lat, currentReport.lon];
+  propertyMap = L.map('propertyMap', { scrollWheelZoom: false }).setView(home, 14);
+  const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(propertyMap);
+  tiles.on('tileerror', () => { $('mapNotice').textContent = 'Some map tiles are unavailable. Pins and the crossing list remain available; refresh to retry.'; });
+  const marker = (point, title, content, className, text) => {
+    const popup = document.createElement('div'); popup.textContent = content;
+    return L.marker(point, { title, icon: L.divIcon({ className, html: text, iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(propertyMap).bindPopup(popup);
+  };
+  marker(home, 'Property (approximate location)', currentReport.matchedAddress + ' — approximate geocoded location', 'home-pin', 'H');
+  const points = [home];
+  currentReport.crossings.forEach((c, i) => {
+    if (!Number.isFinite(c.lat) || !Number.isFinite(c.lon)) return;
+    const point = [c.lat, c.lon]; points.push(point);
+    marker(point, `Crossing ${i + 1}: ${c.street || c.crossingId}`, `${c.street || c.crossingId} · ${c.distanceMiles.toFixed(2)} mi from property · Night movements: ${numberOrDash(c.nightTrains)} · Count year: ${c.trainCountYear || 'Not reported'}`, i === 0 ? 'crossing-pin nearest-pin' : 'crossing-pin', String(i + 1));
+  });
+  if (points.length > 1) propertyMap.fitBounds(points, { padding: [35, 35], maxZoom: 15 });
+  L.control.scale({ imperial: true, metric: false }).addTo(propertyMap);
+  trackEvent('property_map_opened');
+});
+if (window.sharedPropertyAddress && window.sharedPropertyAddress.length <= 250) {
+  addressInput.value = window.sharedPropertyAddress;
+  setStatus('Shared address loaded. Select “Check this address” to retrieve the current report.');
+}
+window.sharedPropertyAddress = '';
+
+window.addEventListener('hashchange', () => {
+  const shared = new URLSearchParams(location.hash.slice(1)).get('address');
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+  if (shared && shared.length <= 250 && !button.disabled) {
+    addressInput.value = shared;
+    setStatus('Shared address loaded. Select “Check this address” to retrieve the current report.');
+    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+});
