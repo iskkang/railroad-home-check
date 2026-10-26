@@ -76,6 +76,7 @@ function setError(message) {
 function renderReport(report) {
   const nearest = report.crossings?.[0];
   currentReport = report;
+  showRoadTraffic(report);
   showRailDistance(report);
   resetMap();
   $('actionStatus').textContent = '';
@@ -351,4 +352,68 @@ function nearestRailMeters(lat, lon, paths) {
     best=Math.min(best,Math.hypot(ax+t*dx,ay+t*dy));
   }
   return best;
+}
+
+const ROAD_TRAFFIC_SERVICE = 'https://services.arcgis.com/xOi1kZaI0eWDREZv/ArcGIS/rest/services/HPMS_National_Current/FeatureServer/0';
+function showRoadTraffic(report) {
+  let panel = $('roadTrafficPanel');
+  if (!panel) {
+    panel = document.createElement('section'); panel.id = 'roadTrafficPanel'; panel.className = 'panel map-panel';
+    $('reportData').before(panel);
+  }
+  panel.innerHTML = '<div class="panel-kicker">ROAD TRAFFIC NEAR THIS ADDRESS</div><h3>How busy are the nearby roads?</h3><p class="small-note">Road segments within 1 mile of the approximate property pin. AADT is annual average daily vehicle traffic, not live congestion, nighttime traffic, or a noise measurement. Coverage varies; smaller streets may have no reported counts. Counts on adjacent segments must not be added together.</p><button type="button" class="action-button">Check nearby road traffic</button><p class="small-note">Source: <a href="'+ROAD_TRAFFIC_SERVICE+'" target="_blank" rel="noreferrer">USDOT / BTS · FHWA HPMS</a>. Loading sends the searched coordinates and your IP address to the ArcGIS data service.</p><p role="status" class="small-note"></p><div class="table-scroll"></div>';
+  const button = panel.querySelector('button'), status = panel.querySelector('[role="status"]'), container = panel.querySelector('.table-scroll');
+  button.addEventListener('click', async () => {
+    button.disabled = true; status.textContent = 'Loading reported road traffic…';
+    try {
+      const params = new URLSearchParams({f:'json',geometry:report.lon+','+report.lat,geometryType:'esriGeometryPoint',inSR:'4326',spatialRel:'esriSpatialRelIntersects',distance:'1609.344',units:'esriSRUnit_Meter',outFields:'DATA_YEAR,ROUTE_ID,RouteName,RouteNumber,AADT,AADT_SINGLE_UNIT,AADT_COMBINATION',returnGeometry:'true',outSR:'4326',resultRecordCount:'1000'});
+      const response = await fetch(ROAD_TRAFFIC_SERVICE+'/query?'+params,{signal:AbortSignal.timeout(25000)});
+      if (!response.ok) throw Error('Traffic service unavailable');
+      const data = await response.json();
+      if (data.error || !Array.isArray(data.features) || data.exceededTransferLimit) throw Error('Incomplete traffic data');
+      if (currentReport !== report) return;
+      const rows = trafficRows(data.features,report.lat,report.lon);
+      if (!rows.length) {
+        status.textContent = 'No road segments with reported traffic counts were returned within 1 mile. This is a data gap, not evidence of low traffic.';
+        button.textContent = 'Traffic check complete'; return;
+      }
+      const shown = rows.slice(0,15);
+      status.textContent = 'Showing '+shown.length+' of '+rows.length+' road segments with reported counts, nearest first. Distances are to mapped road centerlines. Rows may describe different sections of the same road; vehicle counts can overlap.';
+      const table = document.createElement('table');
+      const head = document.createElement('thead'), header = document.createElement('tr');
+      ['Road segment','Distance','Vehicles / day (AADT)','Single-unit trucks & buses / day','Combination trucks / day','Data year'].forEach(label=>{const th=document.createElement('th');th.scope='col';th.textContent=label;header.append(th)});
+      head.append(header);table.append(head);const body=document.createElement('tbody');
+      const fmt = v => v === null || v === undefined || v === '' || !Number.isFinite(Number(v)) || Number(v)<0 ? 'Not reported' : Number(v).toLocaleString('en-US');
+      shown.forEach((row,i)=>{
+        const tr=document.createElement('tr');
+        [String(i+1)+'. '+row.name,row.meters<160.9344?Math.round(row.meters/0.3048)+' ft':(row.meters/1609.344).toFixed(2)+' mi',fmt(row.a.AADT),fmt(row.a.AADT_SINGLE_UNIT),fmt(row.a.AADT_COMBINATION),row.a.DATA_YEAR || 'Not reported'].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td)});
+        body.append(tr);
+      });table.append(body);container.replaceChildren(table);
+      if (!propertyMap) $('loadMap').click();
+      if (propertyMap) {
+        shown.forEach((row,i)=>{
+          const popup=document.createElement('div');popup.textContent=String(i+1)+'. '+row.name+' · '+fmt(row.a.AADT)+' vehicles/day (AADT) · Data year: '+(row.a.DATA_YEAR || 'Not reported');
+          L.polyline(row.paths.map(path=>path.map(([lon,lat])=>[lat,lon])),{color:'#a13c78',weight:6,opacity:0.75}).addTo(propertyMap).bindPopup(popup);
+        });
+        status.textContent += ' Purple lines on the map show these road segments; click a line for its count.';
+      }
+      button.textContent = 'Traffic check complete'; trackEvent('road_traffic_checked');
+    } catch {
+      if(currentReport!==report)return;
+      status.textContent='Road traffic data is unavailable. Try again; your railroad report is still available.';button.disabled=false;
+    }
+  });
+}
+function trafficRows(features,lat,lon) {
+  const segments = features.map(feature=>{
+    const a=feature.attributes || {},paths=feature.geometry?.paths || [];
+    return {a,paths,name:a.RouteName || (a.RouteNumber?'Route '+a.RouteNumber:null) || a.ROUTE_ID || 'Unnamed road segment',meters:nearestRailMeters(lat,lon,paths)};
+  }).filter(row=>row.a.AADT!==null && row.a.AADT!==undefined && row.a.AADT!=='' && Number.isFinite(Number(row.a.AADT)) && Number(row.a.AADT)>=0 && row.meters<=1609.344).sort((a,b)=>a.meters-b.meters);
+  const groups = new Map();
+  for (const row of segments) {
+    const key = JSON.stringify([row.name,row.a.AADT,row.a.DATA_YEAR,row.a.AADT_SINGLE_UNIT,row.a.AADT_COMBINATION]);
+    if (groups.has(key)) groups.get(key).paths.push(...row.paths);
+    else groups.set(key,{...row,paths:[...row.paths]});
+  }
+  return [...groups.values()];
 }
