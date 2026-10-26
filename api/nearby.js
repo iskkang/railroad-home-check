@@ -9,11 +9,11 @@ async function json(url,options={}) {
 export default async function handler(req,res) {
   const lat=Number(req.query.lat),lon=Number(req.query.lon),layer=String(req.query.layer||'');
   if(req.method!=='GET')return res.status(405).json({error:'Use GET.'});
-  if(req.query.lat==null||req.query.lon==null||!Number.isFinite(lat)||!Number.isFinite(lon)||lat<18||lat>72||lon< -180||lon> -60||!['facilities','noise','construction','crime'].includes(layer))return res.status(400).json({error:'Invalid layer or U.S. coordinates.'});
+  if(req.query.lat==null||req.query.lon==null||!Number.isFinite(lat)||!Number.isFinite(lon)||lat<18||lat>72||lon< -180||lon> -60||!['facilities','noise','construction','crime','aviation','aviationNoise','epa'].includes(layer))return res.status(400).json({error:'Invalid layer or U.S. coordinates.'});
   // A source vicinity gate, not a statement that the point lies inside NYC.
-  if(layer!=='facilities'&&!(lat>=40.47&&lat<=40.94&&lon>=-74.26&&lon<=-73.69))return res.status(200).json({supported:false,items:[],note:'This layer currently uses New York City official records only. Other cities are not supported; no safety or quietness conclusion can be drawn.'});
+  if(['noise','construction','crime'].includes(layer)&&!(lat>=40.47&&lat<=40.94&&lon>=-74.26&&lon<=-73.69))return res.status(200).json({supported:false,items:[],note:'This layer currently uses New York City official records only. Other cities are not supported; no safety or quietness conclusion can be drawn.'});
   try {
-    const result=layer==='facilities'?await facilities(lat,lon):layer==='construction'?await construction(lat,lon):await cityRecords(layer,lat,lon);
+    const result=layer==='aviation'?await aviation(lat,lon):layer==='aviationNoise'?await aviationNoise(lat,lon):layer==='epa'?await epaAir(lat,lon):layer==='facilities'?await facilities(lat,lon):layer==='construction'?await construction(lat,lon):await cityRecords(layer,lat,lon);
     res.setHeader('Cache-Control','s-maxage=3600, stale-while-revalidate=86400');
     return res.status(200).json({supported:true,layer,radiusMeters:RADIUS,fetchedAt:new Date().toISOString(),...result});
   }catch(e){console.warn('nearby layer unavailable',layer,e.message);return res.status(502).json({error:'This layer’s data source is unavailable. Try again; missing results do not mean the area is quiet or safe.'});}
@@ -31,6 +31,7 @@ async function facilities(lat,lon) {
     const t=e.tags||{},a=t.amenity;let category,type;
     if(['bar','pub','nightclub','music_venue','theatre'].includes(a)){category='nightlife';type=a.replaceAll('_',' ');}
     else if(['fire_station','police','hospital'].includes(a)||t.emergency==='ambulance_station'||t.aeroway==='helipad'){category='emergency';type=(a||t.emergency||'helipad').replaceAll('_',' ');}
+    else if(t.man_made==='wastewater_plant'||t.landuse==='landfill'||['waste_transfer_station','waste_disposal'].includes(a)){category='odor';type=t.man_made==='wastewater_plant'?'Wastewater treatment':t.landuse==='landfill'?'Landfill':'Waste handling facility';}
     else if(t.building==='warehouse'||t.man_made==='works'){category='industrial';type='Industrial / warehouse';}
     else continue;
     const pts=points(e);if(!pts.length)continue;
@@ -39,7 +40,7 @@ async function facilities(lat,lon) {
     items.push({id:e.type+'/'+e.id,name:t.name||type,type,category,lat:y,lon:x,hours:t.opening_hours||'Hours not listed',meters,sourceUrl:'https://www.openstreetmap.org/'+e.type+'/'+e.id});
   }
   items.sort((a,b)=>a.meters-b.meters);
-  return{items:items.slice(0,300),truncated:items.length>300,source:'OpenStreetMap contributors',sourceUrl:'https://www.openstreetmap.org/copyright',note:'Mapped facilities, not verified noise sources. Coverage and opening hours may be incomplete or stale. Hospitals may not have an emergency department; warehouses may not be active. Point/area centers are approximate. No claim is made about siren frequency, operating hours, crime, or sound levels.'};
+  return{items:items.slice(0,300),truncated:items.length>300,source:'OpenStreetMap contributors',sourceUrl:'https://www.openstreetmap.org/copyright',note:'Mapped facilities, not verified noise sources. Coverage and opening hours may be incomplete or stale. Hospitals may not have an emergency department; warehouses may not be active. Point/area centers are approximate. Wastewater/landfill/waste-handling locations are potential odor-related facility types, not evidence of an odor at the property. No claim is made about siren frequency, operating hours, crime, emissions, odors, or sound levels.'};
 }
 async function cityRecords(layer,lat,lon) {
   const noise=layer==='noise',dateField=noise?'created_date':'cmplnt_fr_dt',point=noise?'location':'geocoded_column',dataset=noise?'erm2-nwe9':'5uac-w243';
@@ -64,3 +65,30 @@ function validPoint(x){return typeof x.lat==='number'&&typeof x.lon==='number'&&
 function nearestVertex(paths,lat,lon){let best=null,min=Infinity;for(const path of paths)for(const p of path){const d=(p[0]-lon)**2*Math.cos(lat*Math.PI/180)**2+(p[1]-lat)**2;if(d<min){min=d;best=p}}return best;}
 
 function sourceDate(v){if(!v)return null;const d=new Date(v);return Number.isFinite(d.getTime())?d.toISOString().slice(0,10):String(v);}
+
+async function spatialQuery(service,lat,lon,radius,fields) {
+  const params=new URLSearchParams({f:'json',where:'1=1',geometry:lon+','+lat,geometryType:'esriGeometryPoint',inSR:'4326',spatialRel:'esriSpatialRelIntersects',distance:String(radius),units:'esriSRUnit_Meter',outFields:fields,returnGeometry:'true',outSR:'4326',resultRecordCount:'200'});
+  const d=await json(service+'/query?'+params);if(!Array.isArray(d.features))throw Error('Invalid spatial response');return d;
+}
+async function aviation(lat,lon) {
+  const service='https://services.arcgis.com/xOi1kZaI0eWDREZv/ArcGIS/rest/services/NTAD_Aviation_Facilities/FeatureServer/0';
+  const d=await spatialQuery(service,lat,lon,16093.44,'SITE_NO,ARPT_ID,ARPT_NAME,SITE_TYPE_CODE,ARPT_STATUS,EFF_DATE');
+  const items=d.features.map(f=>{const a=f.attributes||{};return{id:String(a.SITE_NO||a.ARPT_ID),name:a.ARPT_NAME||a.ARPT_ID||'Aviation facility',type:a.SITE_TYPE_CODE==='H'?'Heliport':a.SITE_TYPE_CODE==='A'?'Airport':'FAA site type: '+(a.SITE_TYPE_CODE||'Not reported'),status:'FAA status: '+(a.ARPT_STATUS||'Not reported'),date:sourceDate(a.EFF_DATE),dateLabel:'Source effective date',lat:f.geometry?.y,lon:f.geometry?.x}}).filter(validPoint);
+  items.sort((a,b)=>Math.hypot((a.lat-lat)*111320,(a.lon-lon)*111320*Math.cos(lat*Math.PI/180))-Math.hypot((b.lat-lat)*111320,(b.lon-lon)*111320*Math.cos(lat*Math.PI/180)));
+  return{items,radiusMeters:16093.44,truncated:!!d.exceededTransferLimit,source:'FAA / USDOT BTS aviation facilities',sourceUrl:service,note:'Aviation facility reference points within 10 miles, including airports and heliports. These are not flight paths, flight counts, approach routes, current operations, or noise measurements. Proximity alone does not establish aircraft noise; check the source status and local flight/noise information.'};
+}
+async function epaAir(lat,lon) {
+  const service='https://echogeo.epa.gov/arcgis/rest/services/ECHO/Facilities/MapServer/1';
+  const d=await spatialQuery(service,lat,lon,1609.344,'REGISTRY_ID,AIR_NAME,AIR_STATUS');
+  const items=d.features.map(f=>{const a=f.attributes||{};return{id:String(a.REGISTRY_ID),name:a.AIR_NAME||'EPA air-program facility',type:'EPA air-program facility',status:'Source record status: '+(a.AIR_STATUS||'Not reported'),lat:f.geometry?.y,lon:f.geometry?.x}}).filter(validPoint);
+  return{items,radiusMeters:1609.344,truncated:!!d.exceededTransferLimit,source:'US EPA ECHO air facilities',sourceUrl:service,note:'EPA air-program facility records within 1 mile. Registration does not establish a current violation, harmful exposure, actual emissions, an odor, or poor air quality at this home. No wind/dispersion modeling or odor complaints are included. Facility records can be incomplete or inactive; check the source.'};
+}
+async function aviationNoise(lat,lon) {
+  const region=lat>=50&&lon<=-130?'Alaska':lat>=18&&lat<=23&&lon>=-161&&lon<=-154?'Hawaii':lat>=24&&lat<=50&&lon>=-125&&lon<=-66?'CONUS':null;
+  if(!region)return{supported:false,items:[],note:'The 2022 modeled aviation-noise overlay supports the continental US, Alaska and Hawaii only.'};
+  const service='https://tiles.arcgis.com/tiles/xOi1kZaI0eWDREZv/arcgis/rest/services/NTAD_Noise_2022_'+region+'_aviation/MapServer';
+  const legend=await json(service+'/legend?f=json');
+  const symbols=(legend.layers||[]).flatMap(l=>l.legend||[]).filter(l=>l.label&&l.imageData).map(l=>({label:l.label,imageData:l.imageData,contentType:l.contentType||'image/png'}));
+  if(!symbols.length)throw Error('Noise legend unavailable');
+  return{items:[],tileUrl:service+'/tile/{z}/{y}/{x}',legend:symbols,period:'2022',source:'USDOT BTS National Transportation Noise Map · aviation only',sourceUrl:'https://www.bts.gov/geospatial/national-transportation-noise-map',note:'Regional 2022 modeled aviation-noise context only. BTS states this simplified national model should not be used to evaluate noise at individual locations or specific times. It does not model shielding by terrain/barriers and omits helicopter noise. No address-level dB estimate, current flight path, or quietness rating is provided. Unshaded areas are not proof of silence. The selected area is requested from the ArcGIS tile service.'};
+}

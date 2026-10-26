@@ -545,6 +545,10 @@ function drawTrafficVolumes(report,rows,features) {
 }
 
 const CONTEXT_LAYERS=[
+  {id:'aviation',label:'Airports / heliports · 10 mi',source:'aviation',color:'#2869a5'},
+  {id:'aviationNoise',label:'Aviation noise · 2022 regional model',source:'aviationNoise',color:'#aa4da0'},
+  {id:'odor',label:'Wastewater / landfill / waste sites',source:'facilities',color:'#667d37'},
+  {id:'epa',label:'EPA air facilities · 1 mi',source:'epa',color:'#75613b'},
   {id:'nightlife',label:'Bars & venues',source:'facilities',color:'#7c3aed'},
   {id:'emergency',label:'Emergency facilities',source:'facilities',color:'#087e8b'},
   {id:'industrial',label:'Industrial / warehouses',source:'facilities',color:'#906335'},
@@ -555,13 +559,19 @@ const CONTEXT_LAYERS=[
 function showNearbyContext(report) {
   const host=$('propertyMap').closest('.map-panel');
   let panel=$('nearbyContext');if(!panel){panel=document.createElement('details');panel.id='nearbyContext';panel.className='nearby-context';host.append(panel);}
-  panel.innerHTML='<summary>Nearby places & local reports <span class="small-note">Optional map layers</span></summary><p class="small-note">Choose layers within approximately half a mile. A nearby facility is not proof of noise. NYC report layers do not cover other cities; no records is not a quietness or safety rating. Selecting a layer queries public data services through this site.</p><div class="context-toggles"></div><div class="context-results"></div>';
+  panel.innerHTML='<summary>Nearby places & local reports <span class="small-note">Optional map layers</span></summary><p class="small-note">Facility and municipal layers cover approximately half a mile; airports cover 10 miles and EPA air records cover 1 mile. The aviation-noise layer is regional 2022 modeling, not a home noise estimate. Facilities do not establish actual noise, odor, emissions, or health impacts. NYC report layers do not cover other cities; no records is not a quietness or safety rating. Selecting a layer queries public data services through this site.</p><div class="context-toggles"></div><div class="context-results"></div>';
   const state={enabled:new Set(),responses:{},requests:{},groups:{}};report.nearbyContext=state;
+  const sections={};
+  [['environment','Air & environmental context'],['facilities','Nearby facilities'],['reports','Local reports · NYC only']].forEach(([key,title])=>{
+    const fieldset=document.createElement('fieldset');fieldset.className='context-layer-group';
+    const legend=document.createElement('legend');legend.textContent=title;fieldset.append(legend);
+    const row=document.createElement('div');row.className='context-toggles';fieldset.append(row);panel.querySelector('.context-toggles').append(fieldset);sections[key]=row;
+  });
   CONTEXT_LAYERS.forEach(layer=>{
     const label=document.createElement('label');label.className='context-toggle';
     const input=document.createElement('input');input.type='checkbox';input.setAttribute('aria-label',layer.label);
     const dot=document.createElement('span');dot.className='context-dot';dot.style.background=layer.color;
-    label.append(input,dot,document.createTextNode(layer.label));panel.querySelector('.context-toggles').append(label);
+    label.append(input,dot,document.createTextNode(layer.label));sections[['aviation','aviationNoise','odor','epa'].includes(layer.id)?'environment':layer.source==='facilities'?'facilities':'reports'].append(label);
     input.addEventListener('change',async()=>{
       if(currentReport!==report)return;
       if(!input.checked){state.enabled.delete(layer.id);if(state.groups[layer.id]&&propertyMap)propertyMap.removeLayer(state.groups[layer.id]);delete state.groups[layer.id];renderContextResults(report,panel);return;}
@@ -582,11 +592,18 @@ function contextItems(report,layer){const data=report.nearbyContext.responses[la
 function drawContextLayer(report,layer){
   if(currentReport!==report)return;if(!propertyMap)$('loadMap').click();if(!propertyMap)return;
   const state=report.nearbyContext;if(state.groups[layer.id])propertyMap.removeLayer(state.groups[layer.id]);
+  const data=state.responses[layer.source];
+  if(data?.tileUrl){
+    const tiles=L.tileLayer(data.tileUrl,{opacity:0.5,maxNativeZoom:14,maxZoom:19,attribution:'Aviation model © USDOT BTS · 2022 · regional context'}).addTo(propertyMap);
+    state.groups[layer.id]=tiles;
+    tiles.on('tileerror',()=>{if(currentReport!==report||state.groups[layer.id]!==tiles)return;if(state.noiseTileWarning)return;state.noiseTileWarning=true;const warning=document.createElement('p');warning.className='small-note';warning.setAttribute('role','status');warning.textContent='Some aviation-noise tiles are unavailable. An unshaded area does not establish low noise or no aircraft activity.';$('nearbyContext').querySelector('.context-results').append(warning);});
+    return;
+  }
   const group=L.layerGroup().addTo(propertyMap);state.groups[layer.id]=group;
   contextItems(report,layer).forEach(item=>{
     const popup=document.createElement('div'),title=document.createElement('strong');title.textContent=item.name;popup.append(title);
     const text=document.createElement('p');text.textContent=[item.type,item.date?(item.dateLabel||'Reported')+': '+item.date:null,item.hours,item.status].filter(Boolean).join(' · ');popup.append(text);
-    const note=document.createElement('small');note.textContent=layer.id==='crime'?'Approximate reported location; not a conviction or risk rating.':'Approximate source location; not a noise measurement.';popup.append(note);
+    const note=document.createElement('small');note.textContent=layer.id==='crime'?'Approximate reported location; not a conviction or risk rating.':['epa','odor'].includes(layer.id)?'Facility reference point; not evidence of odor, emissions, exposure, or a violation.':layer.id==='aviation'?'Airport/heliport reference point, not a flight path or noise measurement.':'Approximate source location; not a noise measurement.';popup.append(note);
     L.circleMarker([item.lat,item.lon],{radius:layer.source==='facilities'?7:5,color:layer.color,fillColor:layer.color,fillOpacity:0.7,weight:2}).addTo(group).bindPopup(popup);
   });
 }
@@ -595,12 +612,17 @@ function renderContextResults(report,panel){
   CONTEXT_LAYERS.filter(l=>state.enabled.has(l.id)).forEach(layer=>{
     const data=state.responses[layer.source],card=document.createElement('details');card.className='context-result';const summary=document.createElement('summary');
     const items=contextItems(report,layer);
-    summary.textContent=layer.label+' · '+(!data?'Loading…':data.supported===false?'Not supported here':items.length+(data.truncated?' shown · source limit reached':' returned'));card.append(summary);
+    summary.textContent=layer.label+' · '+(!data?'Loading…':data.supported===false?'Not supported here':data.tileUrl?'2022 regional model':items.length+(data.truncated?' shown · source limit reached':' returned'));card.append(summary);
     if(!data){container.append(card);return;}
     const note=document.createElement('p');note.className='small-note';note.textContent=data.note||'';card.append(note);
     if(data.supported!==false){
       const period=document.createElement('p');period.className='small-note';period.textContent=(data.windowStart?'Requested period: '+data.windowStart+' to '+data.windowEnd+'. ':'')+'Retrieved: '+String(data.fetchedAt||'').slice(0,10)+'. '+(data.truncated?'Partial list; do not treat this as a total count. ':'')+'Displayed locations are approximate.';card.append(period);
-      if(!items.length){const empty=document.createElement('p');empty.className='small-note';empty.textContent='No matching mapped records returned. This may reflect missing coverage.';card.append(empty);}
+      if(data.tileUrl){
+        const title=document.createElement('p');title.className='small-note';title.textContent='Source legend · 2022 modeled aviation noise (dBA). Regional context, not a measurement at this address.';card.append(title);
+        const legend=document.createElement('div');legend.className='environment-legend';
+        data.legend.forEach(symbol=>{const row=document.createElement('span');const image=document.createElement('img');image.src='data:'+symbol.contentType+';base64,'+symbol.imageData;image.alt='';image.width=20;image.height=20;row.append(image,document.createTextNode(symbol.label));legend.append(row)});card.append(legend);
+      }
+      if(!items.length&&!data.tileUrl){const empty=document.createElement('p');empty.className='small-note';empty.textContent='No matching mapped records returned. This may reflect missing coverage.';card.append(empty);}
       const list=document.createElement('ul');list.className='context-list';
       items.slice(0,20).forEach(item=>{const li=document.createElement('li');li.textContent=item.name+' · '+[item.type,item.date?(item.dateLabel||'Reported')+' '+item.date:null,item.hours].filter(Boolean).join(' · ');list.append(li)});card.append(list);
       if(items.length>20){const more=document.createElement('p');more.className='small-note';more.textContent='List shows the first 20; all returned locations are plotted on the map.';card.append(more);}
