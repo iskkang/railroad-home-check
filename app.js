@@ -76,6 +76,7 @@ function setError(message) {
 function renderReport(report) {
   const nearest = report.crossings?.[0];
   currentReport = report;
+  showRailDistance(report);
   resetMap();
   $('actionStatus').textContent = '';
   $('shareLink').classList.add('hidden');
@@ -298,3 +299,56 @@ window.addEventListener('hashchange', () => {
     form.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 });
+
+function showRailDistance(report) {
+  let panel = $('railDistancePanel');
+  if (!panel) {
+    panel = document.createElement('section');
+    panel.id = 'railDistancePanel'; panel.className = 'panel map-panel';
+    $('reportData').before(panel);
+  }
+  panel.innerHTML = '<div class="panel-kicker">DISTANCE TO TRACKS</div><h3>How close is the nearest mapped rail line?</h3><p class="small-note">Estimate from the approximate property pin to a mapped rail centerline within 3.25 miles. Includes mapped lines regardless of operating status; not a survey or noise rating. Source: USDOT / BTS North American Rail Network. Loading sends the searched coordinates and your IP address to the ArcGIS data service.</p><button type="button" class="action-button">Check rail-line distance</button><p role="status" class="small-note"></p>';
+  const btn = panel.querySelector('button'), status = panel.querySelector('[role="status"]');
+  btn.addEventListener('click', async () => {
+    btn.disabled = true; status.textContent = 'Checking mapped rail lines…';
+    try {
+      const params = new URLSearchParams({f:'json', geometry:report.lon+','+report.lat,geometryType:'esriGeometryPoint',inSR:'4326',spatialRel:'esriSpatialRelIntersects',distance:'5230.368',units:'esriSRUnit_Meter',outFields:'OBJECTID',returnGeometry:'true',outSR:'4326',resultRecordCount:'1000'});
+      const response = await fetch('https://services.arcgis.com/xOi1kZaI0eWDREZv/arcgis/rest/services/NTAD_North_American_Rail_Network_Lines/FeatureServer/0/query?'+params, {signal:AbortSignal.timeout(20000)});
+      if (!response.ok) throw Error('Rail data request failed');
+      const data = await response.json();
+      if (data.error || !Array.isArray(data.features) || data.exceededTransferLimit) throw Error('Incomplete rail data');
+      const paths = data.features.flatMap(f => f.geometry?.paths || []);
+      const meters = nearestRailMeters(report.lat, report.lon, paths);
+      if (currentReport !== report) return;
+      status.textContent = Number.isFinite(meters) && meters <= 5230.368
+        ? 'Nearest mapped rail line: approximately '+(meters < 160.9344 ? Math.round(meters/0.3048)+' ft' : (meters/1609.344).toFixed(2)+' mi')+'. This is rail-line distance, separate from crossing distance. Operating status and train counts on this line have not been verified.'
+        : 'No mapped rail line found within 3.25 miles. Missing data is possible; this does not establish that no tracks exist.';
+      if (paths.length) {
+        if (!propertyMap) $('loadMap').click();
+        if (propertyMap) {
+          L.polyline(paths.map(path=>path.map(([lon,lat])=>[lat,lon])),{color:'#455f86',weight:3,opacity:0.85}).addTo(propertyMap).bindTooltip('Mapped rail centerline · USDOT/BTS · operating status unverified');
+          status.textContent += ' Blue lines on the map show the mapped rail network.';
+        }
+      }
+      btn.textContent = 'Rail-line check complete';
+    } catch {
+      if (currentReport !== report) return;
+      status.textContent = 'Rail-line distance is unavailable. Your crossing report is still available. Try again.';
+      btn.disabled = false;
+    }
+  });
+}
+function nearestRailMeters(lat, lon, paths) {
+  const scale = Math.cos(lat*Math.PI/180), radians = Math.PI/180, radius = 6371008.8;
+  let best = Infinity;
+  for (const path of paths) for (let i=1;i<path.length;i++) {
+    const [x1,y1]=path[i-1], [x2,y2]=path[i];
+    if (![x1,y1,x2,y2].every(Number.isFinite)) continue;
+    const ax=(x1-lon)*radians*radius*scale, ay=(y1-lat)*radians*radius;
+    const bx=(x2-lon)*radians*radius*scale, by=(y2-lat)*radians*radius;
+    const dx=bx-ax, dy=by-ay, length=dx*dx+dy*dy;
+    const t=length ? Math.max(0,Math.min(1,-(ax*dx+ay*dy)/length)) : 0;
+    best=Math.min(best,Math.hypot(ax+t*dx,ay+t*dy));
+  }
+  return best;
+}
