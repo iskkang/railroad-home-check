@@ -415,22 +415,32 @@ function showRoadTraffic(report) {
         status.textContent = 'No road segments with reported traffic counts were returned within 1 mile. This is a data gap, not evidence of low traffic.';
         button.textContent = 'Traffic check complete'; return;
       }
-      const shown = rows.slice(0,15);
-      status.textContent = 'Showing '+shown.length+' of '+rows.length+' road segments with reported counts, nearest first. Distances are to mapped road centerlines. Rows may describe different sections of the same road; vehicle counts can overlap.';
-      const table = document.createElement('table');
+      // One row per road (nearest counted segment), 5 shown first
+      const byRoad=[];const seen=new Map();
+      rows.forEach(row=>{const k=row.name==='Unnamed road segment'?'id:'+(row.a.ROUTE_ID||Math.random()):row.name.toLowerCase();if(!seen.has(k)){const r={...row,segments:1,maxAadt:Number(row.a.AADT)};seen.set(k,r);byRoad.push(r);}else{const r=seen.get(k);r.segments++;r.maxAadt=Math.max(r.maxAadt,Number(row.a.AADT));}});
+      const shown = byRoad.slice(0,15);
+      status.textContent = shown.length+(shown.length===1?' nearby road':' nearby roads')+' with reported counts, nearest first ('+rows.length+' counted segments). Distance is to the nearest counted segment of each road.';
+      const table = document.createElement('table');table.className='road-table';
       const head = document.createElement('thead'), header = document.createElement('tr');
-      ['Road segment','Distance','Vehicles / day (AADT)','Single-unit trucks & buses / day','Combination trucks / day','Data year'].forEach(label=>{const th=document.createElement('th');th.scope='col';th.textContent=label;header.append(th)});
+      ['Road','Distance','Vehicles / day','Trucks / day','Year'].forEach(label=>{const th=document.createElement('th');th.scope='col';th.textContent=label;header.append(th)});
       head.append(header);table.append(head);const body=document.createElement('tbody');
-      const fmt = v => v === null || v === undefined || v === '' || !Number.isFinite(Number(v)) || Number(v)<0 ? 'Not reported' : Number(v).toLocaleString('en-US');
+      const ok = v => v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)) && Number(v)>=0;
+      const fmt = v => ok(v) ? Number(v).toLocaleString('en-US') : '—';
       shown.forEach((row,i)=>{
-        const tr=document.createElement('tr');
-        [String(i+1)+'. '+row.name,row.meters<160.9344?Math.round(row.meters/0.3048)+' ft':(row.meters/1609.344).toFixed(2)+' mi',fmt(row.a.AADT),fmt(row.a.AADT_SINGLE_UNIT),fmt(row.a.AADT_COMBINATION),row.a.DATA_YEAR || 'Not reported'].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td)});
+        const tr=document.createElement('tr');if(i>=5)tr.className='road-more hidden';
+        const trucks=ok(row.a.AADT_SINGLE_UNIT)||ok(row.a.AADT_COMBINATION)?fmt((ok(row.a.AADT_SINGLE_UNIT)?Number(row.a.AADT_SINGLE_UNIT):0)+(ok(row.a.AADT_COMBINATION)?Number(row.a.AADT_COMBINATION):0)):'—';
+        const busier=row.segments>1&&row.maxAadt>Number(row.a.AADT)*1.05?' (up to '+fmt(row.maxAadt)+')':'';
+        [row.name,row.meters<160.9344?Math.round(row.meters/0.3048)+' ft':(row.meters/1609.344).toFixed(2)+' mi',fmt(row.a.AADT)+busier,trucks,row.a.DATA_YEAR || '—'].forEach((value,j)=>{const td=document.createElement(j===0?'th':'td');if(j===0)td.scope='row';td.textContent=value;tr.append(td)});
         body.append(tr);
-      });table.append(body);container.replaceChildren(table);
+      });table.append(body);
+      const nodes=[table];
+      if(shown.length>5){const more=document.createElement('button');more.type='button';more.className='text-button road-toggle';more.textContent='Show '+(shown.length-5)+' more roads';more.addEventListener('click',()=>{const open=more.dataset.open==='1';table.querySelectorAll('.road-more').forEach(tr=>tr.classList.toggle('hidden',open));more.dataset.open=open?'0':'1';more.textContent=open?'Show '+(shown.length-5)+' more roads':'Show fewer roads';});nodes.push(more);}
+      const note=document.createElement('p');note.className='small-note';note.textContent='Vehicles/day = annual average daily traffic (AADT). "—" means not reported.';nodes.push(note);
+      container.replaceChildren(...nodes);
       if (!propertyMap) $('loadMap').click();
       if (propertyMap) {
         drawTrafficVolumes(report, rows, data.features);
-        status.textContent += ' The map colors all '+rows.length+' returned counted road groups by fixed daily-volume bands; the table lists the nearest '+shown.length+'. Gray overlays have no reported count. Uncolored streets may have no coverage.';
+        status.textContent += ' The map colors every counted segment by daily-volume band; gray means no reported count.';
       }
       button.textContent = 'Traffic check complete'; trackEvent('road_traffic_checked');
     } catch {
@@ -440,10 +450,25 @@ function showRoadTraffic(report) {
     }
   });
 }
+// HPMS route IDs look like "ORA_SA_N MAIN ST_P"; show "N Main St" instead.
+const ROAD_SUFFIX=/\b(ST|STREET|AVE|AV|AVENUE|BLVD|RD|ROAD|DR|DRIVE|HWY|FWY|WAY|LN|LANE|PKWY|PKY|CT|PL|TRL|EXPY|CIR|TER|PIKE|SQ|LOOP|BYP|TPKE|HIGHWAY|FREEWAY|PARKWAY|BOULEVARD)\b/;
+function roadName(a){
+  const tc=t=>t.toLowerCase().replace(/(^|[\s\-\/])([a-z])/g,(m,p,c)=>p+c.toUpperCase()).replace(/\b(Nw|Ne|Sw|Se|Us|Sr|Ih|Fm)\b/g,m=>m.toUpperCase());
+  const id=String(a.RouteName||a.ROUTE_ID||'').trim();
+  if(a.RouteName&&!/_/.test(a.RouteName)&&/[a-z]/i.test(a.RouteName))return /[a-z]/.test(a.RouteName)?String(a.RouteName).trim():tc(String(a.RouteName).trim());
+  let m;
+  if((m=id.match(/^(?:IS|I)[-_ ]?0*(\d{1,3})(?:\D|$)/i)))return 'I-'+m[1];
+  if((m=id.match(/^US[-_ ]?0*(\d{1,3})(?:\D|$)/i)))return 'US '+m[1];
+  if((m=id.match(/^SR[-_ ]?0*(\d{1,4})(?:\D|$)/i)))return 'State Route '+m[1];
+  const named=id.split('_').map(t=>t.trim()).filter(t=>/[A-Za-z]{2,}/.test(t)&&(/\s/.test(t)||ROAD_SUFFIX.test(t.toUpperCase())));
+  if(named.length)return tc(named.sort((x,y)=>y.length-x.length)[0]);
+  if(a.RouteNumber)return 'Route '+a.RouteNumber;
+  return 'Unnamed road segment';
+}
 function trafficRows(features,lat,lon) {
   const segments = features.map(feature=>{
     const a=feature.attributes || {},paths=feature.geometry?.paths || [];
-    return {a,paths,name:a.RouteName || (a.RouteNumber?'Route '+a.RouteNumber:null) || a.ROUTE_ID || 'Unnamed road segment',meters:nearestRailMeters(lat,lon,paths)};
+    return {a,paths,name:roadName(a),meters:nearestRailMeters(lat,lon,paths)};
   }).filter(row=>row.a.AADT!==null && row.a.AADT!==undefined && row.a.AADT!=='' && Number.isFinite(Number(row.a.AADT)) && Number(row.a.AADT)>=0 && row.meters<=1609.344).sort((a,b)=>a.meters-b.meters);
   const groups = new Map();
   for (const row of segments) {

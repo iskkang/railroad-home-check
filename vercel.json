@@ -22,5 +22,13 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/geocode.js": {
+      "maxDuration": 20
+    },
+    "api/flood.js": {
+      "maxDuration": 20
+    }
+  }
 }

@@ -47,6 +47,7 @@
     horn: '<path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18 6a8.5 8.5 0 0 1 0 12"/>',
     road: '<path d="M8 3 4 21"/><path d="m16 3 4 18"/><path d="M12 5v2"/><path d="M12 11v2"/><path d="M12 17v2"/>',
     moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/>',
+    flood: '<path d="M3 15c2 0 2-1.5 4.5-1.5S9.5 15 12 15s2.5-1.5 4.5-1.5S19 15 21 15"/><path d="M3 19.5c2 0 2-1.5 4.5-1.5s2 1.5 4.5 1.5 2.5-1.5 4.5-1.5 2.5 1.5 4.5 1.5"/><path d="M12 3 7.5 9.5a4.5 4.5 0 0 0 9 0Z"/>',
     site: '<path d="M3 21V9l6 4V9l6 4V5h6v16Z"/>'
   };
   const icon = n => `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
@@ -99,6 +100,23 @@
     return row({ ic: 'horn', tone: h.level.tone, k: 'Train horns at this home', v: esc(h.level.v), note, badge: h.level.badge });
   }
 
+  function floodRow(s) {
+    const f = s.flood;
+    if (f === undefined) return row({ ic: 'flood', tone: 'neutral', k: 'FEMA flood zone', v: 'Checking…' });
+    const addr = s.report.matchedAddress || s.report.address || '';
+    const link = `<a href="https://msc.fema.gov/portal/search?AddressQuery=${encodeURIComponent(addr)}" target="_blank" rel="noopener">Official FEMA map</a>`;
+    if (f === 'error') return row({ ic: 'flood', tone: 'neutral', k: 'FEMA flood zone', v: 'Unavailable', note: `FEMA data did not respond · ${link}`, badge: 'RETRY LATER' });
+    const t = {
+      high: ['warn', 'HIGH RISK', '1% yearly chance of flooding. Lenders require flood insurance on federally backed mortgages here.'],
+      moderate: ['neutral', 'MODERATE', '0.2% yearly chance area. Insurance is optional but worth pricing.'],
+      minimal: ['ok', 'LOW', 'Low risk on FEMA maps. Floods can still happen outside mapped zones.'],
+      undetermined: ['neutral', 'UNDETERMINED', 'Possible flood risk that FEMA has not studied.'],
+      unmapped: ['neutral', 'NO MAP', 'FEMA has no digital flood map for this spot.']
+    }[f.level] || ['neutral', 'CHECK', ''];
+    const bfe = f.bfe !== null && f.bfe !== undefined ? ` Base flood elevation ${f.bfe} ft.` : '';
+    return row({ ic: 'flood', tone: t[0], k: 'FEMA flood zone', v: esc(f.label), note: `${esc(t[2] + bfe)} · ${link}`, badge: t[1] });
+  }
+
   function roadRow(s) {
     if (s.roads === undefined) return row({ ic: 'road', tone: 'neutral', k: 'Nearest counted road', v: 'Checking…' });
     if (s.roads === 'error') return row({ ic: 'road', tone: 'neutral', k: 'Nearest counted road', v: 'Unavailable', note: 'Retry under Road traffic' });
@@ -149,7 +167,7 @@
   function render() {
     if (!state) return;
     const el = panel();
-    el.innerHTML = `<div class="g-head"><h3>At a glance</h3><p class="g-sub">Each line is a different source, place and year — not a combined noise or safety score.</p></div><ul class="g-list">${railRow(state)}${crossingRows(state.report)}${roadRow(state)}${nightRow(state)}${siteRow(state)}</ul>${nearList(state)}<nav class="g-jump" aria-label="Jump to report section"><a href="#paneRail" data-glance="pane">Rail</a><a href="#paneRoad" data-glance="pane">Roads</a><a href="#paneHourly" data-glance="pane">At night</a><a href="#topicliving" data-glance="living">Nearby sites</a><a href="#propertyMap" data-glance="map">Map</a></nav>`;
+    el.innerHTML = `<div class="g-head"><h3>At a glance</h3><p class="g-sub">Each line is a different source, place and year — not a combined noise or safety score.</p></div><ul class="g-list">${railRow(state)}${crossingRows(state.report)}${floodRow(state)}${roadRow(state)}${nightRow(state)}${siteRow(state)}</ul>${nearList(state)}<nav class="g-jump" aria-label="Jump to report section"><a href="#paneRail" data-glance="pane">Rail</a><a href="#paneRoad" data-glance="pane">Roads</a><a href="#paneHourly" data-glance="pane">At night</a><a href="#topicliving" data-glance="living">Nearby sites</a><a href="#propertyMap" data-glance="map">Map</a></nav>`;
   }
 
   function onClick(e) {
@@ -186,9 +204,82 @@
     document.body.append(bar);
   }
 
+  // One-page printable summary ("Save PDF"): address, map, the at-a-glance rows and what's within 3/4 mile.
+  function buildSheet() {
+    const s = state, r = s.report;
+    let el = document.getElementById('printSheet');
+    if (el) { el._map?.remove(); el.remove(); }
+    el = document.createElement('section');
+    el.id = 'printSheet';
+    el.className = 'print-sheet';
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    el.innerHTML = `<header class="ps-head"><div><div class="ps-brand">Home Surroundings Check</div><h1>${esc(r.matchedAddress || '')}</h1></div><div class="ps-date">Summary · ${esc(date)}<br>railroad-home-check.vercel.app</div></header>
+      <div class="ps-map" id="printSheetMap"></div>
+      <div class="ps-key"><span><i class="cat-dot cat-night"></i>Night trains</span><span><i class="cat-dot cat-qz"></i>Quiet zone</span><span><i class="cat-dot cat-day"></i>Daytime only</span><span><i class="cat-dot cat-none"></i>No count</span><span><i class="horn-key"></i>Horn zone (¼ mi)</span></div>
+      <ul class="g-list ps-list">${railRow(s)}${crossingRows(r)}${floodRow(s)}${roadRow(s)}${nightRow(s)}${(s.report.nearbyContext?.responses?.facilities || s.report.nearbyContext?.responses?.epa) ? siteRow(s) : ''}</ul>
+      ${nearList(s)}
+      <footer class="ps-foot">Sources: FRA Crossing Inventory (Form 71), FHWA HPMS road counts, FEMA National Flood Hazard Layer, OpenStreetMap. Reported data with its own dates; not a noise measurement, flood determination, appraisal or inspection. Distances are straight-line from an approximate geocoded point.</footer>`;
+    el.querySelectorAll('.g-btn').forEach(b => b.remove());
+    document.body.append(el);
+    return el;
+  }
+
+  function sheetMap(el) {
+    return new Promise(resolve => {
+      const r = state.report, host = el.querySelector('#printSheetMap');
+      if (!window.L || !Number.isFinite(r.lat)) { host.remove(); return resolve(); }
+      const map = L.map(host, { zoomControl: false, attributionControl: true, dragging: false, scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false, tap: false, zoomSnap: 0.25, fadeAnimation: false, zoomAnimation: false });
+      el._map = map;
+      map.attributionControl.setPrefix(false);
+      const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+      const home = [r.lat, r.lon], pts = [home];
+      const near = (r.crossings || []).filter(c => Number.isFinite(c.lat) && c.distanceMiles <= 1).slice(0, 12);
+      near.filter(hornCrossing).forEach(c => {
+        const busy = perDay(c) >= 1;
+        L.circle([c.lat, c.lon], { radius: 402.336, stroke: !busy, color: '#e8590c', weight: 1, dashArray: '2 4', fill: busy, fillColor: '#e8590c', fillOpacity: 0.1, interactive: false }).addTo(map);
+      });
+      near.forEach((c, i) => {
+        pts.push([c.lat, c.lon]);
+        const cat = globalThis.crossingCategory ? globalThis.crossingCategory(c).key : 'none';
+        L.marker([c.lat, c.lon], { interactive: false, icon: L.divIcon({ className: `crossing-dot cat-${cat}${i === 0 ? ' nearest-pin' : ''}`, html: i === 0 ? '<span>Nearest</span>' : '', iconSize: i === 0 ? [20, 20] : [14, 14] }) }).addTo(map);
+      });
+      L.marker(home, { interactive: false, icon: L.divIcon({ className: 'home-pin', html: 'H', iconSize: [26, 26], iconAnchor: [13, 13] }) }).addTo(map);
+      if (pts.length > 1) map.fitBounds(pts, { padding: [28, 28], maxZoom: 16 }); else map.setView(home, 15);
+      let done = false; const finish = () => { if (!done) { done = true; resolve(); } };
+      tiles.on('load', () => setTimeout(finish, 250));
+      setTimeout(finish, 4500);
+    });
+  }
+
+  async function printSheet(e) {
+    const t = e.target.closest('#printReport');
+    if (!t || !state) return;
+    e.preventDefault(); e.stopPropagation();
+    if (t.dataset.busy) return;
+    t.dataset.busy = '1';
+    const label = t.textContent; t.textContent = 'Preparing PDF…';
+    try {
+      const el = buildSheet();
+      document.body.classList.add('ps-preparing');
+      await sheetMap(el);
+      document.body.classList.add('ps-print');
+      const cleanup = () => document.body.classList.remove('ps-print', 'ps-preparing');
+      window.addEventListener('afterprint', cleanup, { once: true });
+      setTimeout(cleanup, 120000);
+      window.print();
+    } finally {
+      t.textContent = label; delete t.dataset.busy;
+    }
+  }
+  document.addEventListener('click', printSheet, true);
+
   window.ReportGlance = {
     start(report) {
-      state = { report, rail: undefined, roads: undefined, night: undefined };
+      state = { report, rail: undefined, roads: undefined, night: undefined, flood: undefined };
+      fetch(`/api/flood?lat=${encodeURIComponent(report.lat)}&lon=${encodeURIComponent(report.lon)}`, { signal: AbortSignal.timeout(20000) })
+        .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+        .then(d => { report.flood = d; if (state?.report === report) { state.flood = d; render(); } })
+        .catch(() => { report.flood = 'error'; if (state?.report === report) { state.flood = 'error'; render(); } });
       const el = panel();
       if (!el.dataset.bound) { el.addEventListener('click', onClick); el.dataset.bound = '1'; }
       actionBar();

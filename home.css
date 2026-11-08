@@ -118,3 +118,43 @@
 .home .map-legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
 .horn-key{display:inline-block;width:16px;height:16px;border-radius:50%;margin-right:6px;vertical-align:-3px;background:radial-gradient(circle,rgba(232,89,12,.32) 0 48%,rgba(232,89,12,.1) 50% 100%);border:1px dashed rgba(232,89,12,.6)}
 .g-why{color:#7a849b;font-size:11.5px}
+
+/* Road table */
+.road-table th[scope="row"]{font-weight:700;text-align:left}
+.road-toggle{margin-top:6px}
+
+/* One-page PDF summary (built by report-glance.js) */
+.print-sheet{position:fixed;left:-10000px;top:0;width:7.7in;background:#fff;color:#0f1b33;font-family:"Plus Jakarta Sans",system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ps-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;border-bottom:2px solid #0f1b33;padding-bottom:8px;margin-bottom:10px}
+.ps-brand{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#2451e6}
+.ps-head h1{font-size:19px;line-height:1.2;margin:3px 0 0;letter-spacing:-.01em}
+.ps-date{font-size:9.5px;color:#5b6680;text-align:right;line-height:1.5;white-space:nowrap}
+.ps-map{height:3.15in;border:1px solid #d5dcea;border-radius:10px;overflow:hidden;background:#eef2f8}
+.ps-map .leaflet-control-attribution{font-size:8px}
+.ps-key{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:9.5px;color:#44506a;margin:6px 0 8px}
+.print-sheet .g-list{grid-template-columns:1fr 1fr;column-gap:22px;padding:0 12px;border-radius:10px}
+.print-sheet .g-row{padding:7px 0;gap:8px;break-inside:avoid}
+.print-sheet .g-ico{width:24px;height:24px;border-radius:7px}
+.print-sheet .g-ico svg{width:13px;height:13px}
+.print-sheet .g-k{font-size:9.5px}
+.print-sheet .g-v{font-size:11.5px;line-height:1.3}
+.print-sheet .g-note{font-size:9px;line-height:1.35}
+.print-sheet .g-why{font-size:8.5px}
+.print-sheet .g-badge{font-size:8px;padding:2px 6px}
+.print-sheet .g-list .g-row:nth-last-child(2):nth-child(odd){border-bottom:0}
+.print-sheet .g-near{margin-top:8px;padding:8px 12px 2px;border-radius:10px}
+.print-sheet .g-near h3{font-size:12px}
+.print-sheet .g-near .g-sub{display:none}
+.print-sheet .g-near ol{columns:2;column-gap:22px}
+.print-sheet .g-near li{padding-bottom:6px;break-inside:avoid;grid-template-columns:48px 10px minmax(0,1fr);gap:6px}
+.print-sheet .g-near li::before{display:none}
+.print-sheet .g-near li strong{font-size:10px}
+.print-sheet .g-near li span:not(.g-d):not(.g-dot){font-size:8.5px}
+.print-sheet .g-d{font-size:9.5px}
+.ps-foot{font-size:8px;line-height:1.4;color:#5b6680;margin-top:8px;border-top:1px solid #e3e8f2;padding-top:6px}
+@media print{
+  @page{size:letter;margin:.4in}
+  body.ps-print > :not(#printSheet){display:none!important}
+  body.ps-print{background:#fff;padding:0!important}
+  body.ps-print #printSheet{position:static;left:auto;width:auto}
+}
