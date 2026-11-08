@@ -1,0 +1,32 @@
+{
+  "fetchedOn": "2026-11-09",
+  "incidentWindow": { "from": "2021-01-01", "to": "2026-08-31" },
+  "filters": "Open (crossingclosed = No), at-grade (crossingpositioncode = 1), public (crossingtypecode = 3) crossings whose FRA inventory city code matches the city. Includes records reported as in or near the city.",
+  "cities": {
+    "houston-tx": { "code": "482013280", "name": "Houston", "st": "TX" },
+    "chicago-il": { "code": "170311670", "name": "Chicago", "st": "IL" },
+    "dallas-tx": { "code": "481131730", "name": "Dallas", "st": "TX" },
+    "san-antonio-tx": { "code": "480296090", "name": "San Antonio", "st": "TX" },
+    "fort-worth-tx": { "code": "484392450", "name": "Fort Worth", "st": "TX" },
+    "austin-tx": { "code": "484530330", "name": "Austin", "st": "TX" },
+    "los-angeles-ca": { "code": "060371980", "name": "Los Angeles", "st": "CA" },
+    "san-diego-ca": { "code": "060733260", "name": "San Diego", "st": "CA" },
+    "portland-or": { "code": "410511650", "name": "Portland", "st": "OR" },
+    "seattle-wa": { "code": "530331960", "name": "Seattle", "st": "WA" },
+    "salt-lake-city-ut": { "code": "490351700", "name": "Salt Lake City", "st": "UT" },
+    "denver-co": { "code": "080310600", "name": "Denver", "st": "CO" },
+    "phoenix-az": { "code": "040130370", "name": "Phoenix", "st": "AZ" },
+    "oklahoma-city-ok": { "code": "401093550", "name": "Oklahoma City", "st": "OK" },
+    "kansas-city-mo": { "code": "290954120", "name": "Kansas City", "st": "MO" },
+    "st-louis-mo": { "code": "295107080", "name": "St. Louis", "st": "MO" },
+    "memphis-tn": { "code": "471571620", "name": "Memphis", "st": "TN" },
+    "nashville-tn": { "code": "470371760", "name": "Nashville", "st": "TN" },
+    "new-orleans-la": { "code": "220711690", "name": "New Orleans", "st": "LA" },
+    "indianapolis-in": { "code": "180972210", "name": "Indianapolis", "st": "IN" },
+    "detroit-mi": { "code": "261631260", "name": "Detroit", "st": "MI" },
+    "charlotte-nc": { "code": "371190870", "name": "Charlotte", "st": "NC" },
+    "jacksonville-fl": { "code": "120311510", "name": "Jacksonville", "st": "FL" },
+    "tampa-fl": { "code": "120572950", "name": "Tampa", "st": "FL" },
+    "philadelphia-pa": { "code": "421016540", "name": "Philadelphia", "st": "PA" }
+  }
+}

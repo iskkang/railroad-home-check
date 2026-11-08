@@ -1,0 +1,18 @@
+/* City train-activity pages (/trains/) */
+.data-date{font-size:13px;color:var(--muted);margin:-6px 0 14px}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 30px}
+.stat{border:1px solid var(--line);border-radius:14px;padding:16px 16px 14px;background:#fff}
+.stat-num{display:block;font-family:Manrope,sans-serif;font-weight:800;font-size:28px;letter-spacing:-.02em;color:var(--ink)}
+.stat-label{display:block;font-size:12px;line-height:1.4;color:var(--muted);margin-top:4px}
+.guide-content .table-scroll{margin:14px 0 8px}
+.guide-content th,.guide-content td{min-width:0;padding:10px 12px;font-size:13px;line-height:1.4;white-space:nowrap}
+.guide-content td:first-child{white-space:normal;min-width:150px}
+.guide-content td.num,.guide-content th.num{text-align:right;font-variant-numeric:tabular-nums}
+.guide-content td .muted{color:var(--muted);font-size:12px}
+.table-note{font-size:13px!important;margin-top:6px}
+.rr-list{columns:2;column-gap:28px}
+.rr-list li{break-inside:avoid}
+.guide-content .faq-list{margin:12px 0 4px}
+.guide-content .faq-list details p{font-size:14px}
+.hub-link{margin-top:16px;font-weight:700}
+@media(max-width:760px){.stat-grid{grid-template-columns:1fr 1fr}.stat-num{font-size:22px}.rr-list{columns:1}}
