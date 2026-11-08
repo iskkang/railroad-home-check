@@ -17,7 +17,7 @@ form.addEventListener('submit', async (event) => {
   trackEvent('property_check_started');
   setLoading(true, 'Locating the property…');
   results.classList.add('hidden');
-  window.ReportGlance?.reset();
+  globalThis.ReportGlance?.reset();
   currentReport?.nearbyContext?.controller.abort();
   currentReport = null;
 
@@ -81,7 +81,7 @@ function setError(message) {
 function renderReport(report) {
   const nearest = report.crossings?.[0];
   currentReport = report;
-  window.ReportGlance?.start(report);
+  globalThis.ReportGlance?.start(report);
   showTmasPatterns(report);
   showRoadTraffic(report);
   showRailDistance(report);
@@ -352,7 +352,7 @@ function showRailDistance(report) {
       btn.textContent = 'Rail-line check complete';
     } catch {
       if (currentReport !== report) return;
-      $('overviewRail').textContent = 'Unavailable'; $('overviewRailNote').textContent = 'Retry in Rail & crossings'; window.ReportGlance?.rail(report,'error');
+      $('overviewRail').textContent = 'Unavailable'; $('overviewRailNote').textContent = 'Retry in Rail & crossings'; globalThis.ReportGlance?.rail(report,'error');
       status.textContent = 'Rail-line distance is unavailable. Your crossing report is still available. Try again.';
       btn.disabled = false;
     }
@@ -418,7 +418,7 @@ function showRoadTraffic(report) {
       button.textContent = 'Traffic check complete'; trackEvent('road_traffic_checked');
     } catch {
       if(currentReport!==report)return;
-      $('overviewRoad').textContent='Unavailable'; $('overviewRoadNote').textContent='Retry in Road traffic'; window.ReportGlance?.roads(report,'error');
+      $('overviewRoad').textContent='Unavailable'; $('overviewRoadNote').textContent='Retry in Road traffic'; globalThis.ReportGlance?.roads(report,'error');
       status.textContent='Road traffic data is unavailable. Try again; your railroad report is still available.';button.disabled=false;
     }
   });
@@ -455,7 +455,7 @@ function showTmasPatterns(report) {
       const index=await tmasIndexPromise;
       const nearby=index.stations.map(s=>({state:s[0],id:s[1],lat:s[2],lon:s[3],miles:tmasDistance(report.lat,report.lon,s[2],s[3])})).filter(s=>s.miles<=10).sort((a,b)=>a.miles-b.miles).slice(0,3);
       if(currentReport!==report)return;
-      if(!nearby.length){window.ReportGlance?.night(report,null);status.textContent='No matched station with at least 14 complete December 2023 days was found within 10 miles. This is missing coverage, not evidence of quiet roads.';button.textContent='Station search complete';return;}
+      if(!nearby.length){globalThis.ReportGlance?.night(report,null);status.textContent='No matched station with at least 14 complete December 2023 days was found within 10 miles. This is missing coverage, not evidence of quiet roads.';button.textContent='Station search complete';return;}
       const states=[...new Set(nearby.map(s=>s.state))];
       await Promise.all(states.map(async state=>{if(!tmasStateCache.has(state))tmasStateCache.set(state,await fetchJSON('/data/tmas/'+state+'.json'));}));
       if(currentReport!==report)return;
@@ -469,7 +469,7 @@ function showTmasPatterns(report) {
       const body=document.createElement('div');content.replaceChildren(label,groupLabel,body);
       const render=()=>renderTmasProfile(stations[Number(select.value)],group.value,body,report);
       select.addEventListener('change',render);group.addEventListener('change',render);render();button.textContent='Station profiles loaded';if(!report.autoHourly)trackEvent('hourly_traffic_explored');
-    }catch{if(currentReport!==report)return;window.ReportGlance?.night(report,'error');status.textContent='Hourly station data is unavailable. Try again; the HPMS road traffic report remains available.';button.disabled=false;}
+    }catch{if(currentReport!==report)return;globalThis.ReportGlance?.night(report,'error');status.textContent='Hourly station data is unavailable. Try again; the HPMS road traffic report remains available.';button.disabled=false;}
   });
 }
 function renderTmasProfile(station,kind,body,report) {
@@ -478,7 +478,7 @@ function renderTmasProfile(station,kind,body,report) {
   text.textContent=(station.location||'Station '+station.id)+' · '+station.state+' '+station.id+' · '+station.miles.toFixed(2)+' miles from property. Reported direction code '+station.direction+', lane code '+station.lane+'. Observations: '+station.start+' to '+station.end+'. '+p.days+' complete '+kind+' days. The selected stream is not a verified count for all directions or lanes. Hours follow the source record; timezone and daylight-saving conventions have not been independently verified.';body.append(text);
   if(!p.days||!p.hours){const empty=document.createElement('p');empty.textContent='No complete days in this selection.';body.append(empty);return;}
   const night=[22,23,0,1,2,3,4,5].reduce((n,h)=>n+p.hours[h],0),total=p.hours.reduce((a,b)=>a+b,0);
-  window.ReportGlance?.night(report,{pct:total?night/total*100:0,miles:station.miles,kind});
+  globalThis.ReportGlance?.night(report,{pct:total?night/total*100:0,miles:station.miles,kind});
   const summary=document.createElement('p');summary.textContent='Average recorded volume during 10 PM–6 AM hours: '+Math.round(night).toLocaleString('en-US')+' vehicles per observed day ('+(total?(night/total*100).toFixed(1):'0.0')+'% of the recorded daily volume). These eight hours are summed within each calendar-day record, not matched across consecutive nights.';body.append(summary);
   const chart=document.createElement('div');chart.setAttribute('role','img');chart.setAttribute('aria-label','24-hour average vehicle counts. Exact values are in the expandable table below.');chart.style.cssText='display:flex;align-items:flex-end;gap:3px;height:190px;padding:15px 4px 24px;border-bottom:1px solid #ccd0c9;margin:18px 0 30px';
   const max=Math.max(...p.hours,1);
@@ -513,7 +513,7 @@ function updateRailOverview(report,meters) {
   if(currentReport!==report)return;
   $('overviewRail').textContent=Number.isFinite(meters)&&meters<=5230.368 ? (meters<160.9344?Math.round(meters/0.3048)+' ft':(meters/1609.344).toFixed(2)+' mi') : 'None returned';
   $('overviewRailNote').textContent='Mapped centerline · Approximate distance';
-  window.ReportGlance?.rail(report,meters);
+  globalThis.ReportGlance?.rail(report,meters);
 }
 function updateRoadOverview(report,rows) {
   if(currentReport!==report)return;
@@ -521,7 +521,7 @@ function updateRoadOverview(report,rows) {
   $('overviewRoad').closest('.overview-card').style.borderTopColor=trafficVolumeBand(nearest?.a.AADT).color;
   $('overviewRoad').textContent=nearest ? Number(nearest.a.AADT).toLocaleString('en-US') : 'Not reported';
   $('overviewRoadNote').textContent=nearest ? 'vehicles/day · '+(nearest.a.DATA_YEAR||'Year unknown')+' · '+nearest.name : 'No counts returned within 1 mi';
-  window.ReportGlance?.roads(report,rows);
+  globalThis.ReportGlance?.roads(report,rows);
 }
 
 function trafficVolumeBand(value) {
@@ -604,13 +604,13 @@ async function refreshNearbyLayer(report,layer,panel){
       .catch(error=>{if(!state.controller.signal.aborted)state.errors[layer.source]=error.name==='TimeoutError'?'The public data source took too long to respond. Please retry.':error.message;})
       .finally(()=>{delete state.requests[layer.source];});
   }
-  renderContextResults(report,panel);window.ReportGlance?.context(report);
+  renderContextResults(report,panel);globalThis.ReportGlance?.context(report);
   await state.requests[layer.source];
   if(currentReport!==report)return;
   if(state.enabled.has(layer.id)&&layerVisible(layer.id)&&state.responses[layer.source]){
     drawContextLayer(report,layer);trackEvent('nearby_layer_opened');
   }
-  renderContextResults(report,panel);window.ReportGlance?.context(report);
+  renderContextResults(report,panel);globalThis.ReportGlance?.context(report);
 }
 function contextItems(report,layer){const data=report.nearbyContext.responses[layer.source];return(data?.items||[]).filter(i=>layer.source!=='facilities'||i.category===layer.id);}
 function drawContextLayer(report,layer){
