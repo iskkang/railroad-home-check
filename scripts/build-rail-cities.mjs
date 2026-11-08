@@ -112,6 +112,11 @@ function mapGeometry(slug) {
   const H = Math.round(W / (((lo1 - lo0) * k) / (la1 - la0)));
   return { m, la0, la1, lo0, lo1, k, W, H };
 }
+// data-* attributes for the Leaflet basemap (rail-map.js decodes the same 3-byte points)
+function mapAttrs(slug) {
+  const m = maps[slug];
+  return `data-b="${esc(JSON.stringify(m.b))}" data-dt="${esc(JSON.stringify(m.dt))}" data-p="${m.p}"`;
+}
 function mapSvg(slug) {
   const { m, la0, la1, lo0, lo1, k, W, H } = mapGeometry(slug);
   const P = 20, TW = W + 2 * P, TH = H + 2 * P;
@@ -176,6 +181,7 @@ function head({ title, description, path, jsonLd, ogImage }) {
 <title>${esc(title)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/vendor/leaflet/leaflet.css"/>
 <link rel="stylesheet" href="/rail-cities.css"/>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
 <meta property="og:type" content="article"/><meta property="og:site_name" content="Home Surroundings Check"/><meta property="og:title" content="${esc(title)}"/><meta property="og:description" content="${esc(description)}"/><meta property="og:url" content="${url}"/>${ogImage ? `<meta property="og:image" content="${ORIGIN}${ogImage}"/>` : ''}
@@ -202,6 +208,8 @@ const FOOTER = `<footer class="rc-foot"><div class="rc-wrap"><p>Data: U.S. DOT /
   if (top && bar && 'IntersectionObserver' in window) new IntersectionObserver(function(es){ bar.classList.toggle('rc-sticky-on', !es[0].isIntersecting); }).observe(top.closest('form'));
 })();
 </script>
+<script src="/vendor/leaflet/leaflet.js" defer></script>
+<script src="/rail-map.js" defer></script>
 </body></html>`;
 
 function searchBox(id, cityName) {
@@ -281,7 +289,7 @@ function cityPage(slug) {
   const sameState = slugs.filter(s => s !== slug && meta.cities[s].st === meta.cities[slug].st);
   const idx = slugs.indexOf(slug);
   const others = [...sameState, ...[1, 2, 3, 4, 5, 6].map(k => slugs[(idx + k) % slugs.length])].filter((s, i, a) => s !== slug && a.indexOf(s) === i).slice(0, 6);
-  const related = others.map(s => { const g = mapGeometry(s); return `<a class="rc-city" href="/trains/${s}/"><img src="/trains/${s}/map.svg" alt="" width="${g.W + 40}" height="${g.H + 40}" loading="lazy"/><strong>${esc(label(s))}</strong><span>${plural(summary[s].n, 'crossing')} · ${fmt(summary[s].night)} with night trains</span></a>`; }).join('');
+  const related = others.map(s => { const g = mapGeometry(s); return `<a class="rc-city" href="/trains/${s}/"><div class="rc-mini" ${mapAttrs(s)}><img src="/trains/${s}/map.svg" alt="" width="${g.W + 40}" height="${g.H + 40}" loading="lazy"/></div><strong>${esc(label(s))}</strong><span>${plural(summary[s].n, 'crossing')} · ${fmt(summary[s].night)} with night trains</span></a>`; }).join('');
 
   const faq = [
     [`Do trains run at night in ${name}?`, `${fmt(c.night)} of ${fmt(c.withTrains)} crossings with reported traffic list trains between 6 PM and 6 AM. Check the specific crossing near a home, because night traffic varies by line.`],
@@ -307,7 +315,7 @@ function cityPage(slug) {
 </div></section>
 
 <section class="rc-wrap rc-sec"><h2>Where ${esc(name)}'s crossings are</h2><p class="rc-sub">Each dot is one public at-grade crossing in the FRA inventory, colored by what its record reports.</p>
-<div class="rc-map-row"><figure class="rc-map"><img src="${mapPath}" width="${mapW}" height="${mapH}" alt="Dot map of public rail crossings in ${esc(L)}: ${fmt(cn)} with night trains outside a quiet zone, ${fmt(cq)} in a quiet zone, ${fmt(cd)} with daytime trains only and ${fmt(cz)} with no reported daily traffic"/><figcaption>FRA Crossing Inventory, retrieved ${FETCHED_LABEL}.${mp.o ? ` ${plural(mp.o, 'crossing')} outside the frame ${mp.o === 1 ? 'is' : 'are'} not shown.` : ''}</figcaption></figure>
+<div class="rc-map-row"><figure class="rc-map"><div class="rc-lmap" ${mapAttrs(slug)} style="aspect-ratio:${mapW}/${mapH}"><img src="${mapPath}" width="${mapW}" height="${mapH}" alt="Dot map of public rail crossings in ${esc(L)}: ${fmt(cn)} with night trains outside a quiet zone, ${fmt(cq)} in a quiet zone, ${fmt(cd)} with daytime trains only and ${fmt(cz)} with no reported daily traffic"/></div><figcaption>FRA Crossing Inventory, retrieved ${FETCHED_LABEL}.${mp.o ? ` ${plural(mp.o, 'crossing')} outside the frame ${mp.o === 1 ? 'is' : 'are'} not shown.` : ''}</figcaption></figure>
 <div class="rc-map-side"><div class="rc-legend"><h3>Legend</h3><ul><li><i style="background:#E8590C"></i>Night trains, no quiet zone<strong>${fmt(cn)}</strong></li><li><i style="background:#0F7B6C"></i>In a quiet zone<strong>${fmt(cq)}</strong></li><li><i style="background:#2451E6"></i>Daytime trains only<strong>${fmt(cd)}</strong></li><li><i style="background:#A3ADBF"></i>No reported daily traffic<strong>${fmt(cz)}</strong></li></ul></div><div class="rc-insights">${insights.join('')}</div></div></div></section>
 
 ${busiest}
@@ -336,7 +344,7 @@ function hubPage() {
   const h1 = 'Train activity by city';
   const description = `Compare FRA rail crossing data for ${slugs.length} U.S. cities: crossing maps, night trains, quiet zones and the busiest railroad lines, for homebuyers.`;
   const sorted = [...slugs].sort((a, b) => label(a).localeCompare(label(b)));
-  const cards = sorted.map(s => { const g = mapGeometry(s); const c = summary[s]; const qz = c.qz24 + c.qzP + c.qzC; return `<a class="rc-city" href="/trains/${s}/"><img src="/trains/${s}/map.svg" alt="" width="${g.W + 40}" height="${g.H + 40}" loading="lazy"/><strong>${esc(label(s))}</strong><span>${plural(c.n, 'crossing')} · ${pct(c.night, c.n)}% night trains · ${pct(qz, c.n)}% quiet zone</span></a>`; }).join('');
+  const cards = sorted.map(s => { const g = mapGeometry(s); const c = summary[s]; const qz = c.qz24 + c.qzP + c.qzC; return `<a class="rc-city" href="/trains/${s}/"><div class="rc-mini" ${mapAttrs(s)}><img src="/trains/${s}/map.svg" alt="" width="${g.W + 40}" height="${g.H + 40}" loading="lazy"/></div><strong>${esc(label(s))}</strong><span>${plural(c.n, 'crossing')} · ${pct(c.night, c.n)}% night trains · ${pct(qz, c.n)}% quiet zone</span></a>`; }).join('');
   const rows = sorted.map(s => {
     const c = summary[s]; const m = mainline[s]; const qz = c.qz24 + c.qzP + c.qzC;
     return `<tr><td><a href="/trains/${s}/">${esc(label(s))}</a></td><td class="num">${fmt(c.n)}</td><td class="num">${fmt(c.night)} <span class="muted">(${pct(c.night, c.n)}%)</span></td><td class="num">${fmt(qz)} <span class="muted">(${pct(qz, c.n)}%)</span></td><td class="num">${m.fWith < 15 || m.fMax < 5 ? '<span class="muted">Mostly transit</span>' : fmt(m.fMax)}</td><td class="num">${fmt(c.incTotal)}</td></tr>`;
@@ -371,7 +379,7 @@ for (const s of slugs) await writeFile(resolve(root, 'trains', s, 'map.svg'), ma
 const HOME_CITIES = ['chicago-il', 'houston-tx', 'dallas-tx', 'los-angeles-ca', 'denver-co', 'philadelphia-pa'];
 const homePath = resolve(root, 'index.html');
 let home = await readFile(homePath, 'utf8');
-const homeCards = HOME_CITIES.map(s => { const g = mapGeometry(s); const c = summary[s]; const qz = c.qz24 + c.qzP + c.qzC; return `<a class="home-city" href="/trains/${s}/"><img src="/trains/${s}/map.svg" alt="" width="${g.W + 40}" height="${g.H + 40}" loading="lazy"/><strong>${esc(label(s))}</strong><span>${plural(c.n, 'crossing')} · ${pct(c.night, c.n)}% night trains · ${pct(qz, c.n)}% quiet zone</span></a>`; }).join('');
+const homeCards = HOME_CITIES.map(s => { const g = mapGeometry(s); const c = summary[s]; const qz = c.qz24 + c.qzP + c.qzC; return `<a class="home-city" href="/trains/${s}/"><div class="rc-mini" ${mapAttrs(s)}><img src="/trains/${s}/map.svg" alt="" width="${g.W + 40}" height="${g.H + 40}" loading="lazy"/></div><strong>${esc(label(s))}</strong><span>${plural(c.n, 'crossing')} · ${pct(c.night, c.n)}% night trains · ${pct(qz, c.n)}% quiet zone</span></a>`; }).join('');
 home = home.replace(/<!-- home-cities:start -->[\s\S]*?<!-- home-cities:end -->/, `<!-- home-cities:start -->${homeCards}<!-- home-cities:end -->`);
 await writeFile(homePath, home);
 

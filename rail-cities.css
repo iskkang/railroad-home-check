@@ -180,3 +180,13 @@
   .rc-bar-num{width:auto;font-size:13px}
   .rc-cta{padding:24px}
 }
+
+/* OpenStreetMap basemap under the crossing dots (rail-map.js) */
+.rc-lmap,.rc-mini{position:relative;overflow:hidden;background:#eef2f8;z-index:0}
+.rc-lmap{width:100%;max-height:640px;border-radius:18px;border:1px solid var(--line)}
+.rc-lmap>img,.rc-mini>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border:0!important;border-radius:0!important}
+.rc-mini{height:150px;border-radius:12px;pointer-events:none}
+.rc-lmap .leaflet-tile-pane,.rc-mini .leaflet-tile-pane{filter:grayscale(1) brightness(1.06) contrast(.88)}
+.rc-mini .leaflet-control-attribution{font-size:9px;padding:0 4px;background:rgba(255,255,255,.75)}
+.rc-dt span{position:absolute;left:22px;top:-38px;white-space:nowrap;background:#0f1b33;color:#fff;font:700 12px/1 "Plus Jakarta Sans",system-ui,sans-serif;padding:7px 11px;border-radius:99px}
+@media(max-width:760px){.rc-lmap{max-height:420px}}
