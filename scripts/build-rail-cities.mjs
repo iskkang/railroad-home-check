@@ -367,6 +367,14 @@ for (const { path, html } of pages) {
 }
 for (const s of slugs) await writeFile(resolve(root, 'trains', s, 'map.svg'), mapSvg(s).svg);
 
+// Homepage: six featured city cards between the home-cities markers
+const HOME_CITIES = ['chicago-il', 'houston-tx', 'dallas-tx', 'los-angeles-ca', 'denver-co', 'philadelphia-pa'];
+const homePath = resolve(root, 'index.html');
+let home = await readFile(homePath, 'utf8');
+const homeCards = HOME_CITIES.map(s => { const g = mapGeometry(s); const c = summary[s]; const qz = c.qz24 + c.qzP + c.qzC; return `<a class="home-city" href="/trains/${s}/"><img src="/trains/${s}/map.svg" alt="" width="${g.W + 40}" height="${g.H + 40}" loading="lazy"/><strong>${esc(label(s))}</strong><span>${plural(c.n, 'crossing')} · ${pct(c.night, c.n)}% night trains · ${pct(qz, c.n)}% quiet zone</span></a>`; }).join('');
+home = home.replace(/<!-- home-cities:start -->[\s\S]*?<!-- home-cities:end -->/, `<!-- home-cities:start -->${homeCards}<!-- home-cities:end -->`);
+await writeFile(homePath, home);
+
 const smPath = resolve(root, 'sitemap.xml');
 let sm = await readFile(smPath, 'utf8');
 sm = sm.replace(/\s*<url><loc>https:\/\/railroad-home-check\.vercel\.app\/trains\/[^<]*<\/loc>(?:<lastmod>[^<]*<\/lastmod>)?<\/url>/g, '');
