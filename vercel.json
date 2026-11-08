@@ -29,6 +29,9 @@
     },
     "api/flood.js": {
       "maxDuration": 20
+    },
+    "api/roadnames.js": {
+      "maxDuration": 20
     }
   }
 }

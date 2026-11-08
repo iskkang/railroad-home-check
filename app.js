@@ -437,11 +437,11 @@ function showRoadTraffic(report) {
       if(shown.length>5){const more=document.createElement('button');more.type='button';more.className='text-button road-toggle';more.textContent='Show '+(shown.length-5)+' more roads';more.addEventListener('click',()=>{const open=more.dataset.open==='1';table.querySelectorAll('.road-more').forEach(tr=>tr.classList.toggle('hidden',open));more.dataset.open=open?'0':'1';more.textContent=open?'Show '+(shown.length-5)+' more roads':'Show fewer roads';});nodes.push(more);}
       const note=document.createElement('p');note.className='small-note';note.textContent='Vehicles/day = annual average daily traffic (AADT). "—" means not reported.';nodes.push(note);
       container.replaceChildren(...nodes);
-      // Unnamed HPMS segments: look up the street name (Photon / OpenStreetMap), one request at a time, visible rows first.
-      const lookup=async from=>{ for(let i=from;i<Math.min(shown.length,from===0?5:15);i++){ const row=shown[i]; if(!row.name.startsWith('Unnamed '))continue; const pt=segmentMid(report.lat,report.lon,row.paths); if(!pt)continue;
-        const name=await streetNameAt(pt); if(currentReport!==report)return; if(name===false)return; if(!name)continue;
-        row.name=name; if(row.src)row.src.name=name; const cell=body.rows[i]?.cells[0]; if(cell)cell.textContent=name; globalThis.ReportGlance?.roads(report,rows); } };
-      lookup(0); container.querySelector('.road-toggle')?.addEventListener('click',()=>lookup(5),{once:true});
+      // Unnamed HPMS segments: one batched Census TIGERweb lookup for all listed rows.
+      const todo=shown.map((row,i)=>[i,row.name.startsWith('Unnamed ')?segmentMid(report.lat,report.lon,row.paths):null]).filter(x=>x[1]);
+      if(todo.length)streetNames(todo.map(x=>x[1].map(v=>Math.round(v*1e5)/1e5))).then(names=>{ if(currentReport!==report)return; let changed=false;
+        todo.forEach(([i],n)=>{ const name=names[n]; if(!name)return; const row=shown[i]; row.name=name; if(row.src)row.src.name=name; const cell=body.rows[i]?.cells[0]; if(cell)cell.textContent=name; changed=true; });
+        if(changed)globalThis.ReportGlance?.roads(report,rows); });
       if (!propertyMap) $('loadMap').click();
       if (propertyMap) {
         drawTrafficVolumes(report, rows, data.features);
@@ -475,15 +475,13 @@ function roadName(a){
 }
 function segmentMid(lat,lon,paths){
   let best=null,bd=Infinity;const k=Math.cos(lat*Math.PI/180);
-  (paths||[]).forEach(path=>{for(let i=0;i+1<path.length;i++){const mx=(path[i][0]+path[i+1][0])/2,my=(path[i][1]+path[i+1][1])/2;const d=((mx-lon)*k)**2+(my-lat)**2;if(d<bd){bd=d;best=[my,mx];}}});
+  (paths||[]).forEach(path=>{for(let i=0;i+1<path.length;i++){const mx=(path[i][0]+path[i+1][0])/2,my=(path[i][1]+path[i+1][1])/2;const d=((mx-lon)*k)**2+(my-lat)**2;if(d<bd){bd=d;best=[my,mx,Math.atan2(path[i+1][1]-path[i][1],(path[i+1][0]-path[i][0])*k)*180/Math.PI];}}});
   return best;
 }
-const streetNameCache=new Map();
-function streetNameAt([lat,lon]){
-  const key=lat.toFixed(4)+','+lon.toFixed(4);
-  if(!streetNameCache.has(key))streetNameCache.set(key,fetch('https://photon.komoot.io/reverse?'+new URLSearchParams({lat,lon,limit:'1',layer:'street',radius:'0.1'}),{signal:AbortSignal.timeout(6000)})
-    .then(r=>r.status===429||r.status>=500?false:r.ok?r.json():null).then(j=>{if(j===false)return false;const p=j?.features?.[0]?.properties;return p&&p.countrycode==='US'&&p.name?p.name:null;}).catch(()=>false));
-  return streetNameCache.get(key);
+// Street names for unnamed segments come from Census TIGERweb via /api/roadnames (one batched request).
+function streetNames(pts){
+  return fetch('/api/roadnames',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pts}),signal:AbortSignal.timeout(20000)})
+    .then(r=>r.ok?r.json():null).then(j=>Array.isArray(j?.names)?j.names:[]).catch(()=>[]);
 }
 function trafficRows(features,lat,lon) {
   const segments = features.map(feature=>{
