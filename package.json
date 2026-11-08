@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Homebuyer railroad due-diligence MVP using official FRA grade-crossing data.",
-  "engines": { "node": ">=20" }
+  "description": "Public-data home surroundings checker and practical road/rail homebuyer guides.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check:seo": "node scripts/check-seo.mjs"
+  }
 }

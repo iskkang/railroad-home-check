@@ -586,7 +586,16 @@ function showNearbyContext(report) {
         if(currentReport!==report)return;
         if(state.enabled.has(layer.id)&&layerVisible(layer.id))drawContextLayer(report,layer);
         renderContextResults(report,panel);trackEvent('nearby_layer_opened');
-      }catch(e){if(currentReport!==report)return;state.enabled.delete(layer.id);input.checked=false;renderContextResults(report,panel);const error=document.createElement('p');error.className='small-note';error.setAttribute('role','status');error.textContent=layer.label+': '+e.message;if(layerVisible(layer.id))$('contextResults').append(error);}
+      }catch(e){
+        if(currentReport!==report)return;
+        state.enabled.delete(layer.id);input.checked=false;renderContextResults(report,panel);
+        const error=document.createElement('p');error.className='small-note';error.setAttribute('role','status');error.textContent=layer.label+': '+e.message;
+        if(layer.id==='noise'){
+          const source=document.createElement('a');source.href='https://data.cityofnewyork.us/d/erm2-nwe9';source.target='_blank';source.rel='noopener noreferrer';source.textContent='Open official NYC 311 records';
+          error.append(document.createTextNode(' '),source);
+        }
+        if(layerVisible(layer.id))$('contextResults').append(error);
+      }
     });
   });
   selectTopic(currentTopic);
