@@ -14,6 +14,7 @@ const meta = await readJson('data/rail-cities/cities.json');
 const summary = await readJson('data/rail-cities/summary.json');
 const mainline = await readJson('data/rail-cities/mainline.json');
 const maps = await readJson('data/rail-cities/maps.json');
+const photos = await readJson('data/rail-cities/photos.json');
 
 const FETCHED = meta.fetchedOn;
 const FETCHED_LABEL = new Date(`${FETCHED}T12:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
@@ -196,6 +197,9 @@ const FOOTER = `<footer class="rc-foot"><div class="rc-wrap"><p>Data: U.S. DOT /
     });
   });
   document.querySelectorAll('a.rc-cta-link').forEach(function(a){ a.addEventListener('click', track); });
+  var top = document.getElementById('addr-top'), bar = document.querySelector('.rc-sticky');
+  document.querySelectorAll('.rc-sticky-btn').forEach(function(a){ a.addEventListener('click', function(e){ if(!top) return; e.preventDefault(); top.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(function(){ top.focus({ preventScroll: true }); }, 450); }); });
+  if (top && bar && 'IntersectionObserver' in window) new IntersectionObserver(function(es){ bar.classList.toggle('rc-sticky-on', !es[0].isIntersecting); }).observe(top.closest('form'));
 })();
 </script>
 </body></html>`;
@@ -294,10 +298,11 @@ function cityPage(slug) {
   ].map(([ic, h, p]) => `<div class="rc-step"><span class="rc-step-ico">${icon(ic, 26)}</span><h3>${h}</h3><p>${p}</p></div>`).join('');
 
   const mapPath = `/trains/${slug}/map.svg`;
+  const photo = photos[slug];
   const html = `${head({ title, description, path, ogImage: null, jsonLd: [articleLd(h1, path, description, mapPath), breadcrumbLd([['Home', '/'], ['Train activity by city', '/trains/'], [L, path]])] })}
 <main>
-<section class="rc-hero"><div class="rc-hero-bg" style="background-image:url('${mapPath}')" aria-hidden="true"></div><div class="rc-wrap rc-hero-in">
-<div class="rc-hero-main"><nav class="rc-crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/trains/">Cities</a> / ${esc(L)}</nav><h1>${esc(h1)}</h1><p class="rc-lead">${lead}</p>${searchBox('addr-top', name)}<p class="rc-date">FRA data retrieved ${FETCHED_LABEL} · latest record update ${c.rev}</p></div>
+<section class="rc-hero rc-hero-photo">${photo ? `<img class="rc-photo" src="${esc(photo.src)}" alt="" width="960" height="640" decoding="async" fetchpriority="high"/>` : ''}<div class="rc-shade" aria-hidden="true"></div><div class="rc-wrap rc-hero-in">
+<div class="rc-hero-main"><nav class="rc-crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/trains/">Cities</a> / ${esc(L)}</nav><h1>${esc(h1)}</h1><p class="rc-lead">${lead}</p>${searchBox('addr-top', name)}<p class="rc-date">FRA data retrieved ${FETCHED_LABEL} · latest record update ${c.rev}</p>${photo ? `<p class="rc-credit">Photo: <a href="${esc(photo.page)}" rel="nofollow">${esc(photo.author || 'Wikimedia Commons')}</a> · ${photo.licenseUrl ? `<a href="${esc(photo.licenseUrl)}" rel="nofollow">${esc(photo.license)}</a>` : esc(photo.license)}, via Wikimedia Commons</p>` : ''}</div>
 <ul class="rc-glance" aria-label="${esc(name)} at a glance">${glance}</ul>
 </div></section>
 
@@ -320,6 +325,7 @@ ${transitList}
 
 <section class="rc-wrap rc-sec"><h2>Compare other cities</h2><div class="rc-cities">${related}</div><p class="rc-more"><a href="/trains/">See all ${slugs.length} cities →</a></p></section>
 </main>
+<div class="rc-sticky" role="region" aria-label="Quick address check"><div><strong>Buying near the tracks?</strong><span>Check one ${esc(name)} address</span></div><a class="rc-sticky-btn" href="#addr-top">Check address</a></div>
 ${FOOTER}`;
   return { path, html, title, description };
 }

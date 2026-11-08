@@ -48,6 +48,9 @@
     });
   });
   document.querySelectorAll('a.rc-cta-link').forEach(function(a){ a.addEventListener('click', track); });
+  var top = document.getElementById('addr-top'), bar = document.querySelector('.rc-sticky');
+  document.querySelectorAll('.rc-sticky-btn').forEach(function(a){ a.addEventListener('click', function(e){ if(!top) return; e.preventDefault(); top.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(function(){ top.focus({ preventScroll: true }); }, 450); }); });
+  if (top && bar && 'IntersectionObserver' in window) new IntersectionObserver(function(es){ bar.classList.toggle('rc-sticky-on', !es[0].isIntersecting); }).observe(top.closest('form'));
 })();
 </script>
 </body></html>
