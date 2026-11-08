@@ -289,6 +289,14 @@ $('loadMap').addEventListener('click', () => {
     maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(propertyMap);
   tiles.on('tileerror', () => { $('mapNotice').textContent = 'Some map tiles are unavailable. Pins and the crossing list remain available; refresh to retry.'; });
+  // Horn zones: public crossings where routine horns are allowed (federal rule: horns start <=1/4 mile out)
+  currentReport.hornLayer=L.layerGroup().addTo(propertyMap);
+  const isHorn=globalThis.ReportGlance?.hornCrossing;
+  if(isHorn)currentReport.crossings.filter(c=>isHorn(c)&&c.distanceMiles<=1.5&&Number.isFinite(c.lat)&&Number.isFinite(c.lon)).forEach(c=>{
+    const busy=(globalThis.ReportGlance.perDay?.(c)||0)>=1;
+    L.circle([c.lat,c.lon],{radius:804.672,stroke:true,color:'#e8590c',weight:1,opacity:busy?.35:.25,dashArray:'3 5',fill:busy,fillColor:'#e8590c',fillOpacity:.025,interactive:false}).addTo(currentReport.hornLayer);
+    L.circle([c.lat,c.lon],{radius:402.336,stroke:!busy,color:'#e8590c',weight:1,opacity:.45,dashArray:'2 4',fill:busy,fillColor:'#e8590c',fillOpacity:.08,interactive:false}).addTo(currentReport.hornLayer);
+  });
   currentReport.crossingLayer=L.layerGroup().addTo(propertyMap);
   const marker = (point, title, content, className, text, target=propertyMap, size=30) => {
     const popup = document.createElement('div'); popup.textContent = content;
@@ -753,7 +761,7 @@ function topicForLayer(id){return ['odor','epa','industrial'].includes(id)?'livi
 function layerVisible(id){return topicForLayer(id)===currentTopic;}
 function applyTopicMap(report=currentReport){
   if(!report||report!==currentReport||!propertyMap)return;
-  [report.crossingLayer,report.railLayer,report.trafficLayer].filter(Boolean).forEach(layer=>{if(currentTopic==='sound'){if(!propertyMap.hasLayer(layer))layer.addTo(propertyMap);}else if(propertyMap.hasLayer(layer))propertyMap.removeLayer(layer);});
+  [report.hornLayer,report.crossingLayer,report.railLayer,report.trafficLayer].filter(Boolean).forEach(layer=>{if(currentTopic==='sound'){if(!propertyMap.hasLayer(layer))layer.addTo(propertyMap);}else if(propertyMap.hasLayer(layer))propertyMap.removeLayer(layer);});
   const state=report.nearbyContext;
   if(state)Object.entries(state.groups).forEach(([id,layer])=>{if(state.enabled.has(id)&&layerVisible(id)){if(!propertyMap.hasLayer(layer))layer.addTo(propertyMap);}else if(propertyMap.hasLayer(layer))propertyMap.removeLayer(layer);});
 }

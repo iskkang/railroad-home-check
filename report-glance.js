@@ -17,6 +17,30 @@
   const segName = n => (/^\d+[a-z]?$/i.test(String(n)) ? `Segment ${n}` : String(n));
   const count = (v, lt1, wk) => (v !== null && v !== undefined && v !== '' ? String(v) : lt1 ? '<1/day' : wk ? `${wk}/wk` : '—');
 
+  // Federal train horn rule (49 CFR 222): outside quiet zones, horns sound for 15-20 s before every
+  // public at-grade crossing, starting no more than 1/4 mile out, at 96-110 dB(A) measured 100 ft ahead.
+  const runsTrains = c => (Number(c.dayTrains) || 0) > 0 || (Number(c.nightTrains) || 0) > 0 || c.lessThanOne || (Number(c.weeklyTrains) || 0) > 0;
+  const hornCrossing = c => c && c.isPublic !== false && !['1', '3'].includes(String(c.quietZone?.code ?? '')) && runsTrains(c);
+  const nightHornCrossing = c => hornCrossing(c) && String(c.quietZone?.code ?? '') !== '2' && (Number(c.nightTrains) || 0) > 0;
+  const perDay = c => (Number(c.dayTrains) || 0) + (Number(c.nightTrains) || 0) || ((Number(c.weeklyTrains) || 0) / 7) || (c.lessThanOne ? 0.5 : 0);
+  function hornAssess(crossings = []) {
+    const horns = crossings.filter(hornCrossing);
+    const near = horns[0];
+    const within1 = horns.filter(c => c.distanceMiles <= 1);
+    const nightWithin1 = within1.filter(nightHornCrossing);
+    const maxNight = nightWithin1.reduce((m, c) => Math.max(m, Number(c.nightTrains) || 0), 0);
+    const d = near ? near.distanceMiles : Infinity;
+    const level = Object.assign({}, d <= 0.25 ? { key: 'loud', badge: 'LOUD', tone: 'warn', v: 'Loud: inside the horn-sounding stretch' }
+      : d <= 0.5 ? { key: 'likely', badge: 'LIKELY AUDIBLE', tone: 'warn', v: 'Likely audible' }
+      : d <= 1 ? { key: 'possible', badge: 'POSSIBLE', tone: 'neutral', v: 'Possibly audible, mostly at night' }
+      : { key: 'unlikely', badge: 'UNLIKELY', tone: 'ok', v: 'Unlikely from routine crossing horns' });
+    // Busiest horn crossing within the same distance band decides frequency, so one quiet spur doesn't hide a busy line.
+    const band = horns.filter(c => c.distanceMiles <= Math.max(d, 0.25) + 0.25);
+    const freq = band.reduce((m, c) => Math.max(m, perDay(c)), 0);
+    if (near && d <= 1 && freq < 1) Object.assign(level, { badge: 'RARE', tone: 'neutral', v: `${d <= 0.25 ? 'Loud' : 'Audible'} when a train passes, but under 1 train/day reported` });
+    return { level, near, horns, within1, nightWithin1, maxNight, freq };
+  }
+
   const ICON = {
     rail: '<path d="M4 21 9 3"/><path d="M20 21 15 3"/><path d="M6 15h12"/><path d="M7 10h10"/><path d="M8 6h8"/>',
     cross: '<path d="M5 5l14 14"/><path d="M19 5 5 19"/>',
@@ -53,14 +77,26 @@
   }
 
   function crossingRows(r) {
-    const c = r.crossings?.[0];
-    if (!c) return row({ ic: 'cross', tone: 'neutral', k: 'Nearest public crossing', v: 'None within 3.25 mi', note: 'No open at-grade FRA crossing returned. Tracks or trains may still be nearby.', badge: 'NONE RETURNED' });
+    const list = r.crossings || [];
+    const c = list.find(x => x.isPublic !== false) || list[0];
+    if (!c) return row({ ic: 'cross', tone: 'neutral', k: 'Nearest public crossing', v: 'None within 3.25 mi', note: 'No open at-grade FRA crossing returned. Tracks or trains may still be nearby.', badge: 'NONE RETURNED' }) + hornRow(r);
     const night = Number(c.nightTrains) || 0, day = Number(c.dayTrains) || 0;
     const badge = night > 0 ? ['NIGHT TRAINS', 'warn'] : day > 0 ? ['DAY TRAINS ONLY', 'neutral'] : ['VERIFY ON SITE', 'neutral'];
-    const q = c.quietZone || {}; const code = String(q.code ?? '');
-    const horn = code === '0' ? ['HORNS ALLOWED', 'warn'] : ['1', '2', '3'].includes(code) ? ['RESTRICTED', 'ok'] : ['NOT REPORTED', 'neutral'];
-    return row({ ic: 'cross', tone: badge[1], k: 'Nearest public crossing', v: `${esc(fmtMi(c.distanceMiles))} · ${esc(title(c.street || c.city || 'Crossing ' + (c.crossingId || '')))}`, note: `${esc(trains(c))}${c.trainCountYear ? ` · ${esc(c.trainCountYear)} count` : ''} · ${esc(rr(c.railroadName || c.railroadCode))}`, badge: badge[0] })
-      + row({ ic: 'horn', tone: horn[1], k: 'Horn rules at that crossing', v: esc(qzText(q)), note: code === '0' ? 'Routine horns allowed if trains run' : esc(q.note || ''), badge: horn[0] });
+    return row({ ic: 'cross', tone: badge[1], k: 'Nearest public crossing', v: `${esc(fmtMi(c.distanceMiles))} · ${esc(title(c.street || c.city || 'Crossing ' + (c.crossingId || '')))}`, note: `${esc(trains(c))}${c.trainCountYear ? ` · ${esc(c.trainCountYear)} count` : ''} · ${esc(qzText(c.quietZone))} · ${esc(rr(c.railroadName || c.railroadCode))}`, badge: badge[0] })
+      + hornRow(r);
+  }
+
+  function hornRow(r) {
+    const h = hornAssess(r.crossings || []);
+    let note;
+    if (!h.near) note = 'No public crossing within 3.25 mi where horns are routinely sounded';
+    else {
+      const where = `${fmtMi(h.near.distanceMiles)} from ${title(h.near.street || 'a public crossing')}${String(h.near.quietZone?.code) === '2' ? ' (partial quiet zone)' : ''}`;
+      const nightTxt = h.nightWithin1.length ? ` · up to ${h.maxNight} night ${h.maxNight === 1 ? 'train' : 'trains'} at ${h.nightWithin1.length} horn ${h.nightWithin1.length === 1 ? 'crossing' : 'crossings'} within 1 mi` : h.within1.length ? ' · no night trains reported at horn crossings within 1 mi' : '';
+      note = esc(where + nightTxt);
+    }
+    note += '<br><span class="g-why">Horns sound 15–20 s before each public crossing outside quiet zones, at 96–110 dB. Estimate, not a measurement.</span>';
+    return row({ ic: 'horn', tone: h.level.tone, k: 'Train horns at this home', v: esc(h.level.v), note, badge: h.level.badge });
   }
 
   function roadRow(s) {
@@ -162,6 +198,7 @@
       // Hourly reference profiles are static files on this site; load them so the summary is complete.
       setTimeout(() => { if (state?.report !== report) return; const b = document.querySelector('#tmasPanel button.action-button'); if (b && !b.disabled) { report.autoHourly = true; b.click(); } }, 400);
     },
+    hornCrossing, nightHornCrossing, perDay,
     rail(report, meters) { if (state?.report === report) { state.rail = meters; render(); } },
     roads(report, rows) { if (state?.report === report) { state.roads = rows; render(); } },
     night(report, info) { if (state?.report === report && (state.night === undefined || info?.kind === 'all')) { state.night = info; render(); } },

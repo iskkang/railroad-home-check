@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     // Query the published Form 71 dataset directly; the legacy FRA map
     // service can fail independently of the inventory data portal.
     const params = new URLSearchParams({
-      '$select': 'crossingid,street,cityname,railroadcode,railroadname,latitude,longitude,totaldaylightthrutrains,totalnighttimethrutrains,trainsperweek,movementsperdaycode,trainsperyear,maximumtimetablespeed,minimumspeedrangeovercrossing,maximumspeedrangeovercrossing,whistlebancode,crossingclosed',
+      '$select': 'crossingid,street,cityname,railroadcode,railroadname,latitude,longitude,totaldaylightthrutrains,totalnighttimethrutrains,trainsperweek,movementsperdaycode,trainsperyear,maximumtimetablespeed,minimumspeedrangeovercrossing,maximumspeedrangeovercrossing,whistlebancode,crossingclosed,crossingtypecode',
       '$where': `within_circle(geocoded_lat_long, ${lat}, ${lon}, 5230.368) AND crossingclosed = 'No' AND crossingpositioncode = '1'`,
       '$order': `distance_in_meters(geocoded_lat_long, 'POINT (${lon} ${lat})') ASC, crossingid ASC`,
       '$limit': '100'
@@ -78,6 +78,8 @@ function normalize(feature, propertyLat, propertyLon) {
     typicalMaxSpeed: number(first(a, ['MAXSPD','MaxSpd','maxspd'])),
     quietZone: quietZone(quietRaw),
     crossingClosed: ['1','YES','Y'].includes(crossingClosed.toUpperCase()),
+    // FRA crossing type: 3 = public, 2 = private. The federal horn rule covers public crossings.
+    isPublic: String(a.crossingtypecode ?? '') === '3' ? true : String(a.crossingtypecode ?? '') === '2' ? false : null,
     lat,
     lon,
     distanceMiles: Number.isFinite(lat) && Number.isFinite(lon) ? haversine(propertyLat, propertyLon, lat, lon) : Infinity,
