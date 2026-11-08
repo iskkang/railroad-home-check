@@ -2,9 +2,22 @@ const CITY_DATA='https://data.cityofnewyork.us/resource/';
 const DDC='https://services.arcgis.com/v09SvJE7IY8GgvSx/arcgis/rest/services/DDC_Construction_Projects/FeatureServer';
 const RADIUS=805; // Half-mile vicinity, fixed to keep public-source requests bounded.
 async function json(url,options={}) {
-  const r=await fetch(url,{...options,headers:{Accept:'application/json','User-Agent':'RailroadHomeCheck/1.0',...options.headers},signal:AbortSignal.timeout(25000)});
-  if(!r.ok)throw Error('Source HTTP '+r.status);
-  const d=await r.json();if(d.error||d.remark)throw Error('Source incomplete');return d;
+  // Share one deadline across a single retry; never double the wait on a slow source.
+  const signal=AbortSignal.timeout(25000);
+  for(let attempt=0;attempt<2;attempt++){
+    const r=await fetch(url,{...options,headers:{Accept:'application/json','User-Agent':'RailroadHomeCheck/1.0',...options.headers},signal});
+    if(!r.ok){
+      const retryAfter=r.headers.get('retry-after');
+      const retrySeconds=retryAfter===null?0.4:Number(retryAfter);
+      if(attempt===0&&[429,502,503,504].includes(r.status)&&Number.isFinite(retrySeconds)&&retrySeconds>=0&&retrySeconds<=1){
+        await r.body?.cancel();
+        await new Promise(resolve=>setTimeout(resolve,retrySeconds*1000));
+        signal.throwIfAborted();continue;
+      }
+      const error=Error('Source HTTP '+r.status);error.sourceStatus=r.status;throw error;
+    }
+    const d=await r.json();if(d.error||d.remark)throw Error('Source incomplete');return d;
+  }
 }
 export default async function handler(req,res) {
   const lat=Number(req.query.lat),lon=Number(req.query.lon),layer=String(req.query.layer||'');
@@ -16,7 +29,13 @@ export default async function handler(req,res) {
     const result=layer==='aviation'?await aviation(lat,lon):layer==='aviationNoise'?await aviationNoise(lat,lon):layer==='epa'?await epaAir(lat,lon):layer==='facilities'?await facilities(lat,lon):layer==='construction'?await construction(lat,lon):await cityRecords(layer,lat,lon);
     res.setHeader('Cache-Control','s-maxage=3600, stale-while-revalidate=86400');
     return res.status(200).json({supported:true,layer,radiusMeters:RADIUS,fetchedAt:new Date().toISOString(),...result});
-  }catch(e){console.warn('nearby layer unavailable',layer,e.message);return res.status(502).json({error:'This layer’s data source is unavailable. Try again; missing results do not mean the area is quiet or safe.'});}
+  }catch(e){
+    console.warn('nearby layer unavailable',layer,e.name,e.sourceStatus||'unknown');
+    res.setHeader('Cache-Control','no-store');
+    const busy=e.sourceStatus===429,timeout=e.name==='TimeoutError';
+    if(busy)res.setHeader('Retry-After','30');
+    return res.status(busy?503:502).json({error:busy?'The public data source is busy. Wait 30 seconds, then retry this layer.':timeout?'The public data source took too long to respond. Retry this layer.':'This layer’s data source is unavailable. Retry this layer; missing results do not mean the area is quiet or safe.'});
+  }
 }
 async function facilities(lat,lon) {
   const dy=RADIUS/111320,dx=dy/Math.cos(lat*Math.PI/180);

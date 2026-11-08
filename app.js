@@ -17,6 +17,7 @@ form.addEventListener('submit', async (event) => {
   trackEvent('property_check_started');
   setLoading(true, 'Locating the property…');
   results.classList.add('hidden');
+  currentReport?.nearbyContext?.controller.abort();
   currentReport = null;
 
   try {
@@ -47,7 +48,8 @@ form.addEventListener('submit', async (event) => {
 });
 
 async function fetchJSON(url, options = {}) {
-  const response = await fetch(url, options);
+  const timeout=AbortSignal.timeout(35000);
+  const response = await fetch(url, {...options,signal:options.signal?AbortSignal.any([options.signal,timeout]):timeout});
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
   return data;
@@ -562,7 +564,7 @@ function showNearbyContext(report) {
   const host=$('contextControls');
   let panel=$('nearbyContext');if(!panel){panel=document.createElement('section');panel.id='nearbyContext';panel.className='nearby-context';host.append(panel);}
   panel.innerHTML='<div class="context-toggles"></div><details class="context-help"><summary>About these optional layers</summary><p class="small-note">Facilities and local reports use approximately half a mile; airport references cover 10 miles and EPA air records 1 mile. Aviation-noise shading is regional 2022 modeling, not a property noise estimate. Selecting a topic may load its default sources. Municipal records currently support NYC only. Facility proximity and missing records do not establish noise, odor, exposure or safety.</p></details>';
-  const state={enabled:new Set(),responses:{},requests:{},groups:{}};report.nearbyContext=state;
+  const state={enabled:new Set(),responses:{},requests:{},errors:{},groups:{},controller:new AbortController()};report.nearbyContext=state;
   const sections={};
   [['environment','Air & environmental context'],['facilities','Nearby facilities'],['reports','Local reports · NYC only']].forEach(([key,title])=>{
     const fieldset=document.createElement('fieldset');fieldset.className='context-layer-group';
@@ -577,28 +579,33 @@ function showNearbyContext(report) {
     input.addEventListener('change',async()=>{
       if(currentReport!==report)return;
       if(!input.checked){state.enabled.delete(layer.id);if(state.groups[layer.id]&&propertyMap)propertyMap.removeLayer(state.groups[layer.id]);delete state.groups[layer.id];renderContextResults(report,panel);return;}
-      state.enabled.add(layer.id);renderContextResults(report,panel);
-      try{
-        if(!state.responses[layer.source]){
-          if(!state.requests[layer.source])state.requests[layer.source]=fetchJSON('/api/nearby?'+new URLSearchParams({layer:layer.source,lat:report.lat,lon:report.lon})).then(d=>state.responses[layer.source]=d).catch(e=>{delete state.requests[layer.source];throw e;});
-          await state.requests[layer.source];
-        }
-        if(currentReport!==report)return;
-        if(state.enabled.has(layer.id)&&layerVisible(layer.id))drawContextLayer(report,layer);
-        renderContextResults(report,panel);trackEvent('nearby_layer_opened');
-      }catch(e){
-        if(currentReport!==report)return;
-        state.enabled.delete(layer.id);input.checked=false;renderContextResults(report,panel);
-        const error=document.createElement('p');error.className='small-note';error.setAttribute('role','status');error.textContent=layer.label+': '+e.message;
-        if(layer.id==='noise'){
-          const source=document.createElement('a');source.href='https://data.cityofnewyork.us/d/erm2-nwe9';source.target='_blank';source.rel='noopener noreferrer';source.textContent='Open official NYC 311 records';
-          error.append(document.createTextNode(' '),source);
-        }
-        if(layerVisible(layer.id))$('contextResults').append(error);
-      }
+      state.enabled.add(layer.id);
+      await refreshNearbyLayer(report,layer,panel);
     });
   });
   selectTopic(currentTopic);
+}
+async function refreshNearbyLayer(report,layer,panel){
+  if(currentReport!==report)return;
+  const state=report.nearbyContext;
+  // Match the server's source-vicinity gate without making three doomed requests.
+  if(['noise','construction','crime'].includes(layer.source)&&!(report.lat>=40.47&&report.lat<=40.94&&report.lon>=-74.26&&report.lon<=-73.69)){
+    state.responses[layer.source]={supported:false,items:[],note:'This layer currently uses New York City official records only. Other cities are not supported; no safety or quietness conclusion can be drawn.'};
+  }
+  if(!state.responses[layer.source]&&!state.requests[layer.source]){
+    delete state.errors[layer.source];
+    state.requests[layer.source]=fetchJSON('/api/nearby?'+new URLSearchParams({layer:layer.source,lat:report.lat,lon:report.lon}),{signal:state.controller.signal})
+      .then(data=>{state.responses[layer.source]=data;})
+      .catch(error=>{if(!state.controller.signal.aborted)state.errors[layer.source]=error.name==='TimeoutError'?'The public data source took too long to respond. Please retry.':error.message;})
+      .finally(()=>{delete state.requests[layer.source];});
+  }
+  renderContextResults(report,panel);
+  await state.requests[layer.source];
+  if(currentReport!==report)return;
+  if(state.enabled.has(layer.id)&&layerVisible(layer.id)&&state.responses[layer.source]){
+    drawContextLayer(report,layer);trackEvent('nearby_layer_opened');
+  }
+  renderContextResults(report,panel);
 }
 function contextItems(report,layer){const data=report.nearbyContext.responses[layer.source];return(data?.items||[]).filter(i=>layer.source!=='facilities'||i.category===layer.id);}
 function drawContextLayer(report,layer){
@@ -622,10 +629,22 @@ function drawContextLayer(report,layer){
 function renderContextResults(report,panel){
   const container=$('contextResults');container.replaceChildren();const state=report.nearbyContext;
   CONTEXT_LAYERS.filter(l=>state.enabled.has(l.id)&&layerVisible(l.id)).forEach(layer=>{
-    const data=state.responses[layer.source],card=document.createElement('details');card.className='context-result';const summary=document.createElement('summary');
+    const data=state.responses[layer.source],error=state.errors[layer.source],card=document.createElement('details');card.className='context-result';const summary=document.createElement('summary');
     const items=contextItems(report,layer);
-    summary.textContent=layer.label+' · '+(!data?'Loading…':data.supported===false?'Not supported here':data.tileUrl?'Overlay enabled':items.length+(data.truncated?' shown · source limit reached':' returned'));card.append(summary);
-    if(!data){container.append(card);return;}
+    summary.textContent=layer.label+' · '+(error?'Unavailable':!data?'Loading…':data.supported===false?'Not supported here':data.tileUrl?'Overlay enabled':items.length+(data.truncated?' shown · source limit reached':' returned'));card.append(summary);
+    if(!data){
+      card.open=true;
+      const note=document.createElement('p');note.className='small-note';note.setAttribute('role','status');
+      note.textContent=error?error+' Missing records are not a quietness or safety result.':'Contacting the public data source. This can take up to 35 seconds; other results remain available.';card.append(note);
+      if(error){
+        card.classList.add('context-unavailable');
+        const retry=document.createElement('button');retry.type='button';retry.className='action-button secondary';retry.textContent='Retry '+layer.label;retry.addEventListener('click',()=>refreshNearbyLayer(report,layer,panel));card.append(retry);
+        if(layer.id==='noise'){
+          const source=document.createElement('a');source.href='https://data.cityofnewyork.us/d/erm2-nwe9';source.target='_blank';source.rel='noopener noreferrer';source.textContent='Open official NYC 311 records';card.append(document.createTextNode(' '),source);
+        }
+      }
+      container.append(card);return;
+    }
     const note=document.createElement('p');note.className='small-note';note.textContent=data.note||'';card.append(note);
     if(data.supported!==false){
       const period=document.createElement('p');period.className='small-note';period.textContent=(data.windowStart?'Requested period: '+data.windowStart+' to '+data.windowEnd+'. ':'')+'Retrieved: '+String(data.fetchedAt||'').slice(0,10)+'. '+(data.truncated?'Partial list; do not treat this as a total count. ':'')+'Displayed locations are approximate.';card.append(period);
