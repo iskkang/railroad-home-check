@@ -158,3 +158,31 @@
   body.ps-print{background:#fff;padding:0!important}
   body.ps-print #printSheet{position:static;left:auto;width:auto}
 }
+
+/* Shorter report: collapsed sections show their one-line result */
+.home .map-panel > p.small-note:first-of-type{display:none}
+.home .report-details .details-heading p{display:none}
+.home .sound-section > summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.sum-note{font-weight:500;font-size:13px;color:var(--muted)}
+.ctx-more,.map-notes{margin:10px 0;border:1px solid var(--line);border-radius:12px;background:#fff}
+.ctx-more>summary,.map-notes>summary{cursor:pointer;padding:12px 14px;font-weight:700;font-size:14px;list-style-position:inside}
+.ctx-more[open]>summary,.map-notes[open]>summary{border-bottom:1px solid var(--line)}
+.ctx-more>#contextControls,.map-notes>*:not(summary){margin:10px 14px 14px}
+.map-notes .traffic-legend{background:var(--soft)!important}
+.ctx-more .sum-note{margin-left:6px}
+
+/* Mobile: two-line notes (tap a row for the rest), first 4 nearby items */
+.g-near .g-extra{display:none}
+.g-near.g-near-open .g-extra{display:grid}
+.g-more{margin:2px 0 12px 64px;background:none;border:1px solid var(--line,#e3e8f2);border-radius:99px;padding:7px 13px;font:600 13px "Plus Jakarta Sans",system-ui,sans-serif;color:#1f45c9;cursor:pointer}
+@media(max-width:760px){
+  .report-glance .g-row{cursor:pointer}
+  .report-glance .g-note{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .report-glance .g-row .g-why{display:none}
+  .report-glance .g-row.g-open .g-note{display:block;-webkit-line-clamp:unset}
+  .report-glance .g-row.g-open .g-why{display:inline}
+  .report-glance .g-head .g-sub{display:none}
+  #topicDescription{display:none}
+}
+@media print{.g-near .g-extra{display:grid!important}.g-more{display:none!important}.print-sheet .g-note{display:block!important;-webkit-line-clamp:unset!important}.print-sheet .g-why{display:inline!important}}
+.g-near:not(.g-near-open) li:nth-child(4)::before{display:none}

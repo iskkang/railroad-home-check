@@ -67,7 +67,7 @@
   }
 
   function row({ ic, tone, k, v, note, badge, btone, action }) {
-    return `<li class="g-row"><span class="g-ico g-${tone}">${icon(ic)}</span><div class="g-body"><div class="g-top"><span class="g-k">${esc(k)}</span>${badge ? `<span class="g-badge g-${btone || tone}">${esc(badge)}</span>` : ''}</div><div class="g-v">${v}</div>${note ? `<div class="g-note">${note}</div>` : ''}${action || ''}</div></li>`;
+    return `<li class="g-row${state?.openRows?.has(k) ? ' g-open' : ''}" data-k="${esc(k)}"><span class="g-ico g-${tone}">${icon(ic)}</span><div class="g-body"><div class="g-top"><span class="g-k">${esc(k)}</span>${badge ? `<span class="g-badge g-${btone || tone}">${esc(badge)}</span>` : ''}</div><div class="g-v">${v}</div>${note ? `<div class="g-note">${note}</div>` : ''}${action || ''}</div></li>`;
   }
 
   function railRow(s) {
@@ -163,18 +163,51 @@
     }
     if (!items.length) return '';
     items.sort((a, b) => a.d - b.d);
-    return `<div class="g-near"><h3>What's within ¾ mile</h3><p class="g-sub">Nearest first, from the approximate property pin.</p><ol>${items.map(i => `<li class="g-n-${i.k}"><span class="g-d">${esc(fmtMi(i.d))}</span><span class="g-dot" aria-hidden="true"></span><div><strong>${esc(i.t)}</strong><span>${esc(i.s)}</span></div></li>`).join('')}</ol></div>`;
+    const MAXN = 4, open = s.nearOpen;
+    const more = items.length > MAXN ? `<button type="button" class="g-more" data-glance="near-more">${open ? 'Show fewer' : `Show all ${items.length}`}</button>` : '';
+    return `<div class="g-near${open ? ' g-near-open' : ''}"><h3>What's within ¾ mile</h3><p class="g-sub">Nearest first, from the approximate property pin.</p><ol>${items.map((i, n) => `<li class="g-n-${i.k}${n >= MAXN ? ' g-extra' : ''}"><span class="g-d">${esc(fmtMi(i.d))}</span><span class="g-dot" aria-hidden="true"></span><div><strong>${esc(i.t)}</strong><span>${esc(i.s)}</span></div></li>`).join('')}</ol>${more}</div>`;
   }
 
   function render() {
     if (!state) return;
     const el = panel();
     el.innerHTML = `<div class="g-head"><h3>At a glance</h3><p class="g-sub">Each line is a different source, place and year — not a combined noise or safety score.</p></div><ul class="g-list">${railRow(state)}${crossingRows(state.report)}${floodRow(state)}${roadRow(state)}${nightRow(state)}${siteRow(state)}</ul>${nearList(state)}<nav class="g-jump" aria-label="Jump to report section"><a href="#paneRail" data-glance="pane">Rail</a><a href="#paneRoad" data-glance="pane">Roads</a><a href="#paneHourly" data-glance="pane">At night</a><a href="#topicliving" data-glance="living">Nearby sites</a><a href="#propertyMap" data-glance="map">Map</a></nav>`;
+    updateSummaries(state);
+  }
+
+  // One-line result in each collapsed "Look closer" section, so the sections can stay closed.
+  function setSum(id, text) {
+    const sum = document.querySelector(`#${id} > summary`);
+    if (!sum) return;
+    let n = sum.querySelector('.sum-note');
+    if (!n) { n = document.createElement('span'); n.className = 'sum-note'; sum.append(n); }
+    n.textContent = text || '';
+  }
+  function updateSummaries(s) {
+    const roads = Array.isArray(s.roads) ? s.roads : null;
+    if (roads && roads.length) {
+      const near = roads[0], busy = roads.filter(r => r.meters <= 482.8).sort((a, b) => b.a.AADT - a.a.AADT)[0];
+      setSum('paneRoad', `Nearest ${num(near.a.AADT)}/day${busy && busy !== near ? ` · busiest nearby ${num(busy.a.AADT)}/day` : ''}`);
+    } else setSum('paneRoad', s.roads === 'error' ? 'Unavailable' : roads ? 'No counted roads within 1 mi' : '');
+    const cr = s.report.crossings || [];
+    const pub = cr.find(c => c.isPublic !== false);
+    setSum('paneRail', cr.length ? `${cr.length} crossings within 3.25 mi${pub ? ` · nearest public ${fmtMi(pub.distanceMiles)}` : ''}` : 'No crossings returned');
+    const n = s.night;
+    setSum('paneHourly', n && n !== 'error' && Number.isFinite(n.pct) ? `${Math.round(n.pct)}% of daily traffic 10 PM–6 AM` : '');
   }
 
   function onClick(e) {
+    if (!state) return;
+    const rowEl = e.target.closest('.g-row');
+    if (rowEl && !e.target.closest('a,button')) {
+      state.openRows = state.openRows || new Set();
+      const k = rowEl.dataset.k; rowEl.classList.toggle('g-open');
+      if (rowEl.classList.contains('g-open')) state.openRows.add(k); else state.openRows.delete(k);
+      return;
+    }
     const a = e.target.closest('[data-glance]');
-    if (!a || !state) return;
+    if (!a) return;
+    if (a.dataset.glance === 'near-more') { e.preventDefault(); state.nearOpen = !state.nearOpen; render(); return; }
     e.preventDefault();
     const kind = a.dataset.glance;
     if (kind === 'living') {
@@ -275,6 +308,31 @@
   }
   document.addEventListener('click', printSheet, true);
 
+  function tidyMapCard() {
+    const map = document.querySelector('.map-panel');
+    const ctx = document.getElementById('contextControls');
+    if (ctx && !ctx.closest('.ctx-more')) {
+      const d = document.createElement('details'); d.className = 'ctx-more';
+      d.innerHTML = '<summary>More map layers <span class="sum-note">airports, aviation noise, venues, emergency</span></summary>';
+      ctx.before(d); d.append(ctx);
+      // Collapsed on the Sound tab only; the Living environment / Local records tabs are made of these layers.
+      document.querySelector('.topic-tabs')?.addEventListener('click', e => {
+        const t = e.target.closest('[role="tab"]'); if (!t) return;
+        d.open = t.id !== 'topicsound';
+        d.querySelector('summary').firstChild.textContent = t.id === 'topicsound' ? 'More map layers ' : 'Map layers ';
+      });
+    }
+    if (map && !map.querySelector('.map-notes')) {
+      const legend = map.querySelector('.traffic-legend'), notice = document.getElementById('mapNotice');
+      const d = document.createElement('details'); d.className = 'map-notes';
+      d.innerHTML = '<summary>Road colors &amp; data notes</summary>';
+      (legend || notice)?.before(d);
+      if (legend) d.append(legend);
+      if (notice) d.append(notice);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tidyMapCard); else tidyMapCard();
+
   window.ReportGlance = {
     start(report) {
       state = { report, rail: undefined, roads: undefined, night: undefined, flood: undefined };
@@ -286,7 +344,7 @@
       if (!el.dataset.bound) { el.addEventListener('click', onClick); el.dataset.bound = '1'; }
       actionBar();
       document.body.classList.add('has-report');
-      if (MOBILE.matches) { const road = document.getElementById('paneRoad'); if (road) road.open = false; }
+      ['paneRoad', 'paneRail', 'paneHourly'].forEach(id => { const d = document.getElementById(id); if (d) d.open = false; });
       render();
       // Hourly reference profiles are static files on this site; load them so the summary is complete.
       setTimeout(() => { if (state?.report !== report) return; const b = document.querySelector('#tmasPanel button.action-button'); if (b && !b.disabled) { report.autoHourly = true; b.click(); } }, 400);
