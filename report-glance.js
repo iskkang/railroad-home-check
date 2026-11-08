@@ -25,20 +25,21 @@
   const perDay = c => (Number(c.dayTrains) || 0) + (Number(c.nightTrains) || 0) || ((Number(c.weeklyTrains) || 0) / 7) || (c.lessThanOne ? 0.5 : 0);
   function hornAssess(crossings = []) {
     const horns = crossings.filter(hornCrossing);
-    const near = horns[0];
     const within1 = horns.filter(c => c.distanceMiles <= 1);
     const nightWithin1 = within1.filter(nightHornCrossing);
     const maxNight = nightWithin1.reduce((m, c) => Math.max(m, Number(c.nightTrains) || 0), 0);
-    const d = near ? near.distanceMiles : Infinity;
-    const level = Object.assign({}, d <= 0.25 ? { key: 'loud', badge: 'LOUD', tone: 'warn', v: 'Loud: inside the horn-sounding stretch' }
+    // Grade by the nearest horn crossing with at least 1 train/day; a barely used spur closer in is noted, not decisive.
+    const busy = horns.find(c => perDay(c) >= 1);
+    const nearest = horns[0];
+    const near = busy || nearest;
+    const d = busy ? busy.distanceMiles : Infinity;
+    const level = d <= 0.25 ? { key: 'loud', badge: 'LOUD', tone: 'warn', v: 'Loud: inside the horn-sounding stretch' }
       : d <= 0.5 ? { key: 'likely', badge: 'LIKELY AUDIBLE', tone: 'warn', v: 'Likely audible' }
       : d <= 1 ? { key: 'possible', badge: 'POSSIBLE', tone: 'neutral', v: 'Possibly audible, mostly at night' }
-      : { key: 'unlikely', badge: 'UNLIKELY', tone: 'ok', v: 'Unlikely from routine crossing horns' });
-    // Busiest horn crossing within the same distance band decides frequency, so one quiet spur doesn't hide a busy line.
-    const band = horns.filter(c => c.distanceMiles <= Math.max(d, 0.25) + 0.25);
-    const freq = band.reduce((m, c) => Math.max(m, perDay(c)), 0);
-    if (near && d <= 1 && freq < 1) Object.assign(level, { badge: 'RARE', tone: 'neutral', v: `${d <= 0.25 ? 'Loud' : 'Audible'} when a train passes, but under 1 train/day reported` });
-    return { level, near, horns, within1, nightWithin1, maxNight, freq };
+      : { key: 'unlikely', badge: 'UNLIKELY', tone: 'ok', v: 'Unlikely from routine crossing horns' };
+    if (!busy && nearest && nearest.distanceMiles <= 1) Object.assign(level, { key: 'rare', badge: 'RARE', tone: 'neutral', v: `${nearest.distanceMiles <= 0.25 ? 'Loud' : 'Audible'} when a train passes, but under 1 train/day reported` });
+    const rareCloser = busy && nearest && nearest !== busy && nearest.distanceMiles < busy.distanceMiles ? nearest : null;
+    return { level, near, rareCloser, horns, within1, nightWithin1, maxNight };
   }
 
   const ICON = {
@@ -93,8 +94,9 @@
     if (!h.near) note = 'No public crossing within 3.25 mi where horns are routinely sounded';
     else {
       const where = `${fmtMi(h.near.distanceMiles)} from ${title(h.near.street || 'a public crossing')}${String(h.near.quietZone?.code) === '2' ? ' (partial quiet zone)' : ''}`;
+      const rare = h.rareCloser ? ` · closer crossing at ${fmtMi(h.rareCloser.distanceMiles)} sees under 1 train/day` : '';
       const nightTxt = h.nightWithin1.length ? ` · up to ${h.maxNight} night ${h.maxNight === 1 ? 'train' : 'trains'} at ${h.nightWithin1.length} horn ${h.nightWithin1.length === 1 ? 'crossing' : 'crossings'} within 1 mi` : h.within1.length ? ' · no night trains reported at horn crossings within 1 mi' : '';
-      note = esc(where + nightTxt);
+      note = esc(where + nightTxt + rare);
     }
     note += '<br><span class="g-why">Horns sound 15–20 s before each public crossing outside quiet zones, at 96–110 dB. Estimate, not a measurement.</span>';
     return row({ ic: 'horn', tone: h.level.tone, k: 'Train horns at this home', v: esc(h.level.v), note, badge: h.level.badge });
