@@ -20,7 +20,7 @@
     var fallback = el.querySelector('img');
     var map = L.map(el, {
       preferCanvas: true, zoomControl: !mini, dragging: !mini, touchZoom: !mini, doubleClickZoom: !mini,
-      scrollWheelZoom: false, boxZoom: false, keyboard: !mini, tap: false, zoomSnap: 0.25, maxZoom: 13
+      scrollWheelZoom: !mini, boxZoom: false, keyboard: !mini, tap: false, zoomSnap: 0.25, maxZoom: 13
     });
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 13, attribution: mini ? '&copy; OpenStreetMap' : OSM

@@ -126,13 +126,21 @@ function renderReport(report) {
     row.className = 'crossing-row';
     row.innerHTML = `
       <span class="distance">${crossing.distanceMiles.toFixed(2)} mi</span>
-      <div><strong>${escapeHTML(crossing.street || crossing.city || 'Rail crossing')}</strong><br><span>${escapeHTML(crossing.railroadName || crossing.railroadCode || 'Railroad not reported')}</span></div>
+      <div><strong><i class="cat-dot cat-${crossingCategory(crossing).key}" aria-hidden="true"></i>${escapeHTML(crossing.street || crossing.city || 'Rail crossing')}</strong><br><span>${escapeHTML(crossing.railroadName || crossing.railroadCode || 'Railroad not reported')}</span></div>
       <span>${displayCount(crossing.dayTrains, crossing.lessThanOne, crossing.weeklyTrains)} day / ${displayCount(crossing.nightTrains, crossing.lessThanOne, crossing.weeklyTrains)} night</span>
       <span>${speedRange(crossing)}</span>
       <span class="qz-pill">${escapeHTML(crossing.quietZone.label)}</span>
     `;
     list.appendChild(row);
   });
+}
+
+// Same four groups as the /trains/ city maps
+function crossingCategory(c) {
+  if (['1', '2', '3'].includes(c.quietZone?.code)) return { key: 'qz', label: 'Quiet zone' };
+  if (Number(c.nightTrains) > 0) return { key: 'night', label: 'Night trains' };
+  if (Number(c.dayTrains) > 0 || c.lessThanOne || Number(c.weeklyTrains) > 0) return { key: 'day', label: 'Daytime trains only' };
+  return { key: 'none', label: 'No train count reported' };
 }
 
 function displayCount(value, lessThanOne, weekly) {
@@ -276,22 +284,23 @@ $('loadMap').addEventListener('click', () => {
   if (!window.L) { $('mapNotice').textContent = 'The map could not load. The crossing list and report are still available. Refresh to retry.'; return; }
   $('propertyMap').classList.remove('hidden'); $('loadMap').classList.add('hidden');
   const home = [currentReport.lat, currentReport.lon];
-  propertyMap = L.map('propertyMap', { scrollWheelZoom: false }).setView(home, 14);
+  propertyMap = L.map('propertyMap', { scrollWheelZoom: true }).setView(home, 14);
   const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(propertyMap);
   tiles.on('tileerror', () => { $('mapNotice').textContent = 'Some map tiles are unavailable. Pins and the crossing list remain available; refresh to retry.'; });
   currentReport.crossingLayer=L.layerGroup().addTo(propertyMap);
-  const marker = (point, title, content, className, text, target=propertyMap) => {
+  const marker = (point, title, content, className, text, target=propertyMap, size=30) => {
     const popup = document.createElement('div'); popup.textContent = content;
-    return L.marker(point, { title, icon: L.divIcon({ className, html: text, iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(target).bindPopup(popup);
+    return L.marker(point, { title, alt: title, icon: L.divIcon({ className, html: text, iconSize: [size, size], iconAnchor: [size / 2, size / 2] }) }).addTo(target).bindPopup(popup);
   };
   marker(home, 'Property (approximate location)', currentReport.matchedAddress + ' — approximate geocoded location', 'home-pin', 'H');
   const points = [home];
   currentReport.crossings.forEach((c, i) => {
     if (!Number.isFinite(c.lat) || !Number.isFinite(c.lon)) return;
     const point = [c.lat, c.lon]; points.push(point);
-    marker(point, `Crossing ${i + 1}: ${c.street || c.crossingId}`, `${c.street || c.crossingId} · ${c.distanceMiles.toFixed(2)} mi from property · Night movements: ${numberOrDash(c.nightTrains)} · Count year: ${c.trainCountYear || 'Not reported'}`, i === 0 ? 'crossing-pin nearest-pin' : 'crossing-pin', String(i + 1),currentReport.crossingLayer);
+    const cat = crossingCategory(c), nearest = i === 0;
+    marker(point, `${nearest ? 'Nearest crossing' : 'Rail crossing'}: ${c.street || c.crossingId} (${cat.label})`, `${c.street || c.crossingId} · ${c.distanceMiles.toFixed(2)} mi from property · ${cat.label} · Day ${displayCount(c.dayTrains, c.lessThanOne, c.weeklyTrains)} / night ${displayCount(c.nightTrains, c.lessThanOne, c.weeklyTrains)} trains · Quiet zone: ${c.quietZone?.label || 'Not reported'} · Count year: ${c.trainCountYear || 'Not reported'}`, `crossing-dot cat-${cat.key}${nearest ? ' nearest-pin' : ''}`, nearest ? '<span>Nearest</span>' : '', currentReport.crossingLayer, nearest ? 22 : 16);
   });
   if (points.length > 1) propertyMap.fitBounds(points, { padding: [35, 35], maxZoom: 15 });
   L.control.scale({ imperial: true, metric: false }).addTo(propertyMap);
