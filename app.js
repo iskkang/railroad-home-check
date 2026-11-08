@@ -402,7 +402,7 @@ function showRoadTraffic(report) {
   button.addEventListener('click', async () => {
     button.disabled = true; status.textContent = 'Loading reported road traffic…';
     try {
-      const params = new URLSearchParams({f:'json',geometry:report.lon+','+report.lat,geometryType:'esriGeometryPoint',inSR:'4326',spatialRel:'esriSpatialRelIntersects',distance:'1609.344',units:'esriSRUnit_Meter',outFields:'DATA_YEAR,ROUTE_ID,RouteName,RouteNumber,RouteSigning,AADT,AADT_SINGLE_UNIT,AADT_COMBINATION',returnGeometry:'true',outSR:'4326',resultRecordCount:'1000'});
+      const params = new URLSearchParams({f:'json',geometry:report.lon+','+report.lat,geometryType:'esriGeometryPoint',inSR:'4326',spatialRel:'esriSpatialRelIntersects',distance:'1609.344',units:'esriSRUnit_Meter',outFields:'DATA_YEAR,ROUTE_ID,RouteName,RouteNumber,RouteSigning,F_SYSTEM,AADT,AADT_SINGLE_UNIT,AADT_COMBINATION',returnGeometry:'true',outSR:'4326',resultRecordCount:'1000'});
       const response = await fetch(ROAD_TRAFFIC_SERVICE+'/query?'+params,{signal:AbortSignal.timeout(25000)});
       if (!response.ok) throw Error('Traffic service unavailable');
       const data = await response.json();
@@ -417,7 +417,7 @@ function showRoadTraffic(report) {
       }
       // One row per road (nearest counted segment), 5 shown first
       const byRoad=[];const seen=new Map();
-      rows.forEach(row=>{const k=row.name==='Unnamed road segment'?'id:'+(row.a.ROUTE_ID||Math.random()):row.name.toLowerCase();if(!seen.has(k)){const r={...row,src:row,segments:1,maxAadt:Number(row.a.AADT)};seen.set(k,r);byRoad.push(r);}else{const r=seen.get(k);r.segments++;r.maxAadt=Math.max(r.maxAadt,Number(row.a.AADT));}});
+      rows.forEach(row=>{const k=row.name.startsWith('Unnamed ')?'id:'+(row.a.ROUTE_ID||Math.random()):row.name.toLowerCase();if(!seen.has(k)){const r={...row,src:row,segments:1,maxAadt:Number(row.a.AADT)};seen.set(k,r);byRoad.push(r);}else{const r=seen.get(k);r.segments++;r.maxAadt=Math.max(r.maxAadt,Number(row.a.AADT));}});
       const shown = byRoad.slice(0,15);
       status.textContent = shown.length+(shown.length===1?' nearby road':' nearby roads')+' with reported counts, nearest first ('+rows.length+' counted segments). Distance is to the nearest counted segment of each road.';
       const table = document.createElement('table');table.className='road-table';
@@ -437,9 +437,11 @@ function showRoadTraffic(report) {
       if(shown.length>5){const more=document.createElement('button');more.type='button';more.className='text-button road-toggle';more.textContent='Show '+(shown.length-5)+' more roads';more.addEventListener('click',()=>{const open=more.dataset.open==='1';table.querySelectorAll('.road-more').forEach(tr=>tr.classList.toggle('hidden',open));more.dataset.open=open?'0':'1';more.textContent=open?'Show '+(shown.length-5)+' more roads':'Show fewer roads';});nodes.push(more);}
       const note=document.createElement('p');note.className='small-note';note.textContent='Vehicles/day = annual average daily traffic (AADT). "—" means not reported.';nodes.push(note);
       container.replaceChildren(...nodes);
-      // Unnamed HPMS segments: look up the street name at the segment's nearest stretch (Photon / OpenStreetMap).
-      shown.forEach((row,i)=>{ if(row.name!=='Unnamed road segment')return; const pt=segmentMid(report.lat,report.lon,row.paths); if(!pt)return;
-        streetNameAt(pt).then(name=>{ if(!name||currentReport!==report)return; row.name=name; if(row.src)row.src.name=name; const cell=body.rows[i]?.cells[0]; if(cell)cell.textContent=name; globalThis.ReportGlance?.roads(report,rows); }); });
+      // Unnamed HPMS segments: look up the street name (Photon / OpenStreetMap), one request at a time, visible rows first.
+      const lookup=async from=>{ for(let i=from;i<Math.min(shown.length,from===0?5:15);i++){ const row=shown[i]; if(!row.name.startsWith('Unnamed '))continue; const pt=segmentMid(report.lat,report.lon,row.paths); if(!pt)continue;
+        const name=await streetNameAt(pt); if(currentReport!==report)return; if(name===false)return; if(!name)continue;
+        row.name=name; if(row.src)row.src.name=name; const cell=body.rows[i]?.cells[0]; if(cell)cell.textContent=name; globalThis.ReportGlance?.roads(report,rows); } };
+      lookup(0); container.querySelector('.road-toggle')?.addEventListener('click',()=>lookup(5),{once:true});
       if (!propertyMap) $('loadMap').click();
       if (propertyMap) {
         drawTrafficVolumes(report, rows, data.features);
@@ -468,7 +470,8 @@ function roadName(a){
   const sign={2:'I-',3:'US ',4:'State Route '}[Number(a.RouteSigning)];
   if(a.RouteNumber&&sign)return sign+String(a.RouteNumber).replace(/^0+/,'');
   if(a.RouteNumber)return 'Route '+a.RouteNumber;
-  return 'Unnamed road segment';
+  const cls={1:'interstate',2:'freeway',3:'major arterial',4:'arterial',5:'collector road',6:'collector road',7:'local street'}[Number(a.F_SYSTEM)];
+  return cls?'Unnamed '+cls:'Unnamed road segment';
 }
 function segmentMid(lat,lon,paths){
   let best=null,bd=Infinity;const k=Math.cos(lat*Math.PI/180);
@@ -478,8 +481,8 @@ function segmentMid(lat,lon,paths){
 const streetNameCache=new Map();
 function streetNameAt([lat,lon]){
   const key=lat.toFixed(4)+','+lon.toFixed(4);
-  if(!streetNameCache.has(key))streetNameCache.set(key,fetch('https://photon.komoot.io/reverse?'+new URLSearchParams({lat,lon,limit:'1',layer:'street',radius:'0.08'}),{signal:AbortSignal.timeout(8000)})
-    .then(r=>r.ok?r.json():null).then(j=>{const p=j?.features?.[0]?.properties;return p&&p.countrycode==='US'&&p.name?p.name:null;}).catch(()=>null));
+  if(!streetNameCache.has(key))streetNameCache.set(key,fetch('https://photon.komoot.io/reverse?'+new URLSearchParams({lat,lon,limit:'1',layer:'street',radius:'0.1'}),{signal:AbortSignal.timeout(6000)})
+    .then(r=>r.status===429||r.status>=500?false:r.ok?r.json():null).then(j=>{if(j===false)return false;const p=j?.features?.[0]?.properties;return p&&p.countrycode==='US'&&p.name?p.name:null;}).catch(()=>false));
   return streetNameCache.get(key);
 }
 function trafficRows(features,lat,lon) {
