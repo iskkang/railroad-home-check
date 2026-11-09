@@ -74,16 +74,15 @@ async function city(slug) {
   const tiles = new Map();
   const tile = (svc, tx, ty) => { const k = `${svc}/${tx}/${ty}`; if (!tiles.has(k)) tiles.set(k, fetchTile(svc, Z, tx, ty, { timeout: 30000, tries: 4 })); return tiles.get(k); };
   const out = { place: { geoid: pl.geoid, name: pl.name }, bgs: pts.length, pop: pts.reduce((m, p) => m + p.pop, 0) };
-  for (const L of LAYERS) {
-    if (!s[L]) { out[L] = null; continue; }
-    const w = new Array(BANDS.length).fill(0);
-    await Promise.all(pts.map(async p => {
-      const { x, y } = worldPx(p.lon, p.lat), tx = Math.floor(x / 256), ty = Math.floor(y / 256);
-      const img = await tile(s[L], tx, ty);
-      w[img ? bandOf(...img.rgba(Math.floor(x) - tx * 256, Math.floor(y) - ty * 256)) : 0] += p.pop;
-    }));
-    out[L] = w.map(v => Math.round(v / out.pop * 1000)); // per mille of residents
-  }
+  const W = Object.fromEntries(LAYERS.map(L => [L, s[L] ? new Array(BANDS.length).fill(0) : null]));
+  await Promise.all(pts.map(async p => {
+    const { x, y } = worldPx(p.lon, p.lat), tx = Math.floor(x / 256), ty = Math.floor(y / 256), px = Math.floor(x) - tx * 256, py = Math.floor(y) - ty * 256;
+    const b = {};
+    for (const L of LAYERS) { if (!s[L]) continue; const img = await tile(s[L], tx, ty); b[L] = img ? bandOf(...img.rgba(px, py)) : 0; }
+    b.all = Math.max(b.all, b.road ?? 0, b.rail ?? 0, b.aviation ?? 0); // total can't be quieter than any one source
+    for (const L of LAYERS) if (W[L]) W[L][b[L]] += p.pop;
+  }));
+  for (const L of LAYERS) out[L] = W[L] ? W[L].map(v => Math.round(v / out.pop * 1000)) : null; // per mille of residents
   return { region: s.region, ...out };
 }
 
