@@ -7,6 +7,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return res.status(405).json({ error: 'Use POST.' }); }
   let body = req.body || {};
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch { return res.status(400).json({ error: 'Invalid JSON.' }); } }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return res.status(400).json({error:'Expected a JSON object.'});
   const pts = Array.isArray(body.pts) ? body.pts.slice(0, 15) : [];
   const valid = p => Array.isArray(p) && p.length >= 2 && p.slice(0, 2).every(Number.isFinite) && p[0] > 17 && p[0] < 72 && p[1] > -180 && p[1] < -60;
   const names = new Array(pts.length).fill(null);

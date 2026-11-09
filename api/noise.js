@@ -6,6 +6,7 @@ import { pointBands, BANDS } from '../lib/noise.js';
 const out = i => (i === null || i === undefined ? null : { band: i, lo: BANDS[i].lo, hi: BANDS[i].hi, label: BANDS[i].label });
 
 export default async function handler(req, res) {
+  if (req.method !== 'GET') { res.setHeader('Allow', 'GET'); return res.status(405).json({ error: 'Use GET.' }); }
   const lat = Number(req.query.lat), lon = Number(req.query.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < 17 || lat > 72 || lon < -180 || lon > -60) return res.status(400).json({ error: 'Invalid U.S. coordinates.' });
   try {

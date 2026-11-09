@@ -2,6 +2,7 @@ const CURRENT_FORM71_API = 'https://data.transportation.gov/resource/m2f8-22s6.j
 const INCIDENTS_API = 'https://data.transportation.gov/resource/uwah-u9bn.json';
 
 export default async function handler(req, res) {
+  if (req.method !== 'GET') { res.setHeader('Allow', 'GET'); return res.status(405).json({ error: 'Use GET.' }); }
   try {
     const lat = Number(req.query.lat);
     const lon = Number(req.query.lon);
@@ -17,12 +18,20 @@ export default async function handler(req, res) {
       '$order': `distance_in_meters(geocoded_lat_long, 'POINT (${lon} ${lat})') ASC, crossingid ASC`,
       '$limit': '100'
     });
-    const response = await fetch(`${CURRENT_FORM71_API}?${params}`, {
-      headers: { 'Accept': 'application/json', 'User-Agent': 'RailroadHomeCheck/0.1' },
-      signal: AbortSignal.timeout(15000)
-    });
-    if (!response.ok) throw new Error(`FRA inventory returned ${response.status}: ${(await response.text()).slice(0, 500)}`);
-    const rows = await response.json();
+    let rows;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const response = await fetch(`${CURRENT_FORM71_API}?${params}`, {
+          headers: { 'Accept': 'application/json', 'User-Agent': 'RailroadHomeCheck/0.1' },
+          signal: AbortSignal.timeout(attempt === 0 ? 15000 : 8000)
+        });
+        if (!response.ok) throw new Error(`FRA inventory returned ${response.status}`);
+        rows = await response.json();
+        break;
+      } catch (error) {
+        if (attempt === 1) throw error;
+      }
+    }
     if (!Array.isArray(rows)) throw new Error('Unexpected FRA inventory response');
 
     let crossings = rows.map(row => normalize({ attributes: {

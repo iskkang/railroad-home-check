@@ -4,6 +4,7 @@ const NRI_TRACTS = 'https://services.arcgis.com/XG15cJAlne2vxtgt/arcgis/rest/ser
 const HAZ = ['HWAV', 'CWAV', 'WNTW', 'ISTM', 'HRCN', 'TRND', 'IFLD', 'CFLD', 'WFIR'];
 
 export default async function handler(req, res) {
+  if (req.method !== 'GET') { res.setHeader('Allow', 'GET'); return res.status(405).json({ error: 'Use GET.' }); }
   const lat = Number(req.query.lat), lon = Number(req.query.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < 17 || lat > 72 || lon < -180 || lon > -60) return res.status(400).json({ error: 'Invalid U.S. coordinates.' });
   const params = new URLSearchParams({
@@ -14,7 +15,8 @@ export default async function handler(req, res) {
     const r = await fetch(`${NRI_TRACTS}?${params}`, { headers: { 'User-Agent': 'RailroadHomeCheck/0.1' }, signal: AbortSignal.timeout(8000) });
     if (!r.ok) throw new Error(`NRI ${r.status}`);
     const data = await r.json();
-    const a = data.features?.[0]?.attributes;
+    if (data.error || !Array.isArray(data.features)) throw new Error('Invalid FEMA risk response');
+    const a = data.features[0]?.attributes;
     res.setHeader('Cache-Control', 's-maxage=2592000, stale-while-revalidate=2592000');
     if (!a) return res.status(200).json({ tract: null, hazards: {} });
     return res.status(200).json({ tract: a.TRACTFIPS, county: a.COUNTY, st: a.STATEABBRV, overall: a.RISK_RATNG, hazards: Object.fromEntries(HAZ.map(h => [h.toLowerCase(), a[`${h}_RISKR`] || null])), source: 'FEMA National Risk Index' });

@@ -31,6 +31,12 @@ form.addEventListener('submit', async (event) => {
       },
       body: JSON.stringify({ address })
     });
+    // A provider match may silently change the street or direction. Require an explicit map confirmation.
+    if (!validSelectedPoint(chosenLocation) && streetKey(address) !== streetKey(geo.matchedAddress || address)) {
+      setStatus('The address provider returned a different street: ' + geo.matchedAddress + '. Confirm the pin on the map before continuing.');
+      openLocationPicker({lat:geo.lat,lon:geo.lon,label:geo.matchedAddress});
+      return;
+    }
     setStatus('Checking nearby FRA grade-crossing records…');
     const report = await fetchJSON(`/api/crossings?lat=${geo.lat}&lon=${geo.lon}`);
     renderReport({ ...report, lat: geo.lat, lon: geo.lon, matchedAddress: geo.matchedAddress || address });
@@ -47,6 +53,11 @@ form.addEventListener('submit', async (event) => {
     setLoading(false);
   }
 });
+
+function streetKey(address) {
+  const aliases = {STREET:'ST',AVENUE:'AVE',BOULEVARD:'BLVD',ROAD:'RD',DRIVE:'DR',LANE:'LN',COURT:'CT',PLACE:'PL',PLAZA:'PLZ',SQUARE:'SQ',PARKWAY:'PKWY',HIGHWAY:'HWY',NORTH:'N',SOUTH:'S',EAST:'E',WEST:'W'};
+  return String(address).split(',')[0].toUpperCase().replace(/[^A-Z0-9 ]/g,' ').split(/\s+/).map(w=>aliases[w]||w).join('');
+}
 
 async function fetchJSON(url, options = {}) {
   const timeout=AbortSignal.timeout(35000);
@@ -391,6 +402,24 @@ function nearestRailMeters(lat, lon, paths) {
 }
 
 const ROAD_TRAFFIC_SERVICE = 'https://services.arcgis.com/xOi1kZaI0eWDREZv/ArcGIS/rest/services/HPMS_National_Current/FeatureServer/0';
+async function fetchTrafficFeatures(params) {
+  const features = [];
+  const signal = AbortSignal.timeout(30000);
+  params.set('resultRecordCount', '2000');
+  params.set('orderByFields', 'OBJECTID ASC');
+  for (let page = 0; page < 5; page++) {
+    params.set('resultOffset', String(features.length));
+    const response = await fetch(ROAD_TRAFFIC_SERVICE+'/query?'+params, {signal});
+    if (!response.ok) throw Error('Traffic service unavailable');
+    const data = await response.json();
+    if (data.error || !Array.isArray(data.features)) throw Error('Invalid traffic data');
+    features.push(...data.features);
+    if (!data.exceededTransferLimit) return {...data, features};
+    if (!data.features.length) break;
+  }
+  throw Error('Traffic data exceeds the bounded query limit');
+}
+
 function showRoadTraffic(report) {
   let panel = $('roadTrafficPanel');
   if (!panel) {
@@ -403,10 +432,7 @@ function showRoadTraffic(report) {
     button.disabled = true; status.textContent = 'Loading reported road traffic…';
     try {
       const params = new URLSearchParams({f:'json',geometry:report.lon+','+report.lat,geometryType:'esriGeometryPoint',inSR:'4326',spatialRel:'esriSpatialRelIntersects',distance:'1609.344',units:'esriSRUnit_Meter',outFields:'DATA_YEAR,ROUTE_ID,RouteName,RouteNumber,RouteSigning,F_SYSTEM,AADT,AADT_SINGLE_UNIT,AADT_COMBINATION',returnGeometry:'true',outSR:'4326',resultRecordCount:'1000'});
-      const response = await fetch(ROAD_TRAFFIC_SERVICE+'/query?'+params,{signal:AbortSignal.timeout(25000)});
-      if (!response.ok) throw Error('Traffic service unavailable');
-      const data = await response.json();
-      if (data.error || !Array.isArray(data.features) || data.exceededTransferLimit) throw Error('Incomplete traffic data');
+      const data = await fetchTrafficFeatures(params);
       if (currentReport !== report) return;
       const rows = trafficRows(data.features,report.lat,report.lon);
       updateRoadOverview(report, rows);

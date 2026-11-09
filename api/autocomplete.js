@@ -4,6 +4,7 @@ export default async function handler(req,res) {
   res.setHeader('Cache-Control','no-store');
   if(req.method!=='POST')return res.status(405).json({error:'Use POST.'});
   let body=req.body||{};try{if(typeof body==='string')body=JSON.parse(body)}catch{return res.status(400).json({error:'Invalid JSON.'})}
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return res.status(400).json({error:'Expected a JSON object.'});
   const q=typeof body.query==='string'?body.query.replace(/\+/g,' ').trim():'';
   if(q.length<5||q.length>250)return res.status(400).json({error:'Enter 5–250 characters.'});
   try {

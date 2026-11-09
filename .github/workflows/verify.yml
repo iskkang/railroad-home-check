@@ -29,4 +29,4 @@ jobs:
       - name: Check SEO pages and sitemap
         run: npm run check:seo
       - name: Test nearby data API and UI error handling
-        run: npm run test:nearby
+        run: node --test scripts/*.test.mjs

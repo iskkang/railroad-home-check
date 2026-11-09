@@ -38,6 +38,9 @@
     },
     "api/noise.js": {
       "maxDuration": 15
+    },
+    "api/crossings.js": {
+      "maxDuration": 35
     }
   }
 }

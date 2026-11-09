@@ -15,8 +15,10 @@ export default async function handler(req, res) {
     }
   }
 
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return res.status(400).json({ error: 'Expected a JSON object.' });
+
   try {
-    const address = String(body.address || '').trim();
+    const address = typeof body.address === 'string' ? body.address.trim() : '';
     if (!address || address.length < 6 || address.length > 250) {
       return res.status(400).json({ error: 'Enter a complete U.S. street address.' });
     }
@@ -26,7 +28,11 @@ export default async function handler(req, res) {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const result = await census(address);
-        if (result === null) return res.status(404).json({ error: 'We could not match that address. Try a full street address with city, state, and ZIP code.' });
+        if (result === null) {
+          const backup = await photon(address);
+          if (backup) return res.status(200).json(backup);
+          return res.status(404).json({ error: 'We could not match that address. Try a full street address with city, state, and ZIP code, or choose a point on the map.' });
+        }
         return res.status(200).json(result);
       } catch (error) {
         censusError = error;

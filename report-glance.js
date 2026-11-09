@@ -115,6 +115,7 @@
       moderate: ['neutral', 'MODERATE', '0.2% yearly chance area. Insurance is optional but worth pricing.'],
       minimal: ['ok', 'LOW', 'Low risk on FEMA maps. Floods can still happen outside mapped zones.'],
       undetermined: ['neutral', 'UNDETERMINED', 'Possible flood risk that FEMA has not studied.'],
+      unverified: ['neutral', 'UNVERIFIED', 'The primary FEMA map was unavailable. The reduced backup omits low-risk and unmapped areas; absence of a polygon cannot establish low flood risk. Check the official map.'],
       unmapped: ['neutral', 'NO MAP', 'FEMA has no digital flood map for this spot.']
     }[f.level] || ['neutral', 'CHECK', ''];
     const bfe = f.bfe !== null && f.bfe !== undefined ? ` Base flood elevation ${f.bfe} ft.` : '';

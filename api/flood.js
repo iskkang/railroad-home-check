@@ -6,6 +6,7 @@ const LIVING_ATLAS = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/s
 const FIELDS = 'FLD_ZONE,ZONE_SUBTY,SFHA_TF,STATIC_BFE,DFIRM_ID';
 
 export default async function handler(req, res) {
+  if (req.method !== 'GET') { res.setHeader('Allow', 'GET'); return res.status(405).json({ error: 'Use GET.' }); }
   const lat = Number(req.query.lat);
   const lon = Number(req.query.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < 17 || lat > 72 || lon < -180 || lon > -60) {
@@ -38,7 +39,7 @@ function classify(zones, complete) {
     // The full NFHL returning nothing means no digital FEMA map here; the reduced copy omits minimal-risk areas.
     return complete
       ? { level: 'unmapped', zone: null, label: 'No digital FEMA flood map here' }
-      : { level: 'minimal', zone: null, label: 'Not in a mapped high- or moderate-risk zone' };
+      : { level: 'unverified', zone: null, label: 'No high-risk zone returned by the reduced FEMA copy; map coverage unverified' };
   }
   const zone = String(pick.FLD_ZONE || '').trim();
   const bfe = Number(pick.STATIC_BFE);
