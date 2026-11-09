@@ -156,9 +156,9 @@
     const top = Math.max(...src.map(([, x]) => x.band));
     const from = top > 0 ? ` · mostly ${src.filter(([, x]) => x.band === top).map(([k]) => k.toLowerCase()).join(' and ')}` : '';
     const v = n.all.band ? `${n.all.label} average · ${L[2]}${from}` : 'Below 45 dB average · Quiet';
-    const parts = src.map(([k, x]) => `${k}: ${x.band ? x.label : 'below 45 dB'}`).join(' · ');
+    const parts = n.all.band ? src.map(([k, x]) => `${k}: ${x.band ? x.label : 'below 45 dB'}`).join(' · ') : '';
     const why = `USDOT 2020 noise map: a modeled 24-hour average outdoors on a ~30 m grid. Short events such as horns or flyovers are averaged in, so peaks are much louder. Not a measurement at this home.`;
-    return row({ ic: 'noise', tone: L[0], k: K, v: esc(v), note: `${esc(L[3])}. ${esc(parts)}<br><span class="g-why">${esc(why)}</span>`, badge: L[1] });
+    return row({ ic: 'noise', tone: L[0], k: K, v: esc(v), note: `${esc(L[3])}.${parts ? ` ${esc(parts)}` : ''}<br><span class="g-why">${esc(why)}</span>`, badge: L[1] });
   }
 
   function roadRow(s) {
