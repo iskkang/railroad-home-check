@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1168" width="800" height="1168" role="img" aria-label="Map of public rail crossings in Flint, MI">
+<rect width="800" height="1168" rx="18" fill="#EEF2F8"/>
+<line x1="115" y1="20" x2="115" y2="1148" stroke="#DFE5EF"/>
+<line x1="210" y1="20" x2="210" y2="1148" stroke="#DFE5EF"/>
+<line x1="305" y1="20" x2="305" y2="1148" stroke="#DFE5EF"/>
+<line x1="400" y1="20" x2="400" y2="1148" stroke="#DFE5EF"/>
+<line x1="495" y1="20" x2="495" y2="1148" stroke="#DFE5EF"/>
+<line x1="590" y1="20" x2="590" y2="1148" stroke="#DFE5EF"/>
+<line x1="685" y1="20" x2="685" y2="1148" stroke="#DFE5EF"/>
+<line x1="20" y1="114" x2="780" y2="114" stroke="#DFE5EF"/>
+<line x1="20" y1="208" x2="780" y2="208" stroke="#DFE5EF"/>
+<line x1="20" y1="302" x2="780" y2="302" stroke="#DFE5EF"/>
+<line x1="20" y1="396" x2="780" y2="396" stroke="#DFE5EF"/>
+<line x1="20" y1="490" x2="780" y2="490" stroke="#DFE5EF"/>
+<line x1="20" y1="584" x2="780" y2="584" stroke="#DFE5EF"/>
+<line x1="20" y1="678" x2="780" y2="678" stroke="#DFE5EF"/>
+<line x1="20" y1="772" x2="780" y2="772" stroke="#DFE5EF"/>
+<line x1="20" y1="866" x2="780" y2="866" stroke="#DFE5EF"/>
+<line x1="20" y1="960" x2="780" y2="960" stroke="#DFE5EF"/>
+<line x1="20" y1="1054" x2="780" y2="1054" stroke="#DFE5EF"/>
+<circle cx="262.0" cy="669.7" r="30" fill="none" stroke="#0F1B33" stroke-width="1.5" stroke-dasharray="4 4" opacity=".55"/>
+<circle cx="625.0" cy="652.6" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="544.5" cy="475.6" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="374.7" cy="882.6" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="702.5" cy="652.6" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="386.6" cy="873.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="440.2" cy="847.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="97.5" cy="1033.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="702.5" cy="683.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="467.1" cy="829.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="622.0" cy="732.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="586.3" cy="657.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="592.2" cy="887.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="508.8" cy="391.6" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="598.2" cy="1041.8" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="583.3" cy="577.4" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="589.3" cy="732.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="386.6" cy="126.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="592.2" cy="825.1" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<g font-family="Helvetica, Arial, sans-serif" font-weight="700"><rect x="296.0" y="625.7" width="92" height="26" rx="13" fill="#0F1B33"/><text x="342.0" y="643.7" font-size="13" fill="#FFF" text-anchor="middle">City center</text></g>
+<g font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#44506A" stroke="#44506A" stroke-width="2"><line x1="42" y1="1134" x2="195" y2="1134"/><line x1="42" y1="1129" x2="42" y2="1139"/><line x1="195" y1="1129" x2="195" y2="1139"/><text x="42" y="1154" stroke="none">1 mile</text></g>
+<g fill="#44506A" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="700"><path d="M754 34L762 56L754 50L746 56Z"/><text x="754" y="72" text-anchor="middle">N</text></g>
+</svg>

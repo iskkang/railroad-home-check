@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 566" width="800" height="566" role="img" aria-label="Map of public rail crossings in Mission, TX">
+<rect width="800" height="566" rx="18" fill="#EEF2F8"/>
+<line x1="115" y1="20" x2="115" y2="546" stroke="#DFE5EF"/>
+<line x1="210" y1="20" x2="210" y2="546" stroke="#DFE5EF"/>
+<line x1="305" y1="20" x2="305" y2="546" stroke="#DFE5EF"/>
+<line x1="400" y1="20" x2="400" y2="546" stroke="#DFE5EF"/>
+<line x1="495" y1="20" x2="495" y2="546" stroke="#DFE5EF"/>
+<line x1="590" y1="20" x2="590" y2="546" stroke="#DFE5EF"/>
+<line x1="685" y1="20" x2="685" y2="546" stroke="#DFE5EF"/>
+<line x1="20" y1="108" x2="780" y2="108" stroke="#DFE5EF"/>
+<line x1="20" y1="195" x2="780" y2="195" stroke="#DFE5EF"/>
+<line x1="20" y1="283" x2="780" y2="283" stroke="#DFE5EF"/>
+<line x1="20" y1="371" x2="780" y2="371" stroke="#DFE5EF"/>
+<line x1="20" y1="458" x2="780" y2="458" stroke="#DFE5EF"/>
+<circle cx="435.1" cy="191.1" r="30" fill="none" stroke="#0F1B33" stroke-width="1.5" stroke-dasharray="4 4" opacity=".55"/>
+<circle cx="505.8" cy="482.1" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="422.4" cy="451.1" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="398.5" cy="409.9" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="437.3" cy="471.7" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="547.5" cy="488.2" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="392.5" cy="395.4" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="73.6" cy="77.8" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="419.4" cy="205.6" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="327.0" cy="121.1" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="398.5" cy="127.3" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="368.7" cy="125.2" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="249.5" cy="100.4" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="255.5" cy="102.5" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="163.1" cy="88.1" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="183.9" cy="90.1" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="413.4" cy="150.0" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="514.7" cy="139.6" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="347.8" cy="123.1" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="318.0" cy="119.0" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="285.3" cy="110.8" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="449.2" cy="133.5" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="303.1" cy="116.9" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="395.5" cy="376.9" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="431.3" cy="131.4" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="419.4" cy="129.3" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="422.4" cy="174.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="613.1" cy="150.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="684.6" cy="156.1" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="619.1" cy="150.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="455.1" cy="133.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="443.2" cy="131.4" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="416.4" cy="158.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="419.4" cy="209.8" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="422.4" cy="183.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="389.6" cy="127.3" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="413.4" cy="257.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="493.9" cy="137.6" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="517.7" cy="139.6" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="499.8" cy="482.1" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="473.0" cy="135.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="586.3" cy="145.8" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="410.4" cy="145.8" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="556.5" cy="143.8" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="461.1" cy="133.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="598.2" cy="147.9" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="413.4" cy="240.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="726.4" cy="160.3" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="639.9" cy="152.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<g font-family="Helvetica, Arial, sans-serif" font-weight="700"><rect x="469.1" y="147.1" width="92" height="26" rx="13" fill="#0F1B33"/><text x="515.1" y="165.1" font-size="13" fill="#FFF" text-anchor="middle">City center</text></g>
+<g font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#44506A" stroke="#44506A" stroke-width="2"><line x1="42" y1="532" x2="126" y2="532"/><line x1="42" y1="527" x2="42" y2="537"/><line x1="126" y1="527" x2="126" y2="537"/><text x="42" y="552" stroke="none">1 mile</text></g>
+<g fill="#44506A" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="700"><path d="M754 34L762 56L754 50L746 56Z"/><text x="754" y="72" text-anchor="middle">N</text></g>
+</svg>

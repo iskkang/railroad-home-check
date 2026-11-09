@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 529" width="800" height="529" role="img" aria-label="Map of public rail crossings in Santa Maria, CA">
+<rect width="800" height="529" rx="18" fill="#EEF2F8"/>
+<line x1="115" y1="20" x2="115" y2="509" stroke="#DFE5EF"/>
+<line x1="210" y1="20" x2="210" y2="509" stroke="#DFE5EF"/>
+<line x1="305" y1="20" x2="305" y2="509" stroke="#DFE5EF"/>
+<line x1="400" y1="20" x2="400" y2="509" stroke="#DFE5EF"/>
+<line x1="495" y1="20" x2="495" y2="509" stroke="#DFE5EF"/>
+<line x1="590" y1="20" x2="590" y2="509" stroke="#DFE5EF"/>
+<line x1="685" y1="20" x2="685" y2="509" stroke="#DFE5EF"/>
+<line x1="20" y1="118" x2="780" y2="118" stroke="#DFE5EF"/>
+<line x1="20" y1="216" x2="780" y2="216" stroke="#DFE5EF"/>
+<line x1="20" y1="313" x2="780" y2="313" stroke="#DFE5EF"/>
+<line x1="20" y1="411" x2="780" y2="411" stroke="#DFE5EF"/>
+<circle cx="645.8" cy="223.0" r="30" fill="none" stroke="#0F1B33" stroke-width="1.5" stroke-dasharray="4 4" opacity=".55"/>
+<circle cx="636.9" cy="106.3" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="622.0" cy="422.7" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="708.5" cy="114.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="636.9" cy="175.3" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="666.7" cy="114.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="604.2" cy="112.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="660.8" cy="114.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="529.6" cy="175.3" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="634.0" cy="363.3" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="699.5" cy="114.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="681.6" cy="114.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="636.9" cy="234.8" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="705.5" cy="114.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="574.4" cy="112.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="642.9" cy="112.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="321.0" cy="206.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="678.7" cy="114.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="651.8" cy="112.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="672.7" cy="114.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="687.6" cy="114.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="636.9" cy="138.9" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="634.0" cy="330.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="91.5" cy="261.6" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<g font-family="Helvetica, Arial, sans-serif" font-weight="700"><rect x="679.8" y="179.0" width="92" height="26" rx="13" fill="#0F1B33"/><text x="725.8" y="197.0" font-size="13" fill="#FFF" text-anchor="middle">City center</text></g>
+<g font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#44506A" stroke="#44506A" stroke-width="2"><line x1="42" y1="495" x2="166" y2="495"/><line x1="42" y1="490" x2="42" y2="500"/><line x1="166" y1="490" x2="166" y2="500"/><text x="42" y="515" stroke="none">1 mile</text></g>
+<g fill="#44506A" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="700"><path d="M754 34L762 56L754 50L746 56Z"/><text x="754" y="72" text-anchor="middle">N</text></g>
+</svg>

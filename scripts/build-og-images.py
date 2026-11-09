@@ -64,7 +64,7 @@ def page(eyebrow, title, sub, right_slug, stats='', home_pin=False, foot='FRA cr
 
 jobs = []
 jobs.append(('home', page('FREE · U.S. HOMEBUYER TOOL', 'Check road traffic and rail activity around a home', 'Night trains, horn rules, road counts and flood zones for any U.S. address.', 'chicago-il', home_pin=True)))
-jobs.append(('trains', page('TRAIN ACTIVITY BY CITY', 'Train activity in 25 U.S. cities', 'Crossing maps, night trains and quiet zones from federal railroad records.', 'houston-tx')))
+jobs.append(('trains', page('TRAIN ACTIVITY BY CITY', f'Train activity in {len(cities["cities"])} U.S. cities', 'Crossing maps, night trains and quiet zones from federal railroad records.', 'houston-tx')))
 for slug, c in cities['cities'].items():
     s = summary[slug]; qz = s['qz24'] + s['qzP'] + s['qzC']
     pct = lambda a: round(a / s['n'] * 100) if s['n'] else 0
@@ -85,6 +85,6 @@ with sync_playwright() as p:
     pg = b.new_page(viewport={'width': 1200, 'height': 630})
     for name, doc in jobs:
         pg.set_content(doc); pg.wait_for_timeout(60)
-        pg.screenshot(path=f'{ROOT}/og/{name}.jpg', type='jpeg', quality=86)
+        pg.screenshot(path=f'{ROOT}/og/{name}.jpg', type='jpeg', quality=80)
     b.close()
 print(len(jobs), 'images')

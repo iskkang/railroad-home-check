@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1225" width="800" height="1225" role="img" aria-label="Map of public rail crossings in Greenville, NC">
+<rect width="800" height="1225" rx="18" fill="#EEF2F8"/>
+<line x1="115" y1="20" x2="115" y2="1205" stroke="#DFE5EF"/>
+<line x1="210" y1="20" x2="210" y2="1205" stroke="#DFE5EF"/>
+<line x1="305" y1="20" x2="305" y2="1205" stroke="#DFE5EF"/>
+<line x1="400" y1="20" x2="400" y2="1205" stroke="#DFE5EF"/>
+<line x1="495" y1="20" x2="495" y2="1205" stroke="#DFE5EF"/>
+<line x1="590" y1="20" x2="590" y2="1205" stroke="#DFE5EF"/>
+<line x1="685" y1="20" x2="685" y2="1205" stroke="#DFE5EF"/>
+<line x1="20" y1="119" x2="780" y2="119" stroke="#DFE5EF"/>
+<line x1="20" y1="218" x2="780" y2="218" stroke="#DFE5EF"/>
+<line x1="20" y1="316" x2="780" y2="316" stroke="#DFE5EF"/>
+<line x1="20" y1="415" x2="780" y2="415" stroke="#DFE5EF"/>
+<line x1="20" y1="514" x2="780" y2="514" stroke="#DFE5EF"/>
+<line x1="20" y1="613" x2="780" y2="613" stroke="#DFE5EF"/>
+<line x1="20" y1="711" x2="780" y2="711" stroke="#DFE5EF"/>
+<line x1="20" y1="810" x2="780" y2="810" stroke="#DFE5EF"/>
+<line x1="20" y1="909" x2="780" y2="909" stroke="#DFE5EF"/>
+<line x1="20" y1="1008" x2="780" y2="1008" stroke="#DFE5EF"/>
+<line x1="20" y1="1106" x2="780" y2="1106" stroke="#DFE5EF"/>
+<circle cx="336.1" cy="827.2" r="30" fill="none" stroke="#0F1B33" stroke-width="1.5" stroke-dasharray="4 4" opacity=".55"/>
+<circle cx="321.0" cy="777.5" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="318.0" cy="786.8" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="324.0" cy="768.2" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="321.0" cy="782.1" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="189.9" cy="800.7" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="160.1" cy="805.4" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="306.1" cy="791.4" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="332.9" cy="800.7" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="261.4" cy="1065.6" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="73.6" cy="814.6" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="380.6" cy="503.3" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="243.5" cy="796.1" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="237.6" cy="1139.9" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="112.4" cy="810.0" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="225.6" cy="796.1" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="726.4" cy="944.8" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="556.5" cy="907.6" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="482.0" cy="870.4" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="416.4" cy="823.9" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="487.9" cy="875.1" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="404.5" cy="814.6" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="461.1" cy="856.5" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="663.8" cy="930.8" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="586.3" cy="912.2" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="321.0" cy="712.4" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="282.3" cy="968.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="306.1" cy="786.8" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="318.0" cy="717.1" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="303.1" cy="810.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="297.2" cy="856.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="389.6" cy="461.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="479.0" cy="85.1" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="446.2" cy="224.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="416.4" cy="354.6" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="380.6" cy="494.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="315.1" cy="721.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="365.7" cy="549.8" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="312.1" cy="754.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="350.8" cy="600.9" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<g font-family="Helvetica, Arial, sans-serif" font-weight="700"><rect x="370.1" y="783.2" width="92" height="26" rx="13" fill="#0F1B33"/><text x="416.1" y="801.2" font-size="13" fill="#FFF" text-anchor="middle">City center</text></g>
+<g font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#44506A" stroke="#44506A" stroke-width="2"><line x1="42" y1="1191" x2="136" y2="1191"/><line x1="42" y1="1186" x2="42" y2="1196"/><line x1="136" y1="1186" x2="136" y2="1196"/><text x="42" y="1211" stroke="none">1 mile</text></g>
+<g fill="#44506A" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="700"><path d="M754 34L762 56L754 50L746 56Z"/><text x="754" y="72" text-anchor="middle">N</text></g>
+</svg>

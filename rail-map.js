@@ -29,7 +29,7 @@
     map.fitBounds([[d.b[0], d.b[2]], [d.b[1], d.b[3]]], { padding: mini ? [6, 6] : [12, 12] });
     if (d.dt) {
       L.circle(d.dt, { radius: 1600, color: '#0F1B33', weight: 1.5, dashArray: '4 4', fill: false, interactive: false }).addTo(map);
-      if (!mini) L.marker(d.dt, { interactive: false, icon: L.divIcon({ className: 'rc-dt', html: '<span>Downtown</span>', iconSize: [0, 0] }) }).addTo(map);
+      if (!mini) L.marker(d.dt, { interactive: false, icon: L.divIcon({ className: 'rc-dt', html: '<span>' + (el.dataset.dtl || 'Downtown') + '</span>', iconSize: [0, 0] }) }).addTo(map);
     }
     var r = mini ? 3 : 5;
     [0, 1, 2, 3].forEach(function (cat) {

@@ -349,9 +349,9 @@
    "pop": 320742,
    "center": "city"
   },
-  "lexington-fayette-ky": {
+  "lexington-ky": {
    "code": "210671980",
-   "name": "Lexington-Fayette",
+   "name": "Lexington",
    "st": "KY",
    "pop": 320154,
    "center": "city"
@@ -650,9 +650,9 @@
    "pop": 206410,
    "center": "city"
   },
-  "augusta-richmond-county-ga": {
+  "augusta-ga": {
    "code": "132450310",
-   "name": "Augusta-Richmond County",
+   "name": "Augusta",
    "st": "GA",
    "pop": 205414,
    "center": "city"
@@ -860,9 +860,9 @@
    "pop": 158349,
    "center": "city"
   },
-  "macon-bibb-county-ga": {
+  "macon-ga": {
    "code": "130213390",
-   "name": "Macon-Bibb County",
+   "name": "Macon",
    "st": "GA",
    "pop": 156512,
    "center": "city"

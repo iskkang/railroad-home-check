@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 532" width="800" height="532" role="img" aria-label="Map of public rail crossings in Broken Arrow, OK">
+<rect width="800" height="532" rx="18" fill="#EEF2F8"/>
+<line x1="115" y1="20" x2="115" y2="512" stroke="#DFE5EF"/>
+<line x1="210" y1="20" x2="210" y2="512" stroke="#DFE5EF"/>
+<line x1="305" y1="20" x2="305" y2="512" stroke="#DFE5EF"/>
+<line x1="400" y1="20" x2="400" y2="512" stroke="#DFE5EF"/>
+<line x1="495" y1="20" x2="495" y2="512" stroke="#DFE5EF"/>
+<line x1="590" y1="20" x2="590" y2="512" stroke="#DFE5EF"/>
+<line x1="685" y1="20" x2="685" y2="512" stroke="#DFE5EF"/>
+<line x1="20" y1="118" x2="780" y2="118" stroke="#DFE5EF"/>
+<line x1="20" y1="217" x2="780" y2="217" stroke="#DFE5EF"/>
+<line x1="20" y1="315" x2="780" y2="315" stroke="#DFE5EF"/>
+<line x1="20" y1="414" x2="780" y2="414" stroke="#DFE5EF"/>
+<circle cx="351.9" cy="333.1" r="30" fill="none" stroke="#0F1B33" stroke-width="1.5" stroke-dasharray="4 4" opacity=".55"/>
+<circle cx="240.5" cy="212.9" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="452.2" cy="307.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="267.4" cy="232.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="70.7" cy="83.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="82.6" cy="91.4" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="616.1" cy="400.1" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="216.7" cy="193.6" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="359.8" cy="290.1" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="636.9" cy="409.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="175.0" cy="162.8" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="282.3" cy="243.8" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="729.3" cy="448.3" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="294.2" cy="253.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="300.2" cy="259.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="94.5" cy="83.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="192.9" cy="176.3" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<g font-family="Helvetica, Arial, sans-serif" font-weight="700"><rect x="385.9" y="289.1" width="92" height="26" rx="13" fill="#0F1B33"/><text x="431.9" y="307.1" font-size="13" fill="#FFF" text-anchor="middle">City center</text></g>
+<g font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#44506A" stroke="#44506A" stroke-width="2"><line x1="42" y1="498" x2="134" y2="498"/><line x1="42" y1="493" x2="42" y2="503"/><line x1="134" y1="493" x2="134" y2="503"/><text x="42" y="518" stroke="none">1 mile</text></g>
+<g fill="#44506A" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="700"><path d="M754 34L762 56L754 50L746 56Z"/><text x="754" y="72" text-anchor="middle">N</text></g>
+</svg>

@@ -53,7 +53,8 @@ for (const line of popRows) {
   if (!['162', '170'].includes(r[iS])) continue;
   const st = STATES[r[iST].toUpperCase()]; if (!st) continue;
   const clean = r[iN].replace(/\s*\(balance\)/, '').replace(/ (city|town|village|borough|municipality|metropolitan government|unified government|consolidated government|metro government|urban county)$/i, '').replace(/-Davidson$/, '').replace(/\/Jefferson County$/, '').replace(/ city and county$/i, '').trim();
-  const rec = { name: clean, pop: num(r[iP]) };
+  const DISPLAY = { 'Lexington-Fayette': 'Lexington', 'Augusta-Richmond County': 'Augusta', 'Macon-Bibb County': 'Macon', 'Athens-Clarke County': 'Athens', 'Urban Honolulu': 'Honolulu' };
+  const rec = { name: DISPLAY[clean] || clean, pop: num(r[iP]) };
   for (const k of keys(r[iN])) { const key = `${st}|${k}`; if (!pop.has(key) || pop.get(key).pop < rec.pop) pop.set(key, rec); }
 }
 const gaz = new Map();

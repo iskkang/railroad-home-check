@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 596" width="800" height="596" role="img" aria-label="Map of public rail crossings in Greeley, CO">
+<rect width="800" height="596" rx="18" fill="#EEF2F8"/>
+<line x1="115" y1="20" x2="115" y2="576" stroke="#DFE5EF"/>
+<line x1="210" y1="20" x2="210" y2="576" stroke="#DFE5EF"/>
+<line x1="305" y1="20" x2="305" y2="576" stroke="#DFE5EF"/>
+<line x1="400" y1="20" x2="400" y2="576" stroke="#DFE5EF"/>
+<line x1="495" y1="20" x2="495" y2="576" stroke="#DFE5EF"/>
+<line x1="590" y1="20" x2="590" y2="576" stroke="#DFE5EF"/>
+<line x1="685" y1="20" x2="685" y2="576" stroke="#DFE5EF"/>
+<line x1="20" y1="113" x2="780" y2="113" stroke="#DFE5EF"/>
+<line x1="20" y1="205" x2="780" y2="205" stroke="#DFE5EF"/>
+<line x1="20" y1="298" x2="780" y2="298" stroke="#DFE5EF"/>
+<line x1="20" y1="391" x2="780" y2="391" stroke="#DFE5EF"/>
+<line x1="20" y1="483" x2="780" y2="483" stroke="#DFE5EF"/>
+<circle cx="204.4" cy="409.2" r="30" fill="none" stroke="#0F1B33" stroke-width="1.5" stroke-dasharray="4 4" opacity=".55"/>
+<circle cx="416.4" cy="194.4" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="696.5" cy="342.7" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="556.5" cy="235.9" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="663.8" cy="268.6" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="529.6" cy="227.1" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="79.6" cy="96.3" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="437.3" cy="201.0" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="145.2" cy="115.9" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="642.9" cy="262.0" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="613.1" cy="253.3" r="5" fill="#2451E6" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="285.3" cy="153.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="189.9" cy="126.8" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="675.7" cy="272.9" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="720.4" cy="499.7" r="5" fill="#0F7B6C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="687.6" cy="296.9" r="5" fill="#0F7B6C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="699.5" cy="375.4" r="5" fill="#0F7B6C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="690.6" cy="325.3" r="5" fill="#0F7B6C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="708.5" cy="412.5" r="5" fill="#0F7B6C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="690.6" cy="342.7" r="5" fill="#0F7B6C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="714.4" cy="438.6" r="5" fill="#0F7B6C" stroke="#FFF" stroke-width="1.2"/>
+<g font-family="Helvetica, Arial, sans-serif" font-weight="700"><rect x="238.4" y="365.2" width="92" height="26" rx="13" fill="#0F1B33"/><text x="284.4" y="383.2" font-size="13" fill="#FFF" text-anchor="middle">City center</text></g>
+<g font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#44506A" stroke="#44506A" stroke-width="2"><line x1="42" y1="562" x2="154" y2="562"/><line x1="42" y1="557" x2="42" y2="567"/><line x1="154" y1="557" x2="154" y2="567"/><text x="42" y="582" stroke="none">1 mile</text></g>
+<g fill="#44506A" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="700"><path d="M754 34L762 56L754 50L746 56Z"/><text x="754" y="72" text-anchor="middle">N</text></g>
+</svg>

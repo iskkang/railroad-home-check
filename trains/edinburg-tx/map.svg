@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 765" width="800" height="765" role="img" aria-label="Map of public rail crossings in Edinburg, TX">
+<rect width="800" height="765" rx="18" fill="#EEF2F8"/>
+<line x1="115" y1="20" x2="115" y2="745" stroke="#DFE5EF"/>
+<line x1="210" y1="20" x2="210" y2="745" stroke="#DFE5EF"/>
+<line x1="305" y1="20" x2="305" y2="745" stroke="#DFE5EF"/>
+<line x1="400" y1="20" x2="400" y2="745" stroke="#DFE5EF"/>
+<line x1="495" y1="20" x2="495" y2="745" stroke="#DFE5EF"/>
+<line x1="590" y1="20" x2="590" y2="745" stroke="#DFE5EF"/>
+<line x1="685" y1="20" x2="685" y2="745" stroke="#DFE5EF"/>
+<line x1="20" y1="111" x2="780" y2="111" stroke="#DFE5EF"/>
+<line x1="20" y1="201" x2="780" y2="201" stroke="#DFE5EF"/>
+<line x1="20" y1="292" x2="780" y2="292" stroke="#DFE5EF"/>
+<line x1="20" y1="383" x2="780" y2="383" stroke="#DFE5EF"/>
+<line x1="20" y1="473" x2="780" y2="473" stroke="#DFE5EF"/>
+<line x1="20" y1="564" x2="780" y2="564" stroke="#DFE5EF"/>
+<line x1="20" y1="654" x2="780" y2="654" stroke="#DFE5EF"/>
+<circle cx="504.1" cy="82.0" r="30" fill="none" stroke="#0F1B33" stroke-width="1.5" stroke-dasharray="4 4" opacity=".55"/>
+<circle cx="678.7" cy="210.5" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="663.8" cy="207.6" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="526.7" cy="184.9" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="470.0" cy="133.7" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="121.3" cy="631.3" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="225.6" cy="543.1" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="318.0" cy="466.4" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="416.4" cy="383.9" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="458.1" cy="227.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="341.9" cy="446.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="458.1" cy="216.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="133.3" cy="622.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="443.2" cy="307.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="446.2" cy="292.9" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="428.3" cy="372.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="449.2" cy="281.6" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="216.7" cy="551.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<g font-family="Helvetica, Arial, sans-serif" font-weight="700"><rect x="538.1" y="38.0" width="92" height="26" rx="13" fill="#0F1B33"/><text x="584.1" y="56.0" font-size="13" fill="#FFF" text-anchor="middle">City center</text></g>
+<g font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#44506A" stroke="#44506A" stroke-width="2"><line x1="42" y1="731" x2="205" y2="731"/><line x1="42" y1="726" x2="42" y2="736"/><line x1="205" y1="726" x2="205" y2="736"/><text x="42" y="751" stroke="none">1 mile</text></g>
+<g fill="#44506A" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="700"><path d="M754 34L762 56L754 50L746 56Z"/><text x="754" y="72" text-anchor="middle">N</text></g>
+</svg>

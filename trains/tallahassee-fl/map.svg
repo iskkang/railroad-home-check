@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 270" width="800" height="270" role="img" aria-label="Map of public rail crossings in Tallahassee, FL">
+<rect width="800" height="270" rx="18" fill="#EEF2F8"/>
+<line x1="115" y1="20" x2="115" y2="250" stroke="#DFE5EF"/>
+<line x1="210" y1="20" x2="210" y2="250" stroke="#DFE5EF"/>
+<line x1="305" y1="20" x2="305" y2="250" stroke="#DFE5EF"/>
+<line x1="400" y1="20" x2="400" y2="250" stroke="#DFE5EF"/>
+<line x1="495" y1="20" x2="495" y2="250" stroke="#DFE5EF"/>
+<line x1="590" y1="20" x2="590" y2="250" stroke="#DFE5EF"/>
+<line x1="685" y1="20" x2="685" y2="250" stroke="#DFE5EF"/>
+<line x1="20" y1="78" x2="780" y2="78" stroke="#DFE5EF"/>
+<line x1="20" y1="135" x2="780" y2="135" stroke="#DFE5EF"/>
+<line x1="20" y1="193" x2="780" y2="193" stroke="#DFE5EF"/>
+<circle cx="271.8" cy="185.1" r="30" fill="none" stroke="#0F1B33" stroke-width="1.5" stroke-dasharray="4 4" opacity=".55"/>
+<circle cx="142.2" cy="230.2" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="76.6" cy="38.9" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="115.4" cy="146.3" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="115.4" cy="130.9" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="118.4" cy="162.5" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="85.6" cy="52.5" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="106.4" cy="109.3" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="198.8" cy="225.6" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="166.0" cy="229.3" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="142.2" cy="231.1" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="514.7" cy="207.6" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="228.6" cy="224.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="234.6" cy="222.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="240.5" cy="204.9" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="195.8" cy="230.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="133.3" cy="230.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="753.2" cy="132.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="321.0" cy="184.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="222.7" cy="224.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="210.7" cy="223.8" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="541.6" cy="187.8" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="496.9" cy="218.4" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="46.8" cy="194.1" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="562.4" cy="172.4" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="67.7" cy="204.9" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<g font-family="Helvetica, Arial, sans-serif" font-weight="700"><rect x="305.8" y="141.1" width="92" height="26" rx="13" fill="#0F1B33"/><text x="351.8" y="159.1" font-size="13" fill="#FFF" text-anchor="middle">City center</text></g>
+<g font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#44506A" stroke="#44506A" stroke-width="2"><line x1="42" y1="236" x2="182" y2="236"/><line x1="42" y1="231" x2="42" y2="241"/><line x1="182" y1="231" x2="182" y2="241"/><text x="42" y="256" stroke="none">5 miles</text></g>
+<g fill="#44506A" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="700"><path d="M754 34L762 56L754 50L746 56Z"/><text x="754" y="72" text-anchor="middle">N</text></g>
+</svg>

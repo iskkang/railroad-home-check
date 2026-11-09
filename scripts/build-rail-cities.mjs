@@ -92,7 +92,23 @@ const RR_NAMES = {
   'SOO KCS Joint Agency': 'Soo Line / KCS joint agency',
   'Terminal Railroad Association Of St. Louis': 'Terminal Railroad Association of St. Louis'
 };
-const rrName = raw => RR_NAMES[raw] ?? titleCase(raw);
+const RR_SHORT = {
+  'Union Pacific Railroad Company': 'Union Pacific', 'CSX Transportation': 'CSX', 'BNSF Railway Company': 'BNSF', 'Norfolk Southern Railway Company': 'Norfolk Southern',
+  'Kansas City Southern Railway Company': 'Kansas City Southern (CPKC)', 'Florida East Coast Railway Company': 'Florida East Coast Railway', 'Illinois Central Railroad Company': 'Illinois Central (CN)',
+  'WISCONSIN CENTRAL LTD.': 'Wisconsin Central (CN)', 'SOO Line Railroad Company': 'Soo Line (CPKC)', 'Chicago, Central & Pacific Railroad Company': 'Chicago, Central & Pacific (CN)',
+  'South Florida Regional Transportation Authority': 'Tri-Rail', 'New Mexico Rail Runner Express': 'New Mexico Rail Runner', 'Sacramento County Regional Transit District': 'SacRT',
+  'Utah Transit Authority': 'UTA', 'Northern Indiana Commuter Transportation District': 'South Shore Line (NICTD)', 'Central Florida Rail Corridor': 'SunRail (Central Florida Rail Corridor)',
+  'Dakota, Minnesota & Eastern Railroad': 'Dakota, Minnesota & Eastern (CPKC)', 'R. J. Corman Railroad Co/Central Kentucky Lines': 'R.J. Corman'
+};
+// Drop corporate suffixes; title-case names filed in capitals.
+const rrName = raw => {
+  if (!raw) return 'Railroad not reported';
+  if (RR_NAMES[raw]) return RR_NAMES[raw];
+  if (RR_SHORT[raw]) return RR_SHORT[raw];
+  let n = String(raw).replace(/,?\s+(LLC|L\.L\.C\.|Inc\.?|Incorporated|Ltd\.?|Limited|Corp\.?|Corporation)$/i, '').replace(/,?\s+(LLC|Inc\.?)$/i, '').replace(/\s+(Company|Co\.?)$/i, '').trim();
+  if (n === n.toUpperCase()) n = titleCase(n);
+  return n;
+};
 const TRANSIT_RE = /transit|trolley|metro|rapid|light rail|trimet|regional transportation district|\bRTD\b|tex ?rail|capital metropolitan|utah transit|frontrunner|commuter|metra|southeastern pennsylvania|southern california regional|coaster|sprinter|trinity railway|amtrak|passenger|mts|septa|dart/i;
 
 const qzLabel = code => ({ '1': '24-hour quiet zone', '2': 'Partial quiet zone', '3': 'Chicago-excused', '0': 'Not a quiet zone' })[String(code)] ?? 'Quiet zone not reported';
@@ -112,10 +128,11 @@ function mapGeometry(slug) {
   const H = Math.round(W / (((lo1 - lo0) * k) / (la1 - la0)));
   return { m, la0, la1, lo0, lo1, k, W, H };
 }
+const dtLabel = slug => (meta.cities[slug].center === 'city' ? 'City center' : 'Downtown');
 // data-* attributes for the Leaflet basemap (rail-map.js decodes the same 3-byte points)
 function mapAttrs(slug) {
   const m = maps[slug];
-  return `data-b="${esc(JSON.stringify(m.b))}" data-dt="${esc(JSON.stringify(m.dt))}" data-p="${m.p}"`;
+  return `data-b="${esc(JSON.stringify(m.b))}" data-dt="${esc(JSON.stringify(m.dt))}" data-dtl="${dtLabel(slug)}" data-p="${m.p}"`;
 }
 function mapSvg(slug) {
   const { m, la0, la1, lo0, lo1, k, W, H } = mapGeometry(slug);
@@ -135,7 +152,7 @@ function mapSvg(slug) {
     for (const [x, y, c] of pts) if (c === cat) out.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${COLORS[c]}" stroke="#FFF" stroke-width="1.2"/>`);
   }
   const lx = Math.min(dx + 34, TW - 110), ly = Math.max(dy - 44, 8);
-  out.push(`<g font-family="Helvetica, Arial, sans-serif" font-weight="700"><rect x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" width="92" height="26" rx="13" fill="#0F1B33"/><text x="${(lx + 46).toFixed(1)}" y="${(ly + 18).toFixed(1)}" font-size="13" fill="#FFF" text-anchor="middle">Downtown</text></g>`);
+  out.push(`<g font-family="Helvetica, Arial, sans-serif" font-weight="700"><rect x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" width="92" height="26" rx="13" fill="#0F1B33"/><text x="${(lx + 46).toFixed(1)}" y="${(ly + 18).toFixed(1)}" font-size="13" fill="#FFF" text-anchor="middle">${dtLabel(slug)}</text></g>`);
   const pxPerMile = W / ((lo1 - lo0) * 69.17 * k);
   const miles = [1, 2, 5, 10, 20].find(mi => mi * pxPerMile >= 60) ?? 20;
   const bw = Math.round(miles * pxPerMile), sx = P + 22, sy = TH - 34;
@@ -286,9 +303,9 @@ function cityPage(slug) {
   const busiest = `<section class="rc-wrap rc-sec"><div class="rc-card"><div class="rc-card-head"><h2>${thin ? `Busiest rail crossings in ${esc(name)}` : `Busiest railroad crossings in ${esc(name)}`}</h2><div class="rc-key"><span><i class="rc-day"></i>Day</span><span><i class="rc-night"></i>Night</span></div></div>${barRows(listRows, listMax)}<p class="rc-note">Reported through trains per day (day 6 AM–6 PM, night 6 PM–6 AM). ${thin ? 'Includes light rail and commuter operators.' : 'Excludes transit-agency crossings; commuter or passenger trains may still share these tracks.'} One train passes several crossings — don't add rows together.</p></div></section>`;
   const transitList = !thin && transitHeavy ? (() => { const rows = allTop.slice(0, 5); const mx = Math.max(...rows.map(r => r.d + r.n), 1); return `<section class="rc-wrap rc-sec"><div class="rc-card"><div class="rc-card-head"><h2>Including light rail and commuter lines</h2></div>${barRows(rows, mx)}<p class="rc-note">Light rail and commuter trains are usually shorter than freight, but crossing bells and horns still apply. Some records omit a count year or use placeholder values.</p></div></section>`; })() : '';
 
-  const sameState = slugs.filter(s => s !== slug && meta.cities[s].st === meta.cities[slug].st);
-  const idx = slugs.indexOf(slug);
-  const others = [...sameState, ...[1, 2, 3, 4, 5, 6].map(k => slugs[(idx + k) % slugs.length])].filter((s, i, a) => s !== slug && a.indexOf(s) === i).slice(0, 6);
+  // nearest cities by center point, so suburbs link to their neighbours
+  const here = maps[slug].dt, kx = Math.cos(here[0] * Math.PI / 180);
+  const others = slugs.filter(s => s !== slug).map(s => [s, Math.hypot(maps[s].dt[0] - here[0], (maps[s].dt[1] - here[1]) * kx)]).sort((a, b) => a[1] - b[1]).slice(0, 6).map(x => x[0]);
   const related = others.map(s => { const g = mapGeometry(s); return `<a class="rc-city" href="/trains/${s}/"><div class="rc-mini" ${mapAttrs(s)}><img src="/trains/${s}/map.svg" alt="" width="${g.W + 40}" height="${g.H + 40}" loading="lazy"/></div><strong>${esc(label(s))}</strong><span>${plural(summary[s].n, 'crossing')} · ${fmt(summary[s].night)} with night trains</span></a>`; }).join('');
 
   const faq = [
@@ -306,11 +323,11 @@ function cityPage(slug) {
   ].map(([ic, h, p]) => `<div class="rc-step"><span class="rc-step-ico">${icon(ic, 26)}</span><h3>${h}</h3><p>${p}</p></div>`).join('');
 
   const mapPath = `/trains/${slug}/map.svg`;
-  const photo = photos[slug];
+  const photo = photos[slug] || { ...photos['dallas-tx'], illustrative: 'Freight yard in Dallas, TX (illustrative)' };
   const html = `${head({ title, description, path, ogImage: `/og/trains-${slug}.jpg`, jsonLd: [articleLd(h1, path, description, mapPath), breadcrumbLd([['Home', '/'], ['Train activity by city', '/trains/'], [L, path]])] })}
 <main>
 <section class="rc-hero rc-hero-photo">${photo ? `<img class="rc-photo" src="${esc(photo.src)}" alt="" width="960" height="640" decoding="async" fetchpriority="high"/>` : ''}<div class="rc-shade" aria-hidden="true"></div><div class="rc-wrap rc-hero-in">
-<div class="rc-hero-main"><nav class="rc-crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/trains/">Cities</a> / ${esc(L)}</nav><h1>${esc(h1)}</h1><p class="rc-lead">${lead}</p>${searchBox('addr-top', name)}<p class="rc-date">FRA data retrieved ${FETCHED_LABEL} · latest record update ${c.rev}</p>${photo ? `<p class="rc-credit">Photo: <a href="${esc(photo.page)}" rel="nofollow">${esc(photo.author || 'Wikimedia Commons')}</a> · ${photo.licenseUrl ? `<a href="${esc(photo.licenseUrl)}" rel="nofollow">${esc(photo.license)}</a>` : esc(photo.license)}, via Wikimedia Commons</p>` : ''}</div>
+<div class="rc-hero-main"><nav class="rc-crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/trains/">Cities</a> / ${esc(L)}</nav><h1>${esc(h1)}</h1><p class="rc-lead">${lead}</p>${searchBox('addr-top', name)}<p class="rc-date">FRA data retrieved ${FETCHED_LABEL} · latest record update ${c.rev}</p>${photo ? `<p class="rc-credit">Photo: ${photo.illustrative ? `${esc(photo.illustrative)}, ` : ''}<a href="${esc(photo.page)}" rel="nofollow">${esc(photo.author || 'Wikimedia Commons')}</a> · ${photo.licenseUrl ? `<a href="${esc(photo.licenseUrl)}" rel="nofollow">${esc(photo.license)}</a>` : esc(photo.license)}, via Wikimedia Commons</p>` : ''}</div>
 <ul class="rc-glance" aria-label="${esc(name)} at a glance">${glance}</ul>
 </div></section>
 
@@ -331,7 +348,7 @@ ${transitList}
 <section class="rc-wrap rc-sec rc-prose"><h2>Common questions about trains in ${esc(name)}</h2><div class="rc-faq">${faq}</div>
 <h2>Sources and limits</h2><p>Crossing counts come from the <a href="https://data.transportation.gov/Railroads/Crossing-Inventory-Data-Form-71-Current/m2f8-22s6">FRA Crossing Inventory (Form 71, current)</a>, filtered to open, public, at-grade crossings whose inventory city is ${esc(name)} (records reported as in or near the city). Incident counts come from <a href="https://data.transportation.gov/Railroads/Highway-Rail-Grade-Crossing-Incident-Data-Form-57-/uwah-u9bn">FRA highway-rail accident reports (Form 57)</a>, ${INC_FROM}–${INC_TO}. Train counts are railroad-reported estimates with the listed count year; they are not live schedules, noise levels or safety ratings. Read our <a href="/home-surroundings-data/">source coverage and limitations</a> and <a href="/about/">corrections policy</a>.</p></section>
 
-<section class="rc-wrap rc-sec"><h2>Compare other cities</h2><div class="rc-cities">${related}</div><p class="rc-more"><a href="/trains/">See all ${slugs.length} cities →</a></p></section>
+<section class="rc-wrap rc-sec"><h2>Nearby cities</h2><div class="rc-cities">${related}</div><p class="rc-more"><a href="/trains/">See all ${slugs.length} cities →</a></p></section>
 </main>
 <div class="rc-sticky" role="region" aria-label="Quick address check"><div><strong>Buying near the tracks?</strong><span>Check one ${esc(name)} address</span></div><a class="rc-sticky-btn" href="#addr-top">Check address</a></div>
 ${FOOTER}`;
@@ -340,27 +357,34 @@ ${FOOTER}`;
 
 function hubPage() {
   const path = '/trains/';
-  const title = 'Train Activity by City: Crossings, Night Trains & Quiet Zones';
+  const title = `Train Activity in ${slugs.length} U.S. Cities: Crossings, Night Trains & Quiet Zones`;
   const h1 = 'Train activity by city';
   const description = `Compare FRA rail crossing data for ${slugs.length} U.S. cities: crossing maps, night trains, quiet zones and the busiest railroad lines, for homebuyers.`;
   const sorted = [...slugs].sort((a, b) => label(a).localeCompare(label(b)));
-  const cards = sorted.map(s => { const g = mapGeometry(s); const c = summary[s]; const qz = c.qz24 + c.qzP + c.qzC; return `<a class="rc-city" href="/trains/${s}/"><div class="rc-mini" ${mapAttrs(s)}><img src="/trains/${s}/map.svg" alt="" width="${g.W + 40}" height="${g.H + 40}" loading="lazy"/></div><strong>${esc(label(s))}</strong><span>${plural(c.n, 'crossing')} · ${pct(c.night, c.n)}% night trains · ${pct(qz, c.n)}% quiet zone</span></a>`; }).join('');
-  const rows = sorted.map(s => {
+  const byPop = [...slugs].sort((a, b) => (meta.cities[b].pop || 0) - (meta.cities[a].pop || 0));
+  const big = byPop.slice(0, 24);
+  const STATE_NAMES = { AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware', DC: 'District of Columbia', FL: 'Florida', GA: 'Georgia', HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', IA: 'Iowa', KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana', ME: 'Maine', MD: 'Maryland', MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota', MS: 'Mississippi', MO: 'Missouri', MT: 'Montana', NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire', NJ: 'New Jersey', NM: 'New Mexico', NY: 'New York', NC: 'North Carolina', ND: 'North Dakota', OH: 'Ohio', OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', RI: 'Rhode Island', SC: 'South Carolina', SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VT: 'Vermont', VA: 'Virginia', WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming' };
+  const states = [...new Set(slugs.map(s => meta.cities[s].st))].sort((a, b) => (STATE_NAMES[a] || a).localeCompare(STATE_NAMES[b] || b));
+  const stateIndex = states.map(st => { const list = sorted.filter(s => meta.cities[s].st === st); return `<div class="rc-state" id="state-${st.toLowerCase()}"><h3>${esc(STATE_NAMES[st] || st)} <span>${list.length}</span></h3><ul>${list.map(s => `<li><a href="/trains/${s}/">${esc(meta.cities[s].name)}</a><span>${fmt(summary[s].n)} crossings · ${pct(summary[s].night, summary[s].n)}% night</span></li>`).join('')}</ul></div>`; }).join('');
+  const stateJump = states.map(st => `<a href="#state-${st.toLowerCase()}">${st}</a>`).join('');
+  const cards = big.map(s => { const g = mapGeometry(s); const c = summary[s]; const qz = c.qz24 + c.qzP + c.qzC; return `<a class="rc-city" href="/trains/${s}/"><div class="rc-mini" ${mapAttrs(s)}><img src="/trains/${s}/map.svg" alt="" width="${g.W + 40}" height="${g.H + 40}" loading="lazy"/></div><strong>${esc(label(s))}</strong><span>${plural(c.n, 'crossing')} · ${pct(c.night, c.n)}% night trains · ${pct(qz, c.n)}% quiet zone</span></a>`; }).join('');
+  const rows = byPop.slice(0, 50).map(s => {
     const c = summary[s]; const m = mainline[s]; const qz = c.qz24 + c.qzP + c.qzC;
     return `<tr><td><a href="/trains/${s}/">${esc(label(s))}</a></td><td class="num">${fmt(c.n)}</td><td class="num">${fmt(c.night)} <span class="muted">(${pct(c.night, c.n)}%)</span></td><td class="num">${fmt(qz)} <span class="muted">(${pct(qz, c.n)}%)</span></td><td class="num">${m.fWith < 15 || m.fMax < 5 ? '<span class="muted">Mostly transit</span>' : fmt(m.fMax)}</td><td class="num">${fmt(c.incTotal)}</td></tr>`;
   }).join('');
   const hubPhoto = photos['chicago-il'];
   const qzShare = s => pct(summary[s].qz24 + summary[s].qzP + summary[s].qzC, summary[s].n);
-  const mostNight = [...slugs].sort((a, b) => pct(summary[b].night, summary[b].n) - pct(summary[a].night, summary[a].n))[0];
-  const mostQz = [...slugs].sort((a, b) => qzShare(b) - qzShare(a))[0];
+  const mostNight = slugs.filter(s => summary[s].n >= 100).sort((a, b) => pct(summary[b].night, summary[b].n) - pct(summary[a].night, summary[a].n))[0];
+  const mostQz = slugs.filter(s => summary[s].n >= 100).sort((a, b) => qzShare(b) - qzShare(a))[0];
   const noQz = slugs.filter(s => qzShare(s) === 0 && summary[s].qz24 + summary[s].qzP + summary[s].qzC === 0).map(label);
   const html = `${head({ title, description, path, ogImage: '/og/trains.jpg', jsonLd: [articleLd(h1, path, description), breadcrumbLd([['Home', '/'], ['Train activity by city', path]])] })}
 <main>
 <section class="rc-hero rc-hero-photo rc-hero-hub">${hubPhoto ? `<img class="rc-photo" src="${esc(hubPhoto.src)}" alt="" width="960" height="640" decoding="async" fetchpriority="high"/>` : ''}<div class="rc-shade" aria-hidden="true"></div><div class="rc-wrap rc-hero-in"><div class="rc-hero-main"><nav class="rc-crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / Cities</nav><h1>Train activity by city</h1><p class="rc-lead">How busy are the rail crossings where you're house-hunting? Crossing maps and FRA records for ${slugs.length} large U.S. cities: night trains, quiet zones and the busiest railroad lines.</p>${searchBox('addr-hub', 'U.S.')}<p class="rc-date">FRA data retrieved ${FETCHED_LABEL}</p>${hubPhoto ? `<p class="rc-credit">Photo: Chicago skyline and train tracks, <a href="${esc(hubPhoto.page)}" rel="nofollow">${esc(hubPhoto.author)}</a>, Library of Congress (public domain)</p>` : ''}</div>
-<ul class="rc-glance" aria-label="What stands out"><li><span class="rc-ico rc-warn">${icon('moon')}</span><div><span class="rc-k">Most night trains</span><span class="rc-v">${esc(label(mostNight))} · ${pct(summary[mostNight].night, summary[mostNight].n)}% of crossings</span></div></li><li><span class="rc-ico rc-ok">${icon('mute')}</span><div><span class="rc-k">Broadest quiet zones</span><span class="rc-v">${esc(label(mostQz))} · ${qzShare(mostQz)}% of crossings</span></div></li><li><span class="rc-ico rc-neutral">${icon('alert')}</span><div><span class="rc-k">No quiet-zone crossings reported</span><span class="rc-v">${esc(noQz.join(', '))}</span></div></li></ul>
+<ul class="rc-glance" aria-label="What stands out"><li><span class="rc-ico rc-warn">${icon('moon')}</span><div><span class="rc-k">Most night trains</span><span class="rc-v">${esc(label(mostNight))} · ${pct(summary[mostNight].night, summary[mostNight].n)}% of crossings</span></div></li><li><span class="rc-ico rc-ok">${icon('mute')}</span><div><span class="rc-k">Broadest quiet zones</span><span class="rc-v">${esc(label(mostQz))} · ${qzShare(mostQz)}% of crossings</span></div></li><li><span class="rc-ico rc-neutral">${icon('alert')}</span><div><span class="rc-k">No quiet-zone crossings reported</span><span class="rc-v">${esc(noQz.slice(0, 4).join(', '))}${noQz.length > 4 ? ` and ${noQz.length - 4} more` : ''}</span></div></li></ul>
 </div></section>
-<section class="rc-wrap rc-sec"><h2>Pick a city</h2><p class="rc-sub">Orange dots report night trains outside a quiet zone; green dots are in a quiet zone.</p><div class="rc-cities rc-cities-hub">${cards}</div></section>
-<section class="rc-wrap rc-sec"><div class="rc-card"><div class="rc-card-head"><h2>City comparison</h2></div><div class="rc-table"><table><thead><tr><th>City</th><th class="num">Public crossings</th><th class="num">Night trains</th><th class="num">Quiet zone</th><th class="num">Busiest railroad line (trains/day)</th><th class="num">Incidents 2021–26</th></tr></thead><tbody>${rows}</tbody></table></div><p class="rc-note">“Busiest railroad line” excludes light rail and transit-agency crossings. Night trains are reported between 6 PM and 6 AM.</p></div></section>
+<section class="rc-wrap rc-sec"><h2>Largest cities</h2><p class="rc-sub">Orange dots report night trains outside a quiet zone; green dots are in a quiet zone.</p><div class="rc-cities rc-cities-hub">${cards}</div></section>
+<section class="rc-wrap rc-sec"><h2>All ${slugs.length} cities by state</h2><p class="rc-sub">Cities with at least 15 public at-grade crossings and regular train traffic in FRA records.</p><nav class="rc-statejump" aria-label="Jump to state">${stateJump}</nav><div class="rc-states">${stateIndex}</div></section>
+<section class="rc-wrap rc-sec"><div class="rc-card"><div class="rc-card-head"><h2>Compare the 50 largest cities</h2></div><div class="rc-table"><table><thead><tr><th>City</th><th class="num">Public crossings</th><th class="num">Night trains</th><th class="num">Quiet zone</th><th class="num">Busiest railroad line (trains/day)</th><th class="num">Incidents 2021–26</th></tr></thead><tbody>${rows}</tbody></table></div><p class="rc-note">“Busiest railroad line” excludes light rail and transit-agency crossings. Night trains are reported between 6 PM and 6 AM.</p></div></section>
 <section class="rc-wrap rc-sec rc-prose"><h2>How these numbers were built</h2><p>Records come from the <a href="https://data.transportation.gov/Railroads/Crossing-Inventory-Data-Form-71-Current/m2f8-22s6">FRA Crossing Inventory (Form 71, current)</a>: open, public, at-grade crossings whose inventory city matches each city (including records reported as near the city). Incident totals use <a href="https://data.transportation.gov/Railroads/Highway-Rail-Grade-Crossing-Incident-Data-Form-57-/uwah-u9bn">FRA Form 57 accident reports</a> from ${INC_FROM} to ${INC_TO}. Train counts are railroad-reported estimates with varying count years, not schedules. See <a href="/how-many-trains-pass-near-my-house/">how to read train counts</a> and <a href="/home-surroundings-data/">data coverage and limits</a>.</p></section>
 <section class="rc-wrap rc-sec"><div class="rc-cta"><div><h2>City totals are a starting point.</h2><p>What one house hears depends on the nearest crossing, its night traffic and whether horns are restricted there.</p></div><a class="rc-cta-link guide-button" href="/">Check an address →</a></div></section>
 </main>

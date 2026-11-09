@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 574" width="800" height="574" role="img" aria-label="Map of public rail crossings in Bloomington, IN">
+<rect width="800" height="574" rx="18" fill="#EEF2F8"/>
+<line x1="115" y1="20" x2="115" y2="554" stroke="#DFE5EF"/>
+<line x1="210" y1="20" x2="210" y2="554" stroke="#DFE5EF"/>
+<line x1="305" y1="20" x2="305" y2="554" stroke="#DFE5EF"/>
+<line x1="400" y1="20" x2="400" y2="554" stroke="#DFE5EF"/>
+<line x1="495" y1="20" x2="495" y2="554" stroke="#DFE5EF"/>
+<line x1="590" y1="20" x2="590" y2="554" stroke="#DFE5EF"/>
+<line x1="685" y1="20" x2="685" y2="554" stroke="#DFE5EF"/>
+<line x1="20" y1="109" x2="780" y2="109" stroke="#DFE5EF"/>
+<line x1="20" y1="198" x2="780" y2="198" stroke="#DFE5EF"/>
+<line x1="20" y1="287" x2="780" y2="287" stroke="#DFE5EF"/>
+<line x1="20" y1="376" x2="780" y2="376" stroke="#DFE5EF"/>
+<line x1="20" y1="465" x2="780" y2="465" stroke="#DFE5EF"/>
+<circle cx="515.4" cy="266.5" r="30" fill="none" stroke="#0F1B33" stroke-width="1.5" stroke-dasharray="4 4" opacity=".55"/>
+<circle cx="267.4" cy="225.2" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="261.4" cy="225.2" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="285.3" cy="212.7" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="285.3" cy="195.9" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="416.4" cy="231.5" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="410.4" cy="231.5" r="4.2" fill="#A3ADBF" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="58.7" cy="503.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="738.3" cy="70.3" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="306.1" cy="288.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="362.7" cy="262.9" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="285.3" cy="302.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="517.7" cy="212.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="231.6" cy="342.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="178.0" cy="386.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="604.2" cy="231.5" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="574.4" cy="225.2" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="741.3" cy="154.0" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<circle cx="628.0" cy="235.7" r="5" fill="#E8590C" stroke="#FFF" stroke-width="1.2"/>
+<g font-family="Helvetica, Arial, sans-serif" font-weight="700"><rect x="549.4" y="222.5" width="92" height="26" rx="13" fill="#0F1B33"/><text x="595.4" y="240.5" font-size="13" fill="#FFF" text-anchor="middle">City center</text></g>
+<g font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#44506A" stroke="#44506A" stroke-width="2"><line x1="42" y1="540" x2="115" y2="540"/><line x1="42" y1="535" x2="42" y2="545"/><line x1="115" y1="535" x2="115" y2="545"/><text x="42" y="560" stroke="none">1 mile</text></g>
+<g fill="#44506A" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="700"><path d="M754 34L762 56L754 50L746 56Z"/><text x="754" y="72" text-anchor="middle">N</text></g>
+</svg>
