@@ -21,6 +21,8 @@ for (const url of urls) {
   const file = path === '/' ? 'index.html' : path.endsWith('/') ? `${path.slice(1)}index.html` : path.slice(1);
   const source = await read(file);
   pages.set(path, source);
+  check(source.includes('/site-shell.css?v='), `Missing shared styles: ${path}`);
+  check(/<nav class="app-nav"[^>]*>[\s\S]*?href="\/blog\/"/.test(source), `Missing shared News navigation: ${path}`);
   const title = source.match(/<title>([\s\S]*?)<\/title>/i)?.[1];
   const description = source.match(/<meta name="description" content="([^"]+)"/i)?.[1];
   const canonical = source.match(/<link rel="canonical" href="([^"]+)"/i)?.[1];
