@@ -1,0 +1,30 @@
+name: IndexNow (Bing, Naver, Yandex)
+# Sends every sitemap URL to IndexNow after a deploy that changes the sitemap.
+on:
+  push:
+    branches: [main]
+    paths: ['sitemap.xml']
+  workflow_dispatch:
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for the Vercel deploy to serve the key file
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS "https://railroad-home-check.vercel.app/4404fff1bc3019e0aaecfdd423e3acac.txt" | grep -q "4404fff1bc3019e0aaecfdd423e3acac"; then echo "key live"; exit 0; fi
+            sleep 20
+          done
+          echo "key file not live"; exit 1
+      - name: Submit sitemap URLs
+        run: |
+          python3 - <<'PY'
+          import json, re, urllib.request
+          urls = re.findall(r'<loc>([^<]+)</loc>', open('sitemap.xml').read())
+          body = json.dumps({"host": "railroad-home-check.vercel.app", "key": "4404fff1bc3019e0aaecfdd423e3acac",
+                             "keyLocation": "https://railroad-home-check.vercel.app/4404fff1bc3019e0aaecfdd423e3acac.txt", "urlList": urls}).encode()
+          req = urllib.request.Request("https://api.indexnow.org/indexnow", data=body, headers={"Content-Type": "application/json; charset=utf-8"})
+          with urllib.request.urlopen(req, timeout=60) as r:
+              print("IndexNow", r.status, len(urls), "urls")
+          PY
