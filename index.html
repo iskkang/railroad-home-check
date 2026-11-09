@@ -155,15 +155,22 @@
     <section id="status" class="status hidden" aria-live="polite"></section>
 
     <section id="results" class="results hidden" aria-live="polite">
+      <div class="report-workspace">
+      <aside class="report-sidebar" aria-label="Report navigation and actions">
+      <div class="report-sidebar-label">PROPERTY REPORT</div>
       <div class="result-heading"><div><div class="eyebrow">YOUR SURROUNDINGS REPORT</div><h2 id="resultAddress"></h2><p class="small-note">A clearer view of nearby roads and rail. Reported data, with dates and sources.</p></div><div id="attentionBadge" class="attention-badge"></div></div>
       <div class="report-actions compact-actions"><button type="button" id="addCompare" class="action-button">Compare</button><button type="button" id="shareReport" class="action-button secondary">Share address</button><button type="button" id="printReport" class="action-button secondary">Print / PDF</button><span class="small-note">Shared links include the address and coordinates.</span></div>
       <p id="actionStatus" role="status" class="small-note"></p><input id="shareLink" class="hidden share-link" readonly aria-label="Copyable property report link" />
+      <nav class="report-sidebar-nav" aria-label="Jump to report sections"><a href="#reportOverview">Report overview</a><a href="#mapTitle">Explore map</a><a href="#reportDetailsHeading">Detailed findings</a></nav>
+      <div class="report-sidebar-note"><strong>Check the map pin</strong><span>Geocoded coordinates and public records are approximate. Verify the location before relying on this report.</span></div>
+      </aside>
+      <div class="report-main">
 <div class="topic-tabs" role="tablist" aria-label="Surroundings category">
 <button type="button" role="tab" id="topicsound" aria-controls="topicContent" aria-selected="true">Sound</button>
 <button type="button" role="tab" id="topicliving" aria-controls="topicContent" aria-selected="false" tabindex="-1">Living environment</button>
 <button type="button" role="tab" id="topicrecords" aria-controls="topicContent" aria-selected="false" tabindex="-1">Local records & risks</button></div>
 <p id="topicDescription" class="small-note"></p><div id="topicContent" role="tabpanel" aria-labelledby="topicsound" tabindex="0">
-      <div class="overview-grid" aria-label="Key facts">
+      <div id="reportOverview" class="overview-grid" aria-label="Key facts">
         <article class="overview-card"><div class="metric-label">NEAREST MAPPED RAIL LINE</div><div class="overview-value" id="overviewRail">Loading…</div><div class="metric-note" id="overviewRailNote">Looking up mapped rail lines</div></article>
         <article class="overview-card"><div class="metric-label">NEAREST ROAD WITH A COUNT</div><div class="overview-value" id="overviewRoad">Loading…</div><div class="metric-note" id="overviewRoadNote">Annual average vehicles / day</div></article>
         <article class="overview-card"><div class="metric-label">NIGHT TRAINS AT NEAREST CROSSING</div><div class="overview-value" id="overviewNight">—</div><div class="metric-note" id="overviewNightNote">Reported estimate · 6 PM–6 AM</div></article>
@@ -182,7 +189,7 @@
 
 <div id="contextResults" class="context-results"></div>
       <section class="report-details" aria-label="Detailed findings">
-        <div class="details-heading"><h3>Look closer</h3><p class="small-note">Choose the information you need.</p></div>
+        <div class="details-heading"><h3 id="reportDetailsHeading">Look closer</h3><p class="small-note">Choose the information you need.</p></div>
         <details id="paneRoad" class="sound-section"><summary>Road traffic</summary></details>
         <details id="paneRail" class="sound-section"><summary>Rail lines & crossing records</summary>      <div id="emptyReport" class="panel hidden"><h3>Address found. No nearby grade crossings returned.</h3><p>No open, at-grade FRA crossings were returned within 3.25 miles. This does not mean there are no nearby tracks, trains, noise, or vibration.</p></div>      <div id="reportData">
       <div class="summary-grid">
@@ -250,6 +257,8 @@
       </section>
       </div>
       <details class="methodology"><summary>How to interpret this report</summary><p>Distances are approximate straight-line distances to different mapped features. Train and vehicle counts refer to their reported locations and periods. Quiet-zone rules restrict routine horns but do not eliminate train noise. TMAS profiles are historical reference station patterns, not verified counts for the property road. Visit the home at different times to assess actual noise and vibration.</p></details>
+      </div><!-- /report-main -->
+      </div><!-- /report-workspace -->
     </section>
 
     <section id="comparison" class="comparison-section hidden" aria-labelledby="compareTitle">
