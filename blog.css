@@ -40,3 +40,6 @@
 .post-by{font-size:13px;color:var(--muted);margin:0}
 .gv-post .guide-shell{padding-top:18px}
 @media(min-width:760px){.post-head-in{padding:24px 32px 30px}.gv-post .post-head h1{font-size:40px}.post-lead{font-size:19px}}
+.post-feature{position:relative}
+.post-feature figcaption{position:absolute;right:10px;bottom:8px;font-size:11px;color:#fff;background:rgba(15,27,51,.6);padding:3px 8px;border-radius:6px}
+.post-feature figcaption a{color:#fff}

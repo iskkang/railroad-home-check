@@ -51,7 +51,7 @@ for (const p of posts) {
 <body class="gv gv-post">${HEADER}
 <section class="post-head"><div class="post-head-in">
 <nav class="post-crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/blog/">Rail &amp; Road Watch</a></nav>
-<figure class="post-feature"><img src="/og/feature-${p.slug}.jpg" alt="Crossing map of ${esc(p.city ? cityLabel(p.city) : cityLabel((p.cities || ['houston-tx'])[0]))}" width="1200" height="600" fetchpriority="high"></figure>
+${p.image ? `<figure class="post-feature"><img src="${esc(p.image.src)}" alt="${esc(p.image.alt)}" width="1200" height="600" fetchpriority="high" style="object-position:${esc(p.image.pos || 'center')}"><figcaption>Photo: <a href="${esc(p.image.page)}" rel="noopener">${esc(p.image.author)}</a>, ${p.image.licenseUrl ? `<a href="${esc(p.image.licenseUrl)}" rel="noopener license">${esc(p.image.license)}</a>` : esc(p.image.license)}, via Wikimedia Commons</figcaption></figure>` : `<figure class="post-feature"><img src="/og/feature-${p.slug}.jpg" alt="" width="1200" height="600" fetchpriority="high"></figure>`}
 <div class="post-meta"><span class="post-tag">${esc(p.tag || 'NEWS')}</span><span>${esc(dateLabel(p.date))}</span></div>
 <h1>${esc(p.title)}</h1><p class="post-lead">${esc(p.lead)}</p>
 <p class="post-by">By the Home Surroundings Check editorial team · Drafted with AI assistance; figures checked against federal records</p>
@@ -63,7 +63,7 @@ ${p.city ? `<div class="post-city"><div><strong>${esc(cityLabel(p.city))}: every
 <h2>Sources</h2><ul class="post-sources">${p.sources.map(([t, u]) => `<li><a href="${esc(u)}" rel="noopener">${esc(t)}</a></li>`).join('')}</ul>
 <p class="post-note">Spotted an error or a change on the ground? <a href="/about/">Tell us</a> and we will correct it.</p>
 </article></section>
-${others.length ? `<section class="related-guides"><h2>More from Rail &amp; Road Watch</h2><div class="related-grid">${others.map(o => `<a class="related-card post-related" href="/blog/${o.slug}/"><img class="post-thumb" src="/og/thumb-${o.slug}.jpg" alt="" width="400" height="400" loading="lazy"><strong>${esc(o.title)}</strong><span>${esc(dateLabel(o.date))}</span></a>`).join('')}</div></section>` : ''}
+${others.length ? `<section class="related-guides"><h2>More from Rail &amp; Road Watch</h2><div class="related-grid">${others.map(o => `<a class="related-card post-related" href="/blog/${o.slug}/"><img class="post-thumb" src="${esc(o.image ? o.image.thumb : `/og/thumb-${o.slug}.jpg`)}" alt="" width="400" height="400" loading="lazy"><strong>${esc(o.title)}</strong><span>${esc(dateLabel(o.date))}</span></a>`).join('')}</div></section>` : ''}
 ${FOOTER}</body></html>
 `;
   await mkdir(resolve(root, 'blog', p.slug), { recursive: true });
@@ -75,7 +75,7 @@ ${FOOTER}</body></html>
   const path = '/blog/';
   const title = 'Rail & Road Watch: train horn, quiet zone and road news for homebuyers';
   const description = 'News on railroad quiet zones, train horns, crossings, road projects and flood maps, checked against federal records for homebuyers.';
-  const cards = posts.map(p => `<a class="post-card" href="/blog/${p.slug}/"><img class="post-thumb" src="/og/thumb-${p.slug}.jpg" alt="" width="400" height="400" loading="lazy"><span class="post-card-text"><span class="post-card-meta">${esc(dateLabel(p.date))}${p.city ? ` · ${esc(cityLabel(p.city))}` : p.cities ? ` · ${p.cities.length} cities` : ''}</span><strong>${esc(p.title)}</strong><span class="post-card-lead">${esc(p.description)}</span></span></a>`).join('');
+  const cards = posts.map(p => `<a class="post-card" href="/blog/${p.slug}/"><img class="post-thumb" src="${esc(p.image ? p.image.thumb : `/og/thumb-${p.slug}.jpg`)}" alt="" width="400" height="400" loading="lazy"><span class="post-card-text"><span class="post-card-meta">${esc(dateLabel(p.date))}${p.city ? ` · ${esc(cityLabel(p.city))}` : p.cities ? ` · ${p.cities.length} cities` : ''}</span><strong>${esc(p.title)}</strong><span class="post-card-lead">${esc(p.description)}</span></span></a>`).join('');
   const ld = [{ '@context': 'https://schema.org', '@type': 'Blog', name: 'Rail & Road Watch', url: ORIGIN + path, publisher: { '@type': 'Organization', name: 'Home Surroundings Check' }, blogPost: posts.map(p => ({ '@type': 'BlogPosting', headline: p.title, url: `${ORIGIN}/blog/${p.slug}/`, datePublished: p.date })) }, crumbs([['Home', '/'], ['Rail & Road Watch', path]])];
   const html = `${head({ title: `${title} | Home Surroundings Check`, description, path, image: '/og/blog.jpg', ld })}
 <body class="gv gv-blog">${HEADER}
