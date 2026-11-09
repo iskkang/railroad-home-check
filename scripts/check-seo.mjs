@@ -21,6 +21,9 @@ for (const url of urls) {
   const file = path === '/' ? 'index.html' : path.endsWith('/') ? `${path.slice(1)}index.html` : path.slice(1);
   const source = await read(file);
   pages.set(path, source);
+  const hero = source.match(/<section\b[^>]*class="[^"]*app-hero[^"]*"[^>]*>([\s\S]*?)<\/section>/);
+  if (path !== '/' && hero) check(!/<form\b/.test(hero[1]), `Unexpected hero search outside checker: ${path}`);
+  if (path === '/') check(source.includes('id="searchForm"'), 'Main address search is missing');
   check(source.includes('/site-shell.css?v='), `Missing shared styles: ${path}`);
   check(/<nav class="app-nav"[^>]*>[\s\S]*?href="\/blog\/"/.test(source), `Missing shared News navigation: ${path}`);
   const title = source.match(/<title>([\s\S]*?)<\/title>/i)?.[1];

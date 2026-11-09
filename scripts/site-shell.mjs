@@ -19,11 +19,12 @@ export function applySiteShell(html){
     let feature='';
     if(classes.includes('post-head')){
       body=body.replace(/<figure class="post-feature">[\s\S]*?<\/figure>/,match=>{feature=match;return '';});
-      if(!body.includes('gv-search')) body=body.replace('</div>', '<form class="gv-search" action="/" role="search"><label for="shell-addr">Check a U.S. property address</label><input id="shell-addr" name="address" type="text" autocomplete="street-address" placeholder="Street address, city, state and ZIP" required><button type="submit">Check this address</button></form><p class="app-hero-credit">Illustrative AI-generated landscape · not a photo of the searched property</p></div>');
+      if(!body.includes('app-hero-credit')) body=body.replace('</div>', '<p class="app-hero-credit">Illustrative AI-generated landscape · not a photo of the searched property</p></div>');
       if(!body.includes('app-post-photo'))body='<img class="app-post-photo" src="/assets/surroundings-hero.webp" alt="" fetchpriority="high"><div class="gv-shade" aria-hidden="true"></div>'+body;
     }
     body=body.replace(/(<img\b[^>]*class="(?:gv-photo|rc-photo)"[^>]*src=")[^\"]+/, '$1/assets/surroundings-hero.webp');
     body=body.replace(/<p class="(?:gv-credit|rc-credit)">[\s\S]*?<\/p>/g,'<p class="app-hero-credit">Illustrative AI-generated landscape · not a photo of the searched property</p>');
+    body=body.replace(/<form\b[^>]*>[\s\S]*?<\/form>/g,'');
     return a+classes.replace(/\s*app-hero\b/g,'')+' app-hero'+c+body+end+(feature?'<div class="app-article-image">'+feature+'</div>':'');
   });
 }
