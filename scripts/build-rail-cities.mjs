@@ -1,3 +1,4 @@
+import {applySiteShell} from './site-shell.mjs';
 // Builds static city train-activity pages from FRA crossing aggregates.
 // Input:  data/rail-cities/{cities,summary,mainline,maps}.json
 // Output: trains/index.html, trains/<slug>/index.html, trains/<slug>/map.svg, sitemap.xml entries
@@ -468,7 +469,7 @@ const pages = [hubPage(), ...slugs.map(cityPage)];
 for (const { path, html } of pages) {
   const dir = resolve(root, path.slice(1));
   await mkdir(dir, { recursive: true });
-  await writeFile(resolve(dir, 'index.html'), html);
+  await writeFile(resolve(dir, 'index.html'), applySiteShell(html));
 }
 for (const s of slugs) await writeFile(resolve(root, 'trains', s, 'map.svg'), mapSvg(s).svg);
 

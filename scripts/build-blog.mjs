@@ -1,3 +1,4 @@
+import {applySiteShell} from './site-shell.mjs';
 // Rail & Road Watch blog: content/blog/<slug>.html (JSON front matter in a leading comment + HTML body)
 // -> blog/index.html, blog/<slug>/index.html, data/blog/posts.json (for city-page links) and sitemap entries.
 // Usage: node scripts/build-blog.mjs   (run before scripts/build-rail-cities.mjs)
@@ -67,7 +68,7 @@ ${others.length ? `<section class="related-guides"><h2>More from Rail &amp; Road
 ${FOOTER}</body></html>
 `;
   await mkdir(resolve(root, 'blog', p.slug), { recursive: true });
-  await writeFile(resolve(root, 'blog', p.slug, 'index.html'), html);
+  await writeFile(resolve(root, 'blog', p.slug, 'index.html'), applySiteShell(html));
 }
 
 // index
@@ -90,7 +91,7 @@ ${form('gv-addr', 'Check a U.S. property address')}
 ${FOOTER}</body></html>
 `;
   await mkdir(resolve(root, 'blog'), { recursive: true });
-  await writeFile(resolve(root, 'blog', 'index.html'), html);
+  await writeFile(resolve(root, 'blog', 'index.html'), applySiteShell(html));
 }
 
 // posts index for city pages and sitemap

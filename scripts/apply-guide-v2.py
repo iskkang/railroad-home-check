@@ -42,3 +42,7 @@ for f in sorted(glob.glob('*/index.html')):
     s = s.replace('</body>', '<a class="gv-sticky" href="/">Check an address</a></body>', 1)
     open(f, 'w').write(s); changed.append(f)
 print(len(changed), 'pages updated')
+
+# Apply the common header and hero after generating guide markup.
+import subprocess
+subprocess.run(["node", "scripts/site-shell.mjs"], check=True)
