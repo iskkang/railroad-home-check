@@ -153,7 +153,7 @@
   .rc-hero h1{font-size:28px}
   .rc-top-in{flex-wrap:nowrap;gap:8px;padding-top:10px;padding-bottom:10px}
   .rc-brand{font-size:14px;gap:8px}.rc-logo{width:28px;height:28px}
-  .rc-nav{flex-wrap:nowrap;gap:12px}.rc-nav a{font-size:13px}.rc-nav a:nth-child(3){display:none}
+  .rc-nav{flex-wrap:nowrap;gap:12px}.rc-nav a{font-size:13px}.rc-nav a:nth-child(n+3){display:none}
   .rc-search{padding:14px}
   .rc-search button{width:100%}
   .rc-glance{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0;background:none;border:0}
@@ -205,3 +205,23 @@
 .rc-state li span{color:var(--muted,#5b6680);font-size:12.5px;white-space:nowrap}
 @media(min-width:760px){.rc-states{columns:2}}
 @media(min-width:1100px){.rc-states{columns:3}}
+
+/* weather & natural hazards */
+.rc-climate-tiles{margin:14px 0 6px}
+.rc-climate-tiles .rc-n{display:block;font-size:12px;color:var(--muted,#5b6680)}
+.rc-hazards li strong{margin-left:4px}
+.rc-hz-5,.rc-hz-4{background:#fff0e3!important;border-color:#ffd2b0!important;color:#9a3d00!important}
+.rc-hz-3{background:#fff8e1!important;border-color:#f3e2a8!important}
+.rc-hz-2,.rc-hz-1{background:#eef6f2!important;border-color:#cfe6dc!important;color:#0f6b3f!important}
+.rc-climate h3{font-size:17px;margin:22px 0 4px}
+.rc-ctiles{list-style:none;padding:0;margin:14px 0 6px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rc-ctiles li{background:#fff;border:1px solid var(--line,#e3e8f2);border-radius:14px;padding:14px 16px}
+.rc-ck{display:block;font-size:13px;font-weight:600;color:var(--muted,#5b6680)}
+.rc-cv{display:block;font-size:28px;font-weight:800;letter-spacing:-.02em;color:var(--ink,#0f1b33);margin-top:2px}
+.rc-cn{display:block;font-size:12px;color:var(--muted,#5b6680)}
+@media(min-width:760px){.rc-ctiles{grid-template-columns:repeat(4,1fr)}}
+.rc-news-list{display:grid;gap:10px}
+.rc-news-list a{display:block;background:#fff;border:1px solid var(--line,#e3e8f2);border-radius:14px;padding:14px 16px;text-decoration:none;color:var(--ink,#0f1b33)}
+.rc-news-list a:hover{border-color:#b9c6e6}
+.rc-news-list span{display:block;font-size:12px;font-weight:700;color:var(--accent,#2451e6);margin-bottom:4px}
+.rc-news-list strong{font-size:16px;line-height:1.35}

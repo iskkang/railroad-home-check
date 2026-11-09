@@ -49,6 +49,7 @@
     road: '<path d="M8 3 4 21"/><path d="m16 3 4 18"/><path d="M12 5v2"/><path d="M12 11v2"/><path d="M12 17v2"/>',
     moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/>',
     flood: '<path d="M3 15c2 0 2-1.5 4.5-1.5S9.5 15 12 15s2.5-1.5 4.5-1.5S19 15 21 15"/><path d="M3 19.5c2 0 2-1.5 4.5-1.5s2 1.5 4.5 1.5 2.5-1.5 4.5-1.5 2.5 1.5 4.5 1.5"/><path d="M12 3 7.5 9.5a4.5 4.5 0 0 0 9 0Z"/>',
+    hazard: '<path d="M12 2v2M4.9 4.9l1.4 1.4M2 12h2M19.1 4.9l-1.4 1.4M22 12h-2"/><path d="M8 12a4 4 0 0 1 8 0"/><path d="M6 17h12M8 21h8"/>',
     site: '<path d="M3 21V9l6 4V9l6 4V5h6v16Z"/>'
   };
   const icon = n => `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
@@ -119,6 +120,20 @@
     return row({ ic: 'flood', tone: t[0], k: 'FEMA flood zone', v: esc(f.label), note: `${esc(t[2] + bfe)} · ${link}`, badge: t[1] });
   }
 
+  // FEMA National Risk Index, census tract: which weather hazards rate higher here than in most of the U.S.
+  const HAZ_NAMES = { hwav: 'Heat wave', cwav: 'Cold wave', wntw: 'Winter storms', istm: 'Ice storms', hrcn: 'Hurricanes', trnd: 'Tornadoes', ifld: 'River flooding', cfld: 'Coastal flooding', wfir: 'Wildfire' };
+  const RANK = { 'Very High': 5, 'Relatively High': 4, 'Relatively Moderate': 3, 'Relatively Low': 2, 'Very Low': 1 };
+  function hazardRow(s) {
+    const h = s.hazard;
+    if (h === undefined) return row({ ic: 'hazard', tone: 'neutral', k: 'Weather & natural hazards', v: 'Checking…' });
+    if (h === 'error' || !h.tract) return row({ ic: 'hazard', tone: 'neutral', k: 'Weather & natural hazards', v: 'Unavailable', note: 'FEMA National Risk Index did not respond for this point', badge: 'RETRY LATER' });
+    const list = Object.entries(h.hazards || {}).filter(([, v]) => RANK[v]).sort((a, b) => RANK[b[1]] - RANK[a[1]]);
+    const high = list.filter(([, v]) => RANK[v] >= 4).map(([k]) => HAZ_NAMES[k]);
+    const v = high.length ? `Higher than most of the U.S.: ${high.slice(0, 3).join(', ')}` : 'No hazard rated high for this neighborhood';
+    const note = list.slice(0, 6).map(([k, r]) => `${HAZ_NAMES[k]}: ${r.replace('Relatively ', '')}`).join(' · ');
+    return row({ ic: 'hazard', tone: high.length ? 'warn' : 'ok', k: 'Weather & natural hazards', v: esc(v), note: `${esc(note)}<br><span class="g-why">FEMA National Risk Index, census tract ${esc(h.tract)}. Ratings compare risk with other U.S. tracts; they are not an insurance or flood determination.</span>`, badge: high.length ? `${high.length} HIGHER` : 'LOWER' });
+  }
+
   function roadRow(s) {
     if (s.roads === undefined) return row({ ic: 'road', tone: 'neutral', k: 'Nearest counted road', v: 'Checking…' });
     if (s.roads === 'error') return row({ ic: 'road', tone: 'neutral', k: 'Nearest counted road', v: 'Unavailable', note: 'Retry under Road traffic' });
@@ -171,7 +186,7 @@
   function render() {
     if (!state) return;
     const el = panel();
-    el.innerHTML = `<div class="g-head"><h3>At a glance</h3><p class="g-sub">Each line is a different source, place and year — not a combined noise or safety score.</p></div><ul class="g-list">${railRow(state)}${crossingRows(state.report)}${floodRow(state)}${roadRow(state)}${nightRow(state)}${siteRow(state)}</ul>${nearList(state)}<nav class="g-jump" aria-label="Jump to report section"><a href="#paneRail" data-glance="pane">Rail</a><a href="#paneRoad" data-glance="pane">Roads</a><a href="#paneHourly" data-glance="pane">At night</a><a href="#topicliving" data-glance="living">Nearby sites</a><a href="#propertyMap" data-glance="map">Map</a></nav>`;
+    el.innerHTML = `<div class="g-head"><h3>At a glance</h3><p class="g-sub">Each line is a different source, place and year — not a combined noise or safety score.</p></div><ul class="g-list">${railRow(state)}${crossingRows(state.report)}${floodRow(state)}${hazardRow(state)}${roadRow(state)}${nightRow(state)}${siteRow(state)}</ul>${nearList(state)}<nav class="g-jump" aria-label="Jump to report section"><a href="#paneRail" data-glance="pane">Rail</a><a href="#paneRoad" data-glance="pane">Roads</a><a href="#paneHourly" data-glance="pane">At night</a><a href="#topicliving" data-glance="living">Nearby sites</a><a href="#propertyMap" data-glance="map">Map</a></nav>`;
     updateSummaries(state);
   }
 
@@ -251,7 +266,7 @@
     el.innerHTML = `<header class="ps-head"><div><div class="ps-brand">Home Surroundings Check</div><h1>${esc(r.matchedAddress || '')}</h1></div><div class="ps-date">Summary · ${esc(date)}<br>railroad-home-check.vercel.app</div></header>
       <div class="ps-map" id="printSheetMap"></div>
       <div class="ps-key"><span><i class="cat-dot cat-night"></i>Night trains</span><span><i class="cat-dot cat-qz"></i>Quiet zone</span><span><i class="cat-dot cat-day"></i>Daytime only</span><span><i class="cat-dot cat-none"></i>No count</span><span><i class="horn-key"></i>Horn zone (¼ mi)</span></div>
-      <ul class="g-list ps-list">${railRow(s)}${crossingRows(r)}${floodRow(s)}${roadRow(s)}${nightRow(s)}${(s.report.nearbyContext?.responses?.facilities || s.report.nearbyContext?.responses?.epa) ? siteRow(s) : ''}</ul>
+      <ul class="g-list ps-list">${railRow(s)}${crossingRows(r)}${floodRow(s)}${hazardRow(s)}${roadRow(s)}${nightRow(s)}${(s.report.nearbyContext?.responses?.facilities || s.report.nearbyContext?.responses?.epa) ? siteRow(s) : ''}</ul>
       ${nearList(s)}
       <footer class="ps-foot">Sources: FRA Crossing Inventory (Form 71), FHWA HPMS road counts, FEMA National Flood Hazard Layer, OpenStreetMap. Reported data with its own dates; not a noise measurement, flood determination, appraisal or inspection. Distances are straight-line from an approximate geocoded point.</footer>`;
     el.querySelectorAll('.g-btn').forEach(b => b.remove());
@@ -335,7 +350,11 @@
 
   window.ReportGlance = {
     start(report) {
-      state = { report, rail: undefined, roads: undefined, night: undefined, flood: undefined };
+      state = { report, rail: undefined, roads: undefined, night: undefined, flood: undefined, hazard: undefined };
+      fetch(`/api/risk?lat=${encodeURIComponent(report.lat)}&lon=${encodeURIComponent(report.lon)}`, { signal: AbortSignal.timeout(15000) })
+        .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+        .then(d => { report.hazard = d; if (state?.report === report) { state.hazard = d; render(); } })
+        .catch(() => { report.hazard = 'error'; if (state?.report === report) { state.hazard = 'error'; render(); } });
       fetch(`/api/flood?lat=${encodeURIComponent(report.lat)}&lon=${encodeURIComponent(report.lon)}`, { signal: AbortSignal.timeout(20000) })
         .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
         .then(d => { report.flood = d; if (state?.report === report) { state.flood = d; render(); } })

@@ -128,6 +128,36 @@ function mapGeometry(slug) {
   const H = Math.round(W / (((lo1 - lo0) * k) / (la1 - la0)));
   return { m, la0, la1, lo0, lo1, k, W, H };
 }
+let climate = {};
+try { climate = JSON.parse(await readFile(resolve(root, 'data/climate/cities.json'), 'utf8')).cities; } catch {}
+const HAZ_LABEL = { hwav: 'Heat wave', cwav: 'Cold wave', wntw: 'Winter storms', istm: 'Ice storms', hrcn: 'Hurricanes', trnd: 'Tornadoes', ifld: 'River flooding', cfld: 'Coastal flooding', wfir: 'Wildfire' };
+const HAZ_RANK = { 'Very High': 5, 'Relatively High': 4, 'Relatively Moderate': 3, 'Relatively Low': 2, 'Very Low': 1 };
+const r0 = v => (v === null || v === undefined ? null : Math.round(v));
+function climateSection(slug, name) {
+  const k = climate[slug];
+  if (!k || !k.station) return { html: '', faq: [] };
+  const tiles = [
+    ['Days at 90°F or hotter', r0(k.hot90), 'a year'], ['Days at 100°F or hotter', r0(k.hot100), 'a year'],
+    ['Nights below freezing', r0(k.frz), 'a year'], ['Snowfall', k.snow === null ? null : `${Math.round(k.snow)} in`, 'a year']
+  ].filter(t => t[1] !== null).map(([l, v, u]) => `<li><span class="rc-ck">${l}</span><span class="rc-cv">${esc(String(v))}</span><span class="rc-cn">${u}</span></li>`).join('');
+  const haz = k.nri ? Object.entries(HAZ_LABEL).map(([h, lab]) => [lab, k.nri[h]]).filter(([, v]) => HAZ_RANK[v]).sort((a, b) => HAZ_RANK[b[1]] - HAZ_RANK[a[1]]) : [];
+  const high = haz.filter(([, v]) => HAZ_RANK[v] >= 4).map(([l]) => l.toLowerCase());
+  const chips = haz.map(([l, v]) => `<li class="rc-hz rc-hz-${HAZ_RANK[v]}">${esc(l)} <strong>${esc(v.replace('Relatively ', ''))}</strong></li>`).join('');
+  const summer = k.jjaMax !== null ? `Summer days average ${r0(k.jjaMax)}°F with nights around ${r0(k.jjaMin)}°F` : '';
+  const winter = k.djfMin !== null ? `winter averages ${r0(k.djfMax)}°F by day and ${r0(k.djfMin)}°F at night` : '';
+  const html = `<section class="rc-wrap rc-sec rc-climate" id="climate"><h2>Weather and natural hazards in ${esc(name)}</h2>
+<p class="rc-sub">${esc([summer, winter].filter(Boolean).join('; '))}. NOAA 1991–2020 climate normals at ${esc(titleCase(k.station.name))}, ${k.station.km} km from the city center.</p>
+<ul class="rc-ctiles">${tiles}</ul>
+${chips ? `<h3>FEMA National Risk Index${k.nri.county ? `: ${esc(k.nri.county)} County` : ''}</h3><p class="rc-sub">How expected losses from each hazard compare with other U.S. counties; ratings rise with population and property value as well as weather. ${high.length ? `Rated higher than most: ${esc(high.join(', '))}.` : 'No hazard is rated higher than most counties.'} Check the census tract for a specific address in the report.</p><ul class="rc-chips rc-hazards">${chips}</ul>` : ''}
+</section>`;
+  const faq = [];
+  if (k.hot90 !== null) faq.push([`How hot does it get in ${name}?`, `${name} averages about ${r0(k.hot90)} days a year at 90°F or hotter${k.hot100 ? ` and ${r0(k.hot100)} at 100°F or hotter` : ''}, with summer highs near ${r0(k.jjaMax)}°F (NOAA 1991–2020 normals).`]);
+  if (k.frz !== null) faq.push([`Does it freeze or snow in ${name}?`, `About ${r0(k.frz)} nights a year drop below freezing${k.snow !== null ? `, and normal snowfall is ${Math.round(k.snow)} inches a year` : ''}. Winter nights average ${r0(k.djfMin)}°F.`]);
+  return { html, faq };
+}
+let blogPosts = [];
+try { blogPosts = JSON.parse(await readFile(resolve(root, 'data/blog/posts.json'), 'utf8')); } catch {}
+const newsFor = slug => blogPosts.filter(p => p.city === slug || (p.cities || []).includes(slug)).slice(0, 2);
 const dtLabel = slug => (meta.cities[slug].center === 'city' ? 'City center' : 'Downtown');
 // data-* attributes for the Leaflet basemap (rail-map.js decodes the same 3-byte points)
 function mapAttrs(slug) {
@@ -204,7 +234,7 @@ function head({ title, description, path, jsonLd, ogImage }) {
 <meta property="og:type" content="article"/><meta property="og:site_name" content="Home Surroundings Check"/><meta property="og:title" content="${esc(title)}"/><meta property="og:description" content="${esc(description)}"/><meta property="og:url" content="${url}"/>${ogImage ? `<meta property="og:image" content="${ORIGIN}${ogImage}"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image:alt" content="${esc(title)}"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="${esc(title)}"/><meta name="twitter:description" content="${esc(description)}"/><meta name="twitter:image" content="${ORIGIN}${ogImage}"/>` : ''}
 ${jsonLd.map(j => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join('\n')}
 </head><body class="rc">
-<header class="rc-top"><div class="rc-wrap rc-top-in"><a class="rc-brand" href="/"><span class="rc-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg></span>Home Surroundings Check</a><nav class="rc-nav" aria-label="Main"><a href="/trains/">Cities</a><a href="/guides/">Guides</a><a href="/home-surroundings-data/">Data &amp; limits</a></nav></div></header>`;
+<header class="rc-top"><div class="rc-wrap rc-top-in"><a class="rc-brand" href="/"><span class="rc-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg></span>Home Surroundings Check</a><nav class="rc-nav" aria-label="Main"><a href="/trains/">Cities</a><a href="/blog/">News</a><a href="/guides/">Guides</a><a href="/home-surroundings-data/">Data &amp; limits</a></nav></div></header>`;
 }
 const FOOTER = `<footer class="rc-foot"><div class="rc-wrap"><p>Data: U.S. DOT / Federal Railroad Administration crossing inventory (Form 71) and accident reports (Form 57). Counts are railroad-reported estimates, not schedules or noise measurements. Independent informational site.</p><nav aria-label="Footer"><a href="/trains/">Train activity by city</a><a href="/guides/">All homebuyer guides</a><a href="/about/">About &amp; corrections</a><a href="/privacy.html">Privacy Policy</a></nav></div></footer>
 <script>
@@ -308,11 +338,13 @@ function cityPage(slug) {
   const others = slugs.filter(s => s !== slug).map(s => [s, Math.hypot(maps[s].dt[0] - here[0], (maps[s].dt[1] - here[1]) * kx)]).sort((a, b) => a[1] - b[1]).slice(0, 6).map(x => x[0]);
   const related = others.map(s => { const g = mapGeometry(s); return `<a class="rc-city" href="/trains/${s}/"><div class="rc-mini" ${mapAttrs(s)}><img src="/trains/${s}/map.svg" alt="" width="${g.W + 40}" height="${g.H + 40}" loading="lazy"/></div><strong>${esc(label(s))}</strong><span>${plural(summary[s].n, 'crossing')} · ${fmt(summary[s].night)} with night trains</span></a>`; }).join('');
 
+  const clim = climateSection(slug, name);
   const faq = [
     [`Do trains run at night in ${name}?`, `${fmt(c.night)} of ${fmt(c.withTrains)} crossings with reported traffic list trains between 6 PM and 6 AM. Check the specific crossing near a home, because night traffic varies by line.`],
     [`Are there railroad quiet zones in ${name}?`, qz ? `${fmt(qz)} public crossings are reported in an FRA quiet zone${c.qzC ? ` (including ${fmt(c.qzC)} Chicago-excused crossings)` : ''}. Status is reported per crossing, so confirm the crossing nearest the address.` : `None of the ${fmt(c.n)} public crossings in this set is reported in an FRA quiet zone, so routine horn sounding is the default at public crossings.`],
     [`Which railroads operate in ${name}?`, `By number of public crossings: ${railroads.slice(0, 4).map(r => `${r.name} (${r.k})`).join(', ')}.`],
-    [`How fast do trains go through ${name}?`, `The highest maximum timetable speed reported at these crossings is ${c.maxSpeed} mph. Many urban crossings report much lower limits; the busiest-crossing list shows the speed for each.`]
+    [`How fast do trains go through ${name}?`, `The highest maximum timetable speed reported at these crossings is ${c.maxSpeed} mph. Many urban crossings report much lower limits; the busiest-crossing list shows the speed for each.`],
+    ...clim.faq
   ].map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('');
 
   const steps = [
@@ -341,6 +373,8 @@ ${transitList}
 <section class="rc-wrap rc-sec rc-prose"><h2>What this means for a home search in ${esc(name)}</h2>${paras.join('\n')}
 <h3>Railroads with public crossings</h3><ul class="rc-chips">${railroads.map(r => `<li>${esc(r.name)} <strong>${fmt(r.k)}</strong></li>`).join('')}</ul></section>
 
+${clim.html}
+${newsFor(slug).length ? `<section class="rc-wrap rc-sec rc-news"><h2>In the news</h2><div class="rc-news-list">${newsFor(slug).map(p => `<a href="/blog/${p.slug}/"><span>Rail &amp; Road Watch · ${esc(p.date)}</span><strong>${esc(p.title)}</strong></a>`).join('')}</div></section>` : ''}
 <section class="rc-wrap rc-sec"><h2>Before you make an offer</h2><div class="rc-steps">${steps}</div><p class="rc-more">More detail: <a href="/how-many-trains-pass-near-my-house/">how many trains pass near my house</a>, <a href="/freight-train-noise-at-night/">freight train noise at night</a> and <a href="/railroad-vibration-homebuyer-checklist/">the vibration checklist</a>.</p></section>
 
 <section class="rc-wrap rc-sec"><div class="rc-cta"><div><h2>The map shows the city. Your address shows your nights.</h2><p>Nearest crossing, day and night trains, quiet zone, speed and incident history for one property.</p></div><a class="rc-cta-link guide-button" href="/">Check an address →</a></div></section>

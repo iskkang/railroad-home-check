@@ -32,6 +32,9 @@
     },
     "api/roadnames.js": {
       "maxDuration": 20
+    },
+    "api/risk.js": {
+      "maxDuration": 15
     }
   }
 }

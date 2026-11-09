@@ -79,6 +79,12 @@ for f in sorted(glob.glob(f'{ROOT}/*/index.html')):
     eye = html.unescape(re.sub(r'<[^>]+>', '', (re.search(r'<div class="eyebrow">(.*?)</div>', s) or [None, 'HOMEBUYER GUIDE'])[1]))
     jobs.append((f'guide-{slug}', page(eye, h1, '', 'houston-tx' if slug in ROAD else 'dallas-tx' if 'freight' in slug or 'train' in slug else 'chicago-il')))
 
+posts = json.load(open(f'{ROOT}/data/blog/posts.json')) if os.path.exists(f'{ROOT}/data/blog/posts.json') else []
+jobs.append(('blog', page('RAIL & ROAD WATCH', 'Train horn, quiet zone and weather news for homebuyers', 'Checked against federal records.', 'st-louis-mo')))
+for po in posts:
+    jobs.append((f'blog-{po["slug"]}', page('RAIL & ROAD WATCH', po['title'], '', po.get('city') or (po.get('cities') or ['houston-tx'])[0], foot='Home Surroundings Check · checked against federal records')))
+ONLY = os.environ.get('ONLY')
+if ONLY: jobs = [j for j in jobs if j[0].startswith(ONLY)]
 os.makedirs(f'{ROOT}/og', exist_ok=True)
 with sync_playwright() as p:
     b = p.chromium.launch(channel='chrome')

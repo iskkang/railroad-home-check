@@ -14,7 +14,7 @@ TOPIC = {
   'road-traffic-by-address': 'roads', 'noise-near-an-address': 'roads', 'compare-homes-road-and-rail': 'roads', 'nyc-noise-complaints-by-address': 'roads',
 }
 MARK = '<span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M5 18 20 6l15 12M10 16v18h20V16M16 34V23h8v11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
-HEADER = f'<header class="site-header"><a class="brand" href="/">{MARK}<span>Home Surroundings Check</span></a><nav class="gv-nav" aria-label="Main"><a href="/trains/">Cities</a><a href="/guides/">Guides</a><a class="gv-nav-data" href="/home-surroundings-data/">Data &amp; coverage</a></nav></header>'
+HEADER = f'<header class="site-header"><a class="brand" href="/">{MARK}<span>Home Surroundings Check</span></a><nav class="gv-nav" aria-label="Main"><a href="/trains/">Cities</a><a href="/blog/">News</a><a href="/guides/">Guides</a><a class="gv-nav-data" href="/home-surroundings-data/">Data &amp; coverage</a></nav></header>'
 def form(fid, label):
     return (f'<form class="gv-search" action="/" role="search"><label for="{fid}">{label}</label>'
             f'<input id="{fid}" name="address" type="text" autocomplete="street-address" placeholder="Enter a U.S. property address" required>'

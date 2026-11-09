@@ -1,0 +1,82 @@
+[
+ {
+  "title": "Frozen-pipe season: where freezing nights are routine, and where a rare freeze does more damage",
+  "seoTitle": "Frozen Pipes 2026: Freezing Nights in 300 U.S. Cities (NOAA) and Where Rare Freezes Hit Hardest",
+  "description": "NOAA normals for 300 U.S. cities: Anchorage averages 204 freezing nights a year, Houston about 4. Why rare-freeze cities can be the riskier place for pipes, and what to check before buying.",
+  "date": "2026-11-09",
+  "ctaTitle": "Check a specific home before winter",
+  "ctaText": "Enter the address to see its census-tract cold wave, winter storm and flood ratings, plus rail and road traffic nearby.",
+  "cities": [
+   "houston-tx",
+   "orlando-fl",
+   "corpus-christi-tx",
+   "jacksonville-fl",
+   "new-orleans-la",
+   "bismarck-nd",
+   "duluth-mn",
+   "fargo-nd"
+  ],
+  "lead": "Freezing weather is a known quantity in Fargo and a surprise in Houston. Using NOAA climate normals and FEMA's National Risk Index for the 300 cities we track, here is where freezing nights are common, where they are rare but still dangerous, and what a homebuyer should check before winter.",
+  "sources": [
+   [
+    "NOAA U.S. Climate Normals 1991–2020 (annual and seasonal)",
+    "https://www.ncei.noaa.gov/data/normals-annualseasonal/1991-2020/access/"
+   ],
+   [
+    "FEMA National Risk Index (county ratings)",
+    "https://hazards.fema.gov/nri/"
+   ],
+   [
+    "American Red Cross fact sheet: Preventing and thawing frozen pipes (Outagamie County, WI copy)",
+    "https://www.outagamie.gov/files/assets/county/v/1/hhs-ph/documents/preventing-and-thawing-frozen-pipes.pdf"
+   ]
+  ],
+  "slug": "frozen-pipes-freeze-nights-300-cities-2026"
+ },
+ {
+  "title": "Kent's new quiet zone: 8 BNSF crossings, 42 trains a day, and records that have not caught up",
+  "seoTitle": "Kent, WA Railroad Quiet Zone (2026): 8 BNSF Crossings, Night Trains and Accident History",
+  "description": "Kent, Washington's quiet zone took effect in late August 2026 on eight BNSF crossings. FRA records: 21 night trains per crossing, 36 passenger trains a day, 10 incidents since 2021.",
+  "date": "2026-11-09",
+  "city": "kent-wa",
+  "lead": "Kent spent about $3.5 million to stop routine train horns at eight downtown crossings on the BNSF mainline. The federal crossing records show why residents asked for it, and that the paperwork still says otherwise.",
+  "sources": [
+   [
+    "Kent Reporter / Auburn Reporter: Kent receives approval for Quiet Zone along railroad tracks (June 19, 2026)",
+    "https://www.auburn-reporter.com/?p=74970"
+   ],
+   [
+    "FRA Highway-Rail Crossing Inventory (Form 71), revision of Oct 12, 2026",
+    "https://data.transportation.gov/d/m2f8-22s6"
+   ],
+   [
+    "FRA Highway-Rail Accident Reports (Form 57), Jan 2021 to Aug 2026",
+    "https://data.transportation.gov/d/uwah-u9bn"
+   ]
+  ],
+  "slug": "kent-wa-quiet-zone-bnsf-2026"
+ },
+ {
+  "title": "St. Louis train horns: the quiet zone is coming back. Here is what the federal records show",
+  "seoTitle": "St. Louis Quiet Zone Reinstated (Nov 2026): Which Crossings, How Many Night Trains",
+  "description": "St. Louis lost its railroad quiet zone in September 2026 and is getting it back in mid-November. FRA records: 138 of 147 crossings flagged quiet zone, 99 with night trains.",
+  "date": "2026-11-09",
+  "city": "st-louis-mo",
+  "lead": "After about two months of horns at every crossing, St. Louis says routine train horns will stop again by mid-November. We matched the news against the federal crossing inventory: which lines are affected, how many trains run at night, and why a quiet-zone flag on paper is not a guarantee.",
+  "sources": [
+   [
+    "St. Louis Public Radio: Train horns to stop sounding in St. Louis (Nov 6, 2026)",
+    "https://www.stlpr.org/news-briefs/2026-11-06/train-horns-to-stop-sounding-in-st-louis"
+   ],
+   [
+    "FRA Highway-Rail Crossing Inventory (Form 71), revision of Nov 2, 2026",
+    "https://data.transportation.gov/d/m2f8-22s6"
+   ],
+   [
+    "FRA train horn rule and quiet zones",
+    "https://railroads.dot.gov/railroad-safety/divisions/crossing-safety-and-trespass-prevention/train-horn-rulequiet-zones"
+   ]
+  ],
+  "slug": "st-louis-quiet-zone-reinstated-2026"
+ }
+]

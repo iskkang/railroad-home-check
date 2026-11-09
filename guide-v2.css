@@ -12,6 +12,8 @@
 .gv-nav{display:flex;gap:16px;align-items:center}
 .gv-nav a{font-size:14px;font-weight:600;color:#44506a;text-decoration:none;padding:10px 0}
 .gv-nav .gv-nav-data{display:none}
+.gv-nav a:nth-child(n+3){display:none}
+@media(min-width:760px){.gv-nav a:nth-child(n+3){display:inline}}
 
 /* photo hero */
 .gv .guide-hero{position:relative;overflow:hidden;max-width:none;margin:0;padding:0;background:#101a2e;color:#fff}
