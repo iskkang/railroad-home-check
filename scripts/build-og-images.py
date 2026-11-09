@@ -85,6 +85,8 @@ for po in posts:
     jobs.append((f'blog-{po["slug"]}', page('RAIL & ROAD WATCH', po['title'], '', po.get('city') or (po.get('cities') or ['houston-tx'])[0], foot='Home Surroundings Check · checked against federal records')))
 THUMB_CSS = "*{box-sizing:border-box}body{margin:0;width:400px;height:400px;background:#0f1b33;font-family:PJS,sans-serif;overflow:hidden;position:relative}.glow{position:absolute;inset:0;background:radial-gradient(260px 220px at 60% 45%,rgba(36,81,230,.45),transparent 70%)}svg{position:absolute;left:0;top:0}.tag{position:absolute;left:0;right:0;bottom:0;background:#2451e6;color:#fff;font-weight:800;font-size:54px;letter-spacing:.02em;padding:16px 0 20px;text-align:center}"
 thumbs = [(f'thumb-{po["slug"]}', f"<html><head><style>{FONTS}{THUMB_CSS}</style></head><body><div class='glow'></div>{dots_svg(po.get('city') or (po.get('cities') or ['houston-tx'])[0], w=400, h=310, r=11)}<div class='tag'>{html.escape(po.get('tag', 'NEWS'))}</div></body></html>") for po in posts]
+FEAT_CSS = "*{box-sizing:border-box}body{margin:0;width:1200px;height:600px;background:#0f1b33;font-family:PJS,sans-serif;overflow:hidden;position:relative}.glow{position:absolute;inset:0;background:radial-gradient(700px 420px at 50% 45%,rgba(36,81,230,.45),transparent 70%)}svg{position:absolute;left:250px;top:20px}.tag{position:absolute;left:40px;bottom:36px;background:#2451e6;color:#fff;font-weight:800;font-size:30px;letter-spacing:.04em;padding:12px 22px;border-radius:12px}.key{position:absolute;right:40px;bottom:40px;display:flex;gap:18px;font-size:19px;color:#c9d4ee;font-weight:600}.key i{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:7px;vertical-align:-1px}"
+feats = [(f'feature-{po["slug"]}', f"<html><head><style>{FONTS}{FEAT_CSS}</style></head><body><div class='glow'></div>{dots_svg(po.get('city') or (po.get('cities') or ['houston-tx'])[0], w=700, h=560, r=8)}<div class='tag'>{html.escape(po.get('tag', 'NEWS'))}</div><div class='key'><span><i style='background:#ff7a2f'></i>Night trains</span><span><i style='background:#2bb39a'></i>Quiet zone</span><span><i style='background:#4f7cff'></i>Day only</span></div></body></html>") for po in posts]
 ONLY = os.environ.get('ONLY')
 if ONLY: jobs = [j for j in jobs if j[0].startswith(ONLY)]
 os.makedirs(f'{ROOT}/og', exist_ok=True)
@@ -94,6 +96,10 @@ with sync_playwright() as p:
     for name, doc in jobs:
         pg.set_content(doc); pg.wait_for_timeout(60)
         pg.screenshot(path=f'{ROOT}/og/{name}.jpg', type='jpeg', quality=80)
+    pg.set_viewport_size({'width': 1200, 'height': 600})
+    for name, doc in feats:
+        pg.set_content(doc); pg.wait_for_timeout(60)
+        pg.screenshot(path=f'{ROOT}/og/{name}.jpg', type='jpeg', quality=82)
     pg.set_viewport_size({'width': 400, 'height': 400})
     for name, doc in thumbs:
         pg.set_content(doc); pg.wait_for_timeout(60)

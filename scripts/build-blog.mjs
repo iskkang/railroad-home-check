@@ -49,12 +49,13 @@ for (const p of posts) {
   const others = posts.filter(o => o.slug !== p.slug).slice(0, 3);
   const html = `${head({ title: `${p.seoTitle || p.title} | Home Surroundings Check`, description: p.description, path, image, ld })}
 <body class="gv gv-post">${HEADER}
-<section class="guide-hero"><img class="gv-photo" src="${esc(ph.src)}" alt="" fetchpriority="high" decoding="async"><div class="gv-shade" aria-hidden="true"></div><div class="gv-in">
-<nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/blog/">Rail &amp; Road Watch</a></nav>
-<div class="eyebrow">RAIL &amp; ROAD WATCH · ${esc(dateLabel(p.date).toUpperCase())}</div>
-<h1>${esc(p.title)}</h1><p class="lead">${esc(p.lead)}</p>
-<p class="post-byline">By the Home Surroundings Check editorial team · Drafted with AI assistance; figures checked against FRA records</p>
-<p class="gv-credit">Photo: ${esc(ph.alt)}, ${esc(ph.author || 'Wikimedia Commons')} (<a href="${esc(ph.page)}" rel="noopener">${esc(ph.license || 'source')}</a>)</p></div></section>
+<section class="post-head"><div class="post-head-in">
+<nav class="post-crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/blog/">Rail &amp; Road Watch</a></nav>
+<figure class="post-feature"><img src="/og/feature-${p.slug}.jpg" alt="Crossing map of ${esc(p.city ? cityLabel(p.city) : cityLabel((p.cities || ['houston-tx'])[0]))}" width="1200" height="600" fetchpriority="high"></figure>
+<div class="post-meta"><span class="post-tag">${esc(p.tag || 'NEWS')}</span><span>${esc(dateLabel(p.date))}</span></div>
+<h1>${esc(p.title)}</h1><p class="post-lead">${esc(p.lead)}</p>
+<p class="post-by">By the Home Surroundings Check editorial team · Drafted with AI assistance; figures checked against federal records</p>
+</div></section>
 <section class="guide-shell"><article class="guide-content post-body">
 ${p.body}
 ${p.city ? `<div class="post-city"><div><strong>${esc(cityLabel(p.city))}: every public crossing, mapped</strong><span>Night trains, quiet zones and the busiest crossings from FRA records.</span></div><a href="/trains/${p.city}/">See the city map →</a></div>` : ''}
