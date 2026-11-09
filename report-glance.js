@@ -33,11 +33,11 @@
     const nearest = horns[0];
     const near = busy || nearest;
     const d = busy ? busy.distanceMiles : Infinity;
-    const level = d <= 0.25 ? { key: 'loud', badge: 'LOUD', tone: 'warn', v: 'Loud: inside the horn-sounding stretch' }
-      : d <= 0.5 ? { key: 'likely', badge: 'LIKELY AUDIBLE', tone: 'warn', v: 'Likely audible' }
-      : d <= 1 ? { key: 'possible', badge: 'POSSIBLE', tone: 'neutral', v: 'Possibly audible, mostly at night' }
-      : { key: 'unlikely', badge: 'UNLIKELY', tone: 'ok', v: 'Unlikely from routine crossing horns' };
-    if (!busy && nearest && nearest.distanceMiles <= 1) Object.assign(level, { key: 'rare', badge: 'RARE', tone: 'neutral', v: `${nearest.distanceMiles <= 0.25 ? 'Loud' : 'Audible'} when a train passes, but under 1 train/day reported` });
+    const level = d <= 0.25 ? { key: 'loud', badge: 'CHECK ON SITE', tone: 'warn', v: 'Crossing within 0.25 mi — verify horn exposure' }
+      : d <= 0.5 ? { key: 'likely', badge: 'VERIFY', tone: 'warn', v: 'Crossing within 0.5 mi — check on site' }
+      : d <= 1 ? { key: 'possible', badge: 'VERIFY', tone: 'neutral', v: 'Crossing within 1 mi — verify local conditions' }
+      : { key: 'unlikely', badge: 'LIMITED DATA', tone: 'ok', v: 'No frequently used horn crossing within 1 mi identified' };
+    if (!busy && nearest && nearest.distanceMiles <= 1) Object.assign(level, { key: 'rare', badge: 'LOW FREQUENCY', tone: 'neutral', v: `Low reported train frequency at crossing ${fmtMi(nearest.distanceMiles)} away; verify on site` });
     const rareCloser = busy && nearest && nearest !== busy && nearest.distanceMiles < busy.distanceMiles ? nearest : null;
     return { level, near, rareCloser, horns, within1, nightWithin1, maxNight };
   }
@@ -100,7 +100,7 @@
       const nightTxt = h.nightWithin1.length ? ` · up to ${h.maxNight} night ${h.maxNight === 1 ? 'train' : 'trains'} at ${h.nightWithin1.length} horn ${h.nightWithin1.length === 1 ? 'crossing' : 'crossings'} within 1 mi` : h.within1.length ? ' · no night trains reported at horn crossings within 1 mi' : '';
       note = esc(where + nightTxt + rare);
     }
-    note += '<br><span class="g-why">Horns sound 15–20 s before each public crossing outside quiet zones, at 96–110 dB. Estimate, not a measurement.</span>';
+    note += '<br><span class="g-why">Federal horn rules apply at many public crossings outside quiet zones. This is a distance-based screening flag, not an estimate of sound at the property. Terrain, buildings, operations and local exceptions matter.</span>';
     return row({ ic: 'horn', tone: h.level.tone, k: 'Train horns at this home', v: esc(h.level.v), note, badge: h.level.badge });
   }
 
