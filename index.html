@@ -45,7 +45,7 @@
   <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/guides.css" />
-  <link rel="stylesheet" href="/home.css?v=20261110-mobile2" />
+  <link rel="stylesheet" href="/home.css?v=20261110-dashboard3" />
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -103,24 +103,24 @@
       </span>
       <span>Home Surroundings Check</span>
     </a>
-    <nav class="home-nav" aria-label="Main"><a href="/trains/">Cities</a><a href="/blog/">News</a><a href="/guides/">Guides</a><a class="source-link" href="/home-surroundings-data/">Data &amp; coverage</a></nav>
+    <nav class="home-nav" aria-label="Main"><a href="#searchForm">Check address</a><a href="/trains/">Cities</a><a href="/about/">About</a><a class="source-link" href="/home-surroundings-data/">Data &amp; coverage</a></nav>
   </header>
 
   <main>
-    <section class="hero">
+    <section class="hero" aria-label="Check an address">
       <img class="hero-photo" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Skyline_and_train_tracks%2C_Chicago%2C_Illinois_LCCN2011631118.tif/lossy-page1-960px-Skyline_and_train_tracks%2C_Chicago%2C_Illinois_LCCN2011631118.tif.jpg" alt="" fetchpriority="high" decoding="async" />
       <div class="hero-shade" aria-hidden="true"></div>
       <div class="hero-in">
       <div class="hero-grid"><div class="hero-main">
       <div class="eyebrow">FREE · PUBLIC DATA FOR U.S. HOME BUYERS</div>
-      <h1>Check road traffic and rail activity <span>around a home.</span></h1>
-      <p class="hero-copy">Enter an address to see nearby rail lines, nighttime trains, horn rules and road traffic before your next viewing.</p>
+      <h1>Check your home’s <span>surroundings.</span></h1>
+      <p class="hero-copy">Railroads, road traffic, transportation noise and flood maps. Know what to check before your next viewing.</p>
       <div class="hero-card">
-      <label for="address" class="hero-card-label">Property address</label>
+      <label for="address" class="hero-card-label">Enter a U.S. property address</label>
       <div class="address-search-area"><form id="searchForm" class="search-box">
         <div class="input-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.2 7-12A7 7 0 1 0 5 9c0 6.8 7 12 7 12Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="9" r="2.4" stroke="currentColor" stroke-width="1.8"/></svg>
-          <input id="address" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="addressSuggestions" aria-expanded="false" placeholder="Paste a U.S. property or listing address" aria-describedby="privacyNote" required />
+          <input id="address" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="addressSuggestions" aria-expanded="false" placeholder="Street address, city, state and ZIP" aria-describedby="privacyNote" required />
         </div>
         <button type="submit" id="searchButton">Check this address</button>
       </form><ul id="addressSuggestions" role="listbox" class="hidden address-suggestions" aria-label="Address candidates"></ul></div>
@@ -135,18 +135,10 @@
         <p id="pickerStatus" class="small-note" role="status"></p><button type="button" id="useMapPoint" class="action-button" disabled>Run check at this location</button>
       </section>
       </div>
-      <ul class="hero-trust" aria-label="Data sources"><li>FRA crossing records</li><li>FHWA road counts</li><li>No sign-up</li></ul>
+      <ul class="hero-trust" aria-label="Report coverage"><li>Railroads &amp; crossings</li><li>Traffic &amp; roads</li><li>Modeled noise</li><li>FEMA flood maps</li><li>Nearby facilities</li></ul>
       <div class="steps-strip"><span>01 · Enter an address</span><span>02 · Explore the map</span><span>03 · Compare your shortlist</span></div>
       </div>
-      <aside class="hero-preview" aria-label="What the report shows">
-        <p class="hero-preview-title">Your report at a glance</p>
-        <ul>
-          <li><span class="hp-ico hp-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20 10 4M20 20 14 4M7 12h10M6 16h12M8 8h8"/></svg></span><div><strong>Mapped rail line</strong><small>Distance from the home</small></div></li>
-          <li><span class="hp-ico hp-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg></span><div><strong>Night trains</strong><small>At the nearest public crossing</small></div></li>
-          <li><span class="hp-ico hp-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="m22 9-6 6M16 9l6 6"/></svg></span><div><strong>Horn rules</strong><small>Quiet-zone status</small></div></li>
-          <li><span class="hp-ico hp-neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17h18M5 17V9l3-3h8l3 3v8M7 13h2M15 13h2"/></svg></span><div><strong>Road traffic</strong><small>Vehicles per day, day vs night</small></div></li>
-        </ul>
-      </aside>
+
       </div>
       <p class="hero-credit">Photo: Chicago skyline and train tracks, Carol M. Highsmith, Library of Congress (<a href="https://commons.wikimedia.org/wiki/File:Skyline_and_train_tracks,_Chicago,_Illinois_LCCN2011631118.tif" rel="noopener">public domain</a>)</p>
       </div>
@@ -161,10 +153,10 @@
       <div class="result-heading"><div><div class="eyebrow">YOUR SURROUNDINGS REPORT</div><h2 id="resultAddress"></h2><p class="small-note">A clearer view of nearby roads and rail. Reported data, with dates and sources.</p></div><div id="attentionBadge" class="attention-badge"></div></div>
       <div class="report-actions compact-actions"><button type="button" id="addCompare" class="action-button">Compare</button><button type="button" id="shareReport" class="action-button secondary">Share address</button><button type="button" id="printReport" class="action-button secondary">Print / PDF</button><span class="small-note">Shared links include the address and coordinates.</span></div>
       <p id="actionStatus" role="status" class="small-note"></p><input id="shareLink" class="hidden share-link" readonly aria-label="Copyable property report link" />
-      <nav class="report-sidebar-nav" aria-label="Jump to report sections"><a href="#reportOverview">Report overview</a><a href="#mapTitle">Explore map</a><a href="#reportDetailsHeading">Detailed findings</a></nav>
+      <nav class="report-sidebar-nav" aria-label="Jump to report sections"><a href="#glancePanel">Report overview</a><a href="#propertyMap">View on map</a><a href="#paneRail">Railroads &amp; crossings</a><a href="#paneRoad">Traffic &amp; roads</a><a href="#reportDetailsHeading">Detailed findings</a></nav>
       <div class="report-sidebar-note"><strong>Check the map pin</strong><span>Geocoded coordinates and public records are approximate. Verify the location before relying on this report.</span></div>
       </aside>
-      <div class="report-main">
+      <div class="report-main"><header class="dashboard-heading"><div><p class="panel-kicker">PUBLIC DATA · YOUR NEXT VIEWING</p><h2>Surroundings report</h2></div><div class="report-meta"><span id="locationStatus">Approximate location</span><time id="reportTimestamp"></time><a href="/home-surroundings-data/">Data sources &amp; coverage ↗</a></div></header>
 <div class="topic-tabs" role="tablist" aria-label="Surroundings category">
 <button type="button" role="tab" id="topicsound" aria-controls="topicContent" aria-selected="true">Sound</button>
 <button type="button" role="tab" id="topicliving" aria-controls="topicContent" aria-selected="false" tabindex="-1">Living environment</button>
@@ -187,7 +179,7 @@
         <div id="propertyMap" class="hidden" aria-label="Property and railroad crossing map"></div>
       </section>
 
-<div id="contextResults" class="context-results"></div>
+<aside id="mapInsights" aria-label="Key takeaways"></aside><div id="contextResults" class="context-results"></div>
       <section class="report-details" aria-label="Detailed findings">
         <div class="details-heading"><h3 id="reportDetailsHeading">Look closer</h3><p class="small-note">Choose the information you need.</p></div>
         <details id="paneRoad" class="sound-section"><summary>Road traffic</summary></details>

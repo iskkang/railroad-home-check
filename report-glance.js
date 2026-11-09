@@ -69,7 +69,7 @@
   }
 
   function row({ ic, tone, k, v, note, badge, btone, action }) {
-    return `<li class="g-row${state?.openRows?.has(k) ? ' g-open' : ''}" data-k="${esc(k)}"><span class="g-ico g-${tone}">${icon(ic)}</span><div class="g-body"><div class="g-top"><span class="g-k">${esc(k)}</span>${badge ? `<span class="g-badge g-${btone || tone}">${esc(badge)}</span>` : ''}</div><div class="g-v">${v}</div>${note ? `<div class="g-note">${note}</div>` : ''}${action || ''}</div></li>`;
+    return `<li class="g-row${state?.openRows?.has(k) ? ' g-open' : ''}" data-k="${esc(k)}"><span class="g-ico g-${tone}">${icon(ic)}</span><div class="g-body"><div class="g-top"><span class="g-k">${esc(k)}</span>${badge ? `<span class="g-badge g-${btone || tone}">${esc(badge)}</span>` : ''}</div><div class="g-v">${v}</div>${note ? `<details class="g-source"><summary>Source &amp; limitations</summary><div class="g-note">${note}</div></details>` : ''}${action || ''}</div></li>`;
   }
 
   function railRow(s) {
@@ -214,7 +214,12 @@
   function render() {
     if (!state) return;
     const el = panel();
-    el.innerHTML = `<div class="g-head"><h3>At a glance</h3><p class="g-sub">Each line is a different source, place and year — not a single overall score.</p></div><ul class="g-list">${railRow(state)}${crossingRows(state.report)}${noiseRow(state)}${floodRow(state)}${hazardRow(state)}${roadRow(state)}${nightRow(state)}${siteRow(state)}</ul>${nearList(state)}<nav class="g-jump" aria-label="Jump to report section"><a href="#paneRail" data-glance="pane">Rail</a><a href="#paneRoad" data-glance="pane">Roads</a><a href="#paneHourly" data-glance="pane">At night</a><a href="#topicliving" data-glance="living">Nearby sites</a><a href="#propertyMap" data-glance="map">Map</a></nav>`;
+    el.innerHTML = `<div class="g-head"><h3>Your surroundings at a glance</h3><p class="g-sub">Four starting points. Open each source note before drawing a conclusion.</p></div><ul class="g-list">${railRow(state)}${roadRow(state)}${noiseRow(state)}${floodRow(state)}</ul><nav class="g-jump" aria-label="Jump to report section"><a href="#propertyMap" data-glance="map">Explore map ↓</a><a href="#paneRail" data-glance="pane">Rail details</a><a href="#paneRoad" data-glance="pane">Road details</a><a href="#topicliving" data-glance="living">Nearby facilities</a></nav>`;
+    const insights = document.getElementById('mapInsights');
+    if (insights) {
+      insights.innerHTML = `<div class="insight-head"><span class="panel-kicker">READ THE MAP</span><h3>Key takeaways</h3><p>Distances start at your approximate property pin.</p></div>${nearList(state)}<details class="more-findings"><summary>Crossings, horns &amp; other checks</summary><ul class="g-list">${crossingRows(state.report)}${hazardRow(state)}${nightRow(state)}${siteRow(state)}</ul></details><p class="insight-note">ⓘ Public records and modeled estimates are not a measurement at this home. Confirm the pin and visit at different times.</p>`;
+      if (!insights.dataset.bound) { insights.addEventListener('click', onClick); insights.dataset.bound = '1'; }
+    }
     updateSummaries(state);
   }
 

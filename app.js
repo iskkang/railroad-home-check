@@ -39,7 +39,7 @@ form.addEventListener('submit', async (event) => {
     }
     setStatus('Checking nearby FRA grade-crossing records…');
     const report = await fetchJSON(`/api/crossings?lat=${geo.lat}&lon=${geo.lon}`);
-    renderReport({ ...report, lat: geo.lat, lon: geo.lon, matchedAddress: geo.matchedAddress || address });
+    renderReport({ ...report, lat: geo.lat, lon: geo.lon, matchedAddress: geo.matchedAddress || address, locationConfirmed: validSelectedPoint(chosenLocation), requestedAt: new Date().toISOString() });
     trackEvent('property_check_completed');
     statusBox.classList.add('hidden');
     results.classList.remove('hidden');
@@ -92,6 +92,9 @@ function setError(message) {
 function renderReport(report) {
   const nearest = report.crossings?.[0];
   currentReport = report;
+  $('locationStatus').textContent = report.locationConfirmed ? 'Pin selected by you' : 'Approximate address match';
+  $('reportTimestamp').dateTime = report.requestedAt || new Date().toISOString();
+  $('reportTimestamp').textContent = 'Requested ' + new Date($('reportTimestamp').dateTime).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
   globalThis.ReportGlance?.start(report);
   showTmasPatterns(report);
   showRoadTraffic(report);
