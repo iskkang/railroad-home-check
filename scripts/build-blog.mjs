@@ -62,7 +62,7 @@ ${p.city ? `<div class="post-city"><div><strong>${esc(cityLabel(p.city))}: every
 <h2>Sources</h2><ul class="post-sources">${p.sources.map(([t, u]) => `<li><a href="${esc(u)}" rel="noopener">${esc(t)}</a></li>`).join('')}</ul>
 <p class="post-note">Spotted an error or a change on the ground? <a href="/about/">Tell us</a> and we will correct it.</p>
 </article></section>
-${others.length ? `<section class="related-guides"><h2>More from Rail &amp; Road Watch</h2><div class="related-grid">${others.map(o => `<a class="related-card" href="/blog/${o.slug}/"><strong>${esc(o.title)}</strong><span>${esc(dateLabel(o.date))}</span></a>`).join('')}</div></section>` : ''}
+${others.length ? `<section class="related-guides"><h2>More from Rail &amp; Road Watch</h2><div class="related-grid">${others.map(o => `<a class="related-card post-related" href="/blog/${o.slug}/"><img class="post-thumb" src="/og/thumb-${o.slug}.jpg" alt="" width="400" height="400" loading="lazy"><strong>${esc(o.title)}</strong><span>${esc(dateLabel(o.date))}</span></a>`).join('')}</div></section>` : ''}
 ${FOOTER}</body></html>
 `;
   await mkdir(resolve(root, 'blog', p.slug), { recursive: true });
@@ -74,7 +74,7 @@ ${FOOTER}</body></html>
   const path = '/blog/';
   const title = 'Rail & Road Watch: train horn, quiet zone and road news for homebuyers';
   const description = 'News on railroad quiet zones, train horns, crossings, road projects and flood maps, checked against federal records for homebuyers.';
-  const cards = posts.map(p => `<a class="post-card" href="/blog/${p.slug}/"><span class="post-card-meta">${esc(dateLabel(p.date))}${p.city ? ` · ${esc(cityLabel(p.city))}` : p.cities ? ` · ${p.cities.length} cities` : ''}</span><strong>${esc(p.title)}</strong><span class="post-card-lead">${esc(p.description)}</span></a>`).join('');
+  const cards = posts.map(p => `<a class="post-card" href="/blog/${p.slug}/"><img class="post-thumb" src="/og/thumb-${p.slug}.jpg" alt="" width="400" height="400" loading="lazy"><span class="post-card-text"><span class="post-card-meta">${esc(dateLabel(p.date))}${p.city ? ` · ${esc(cityLabel(p.city))}` : p.cities ? ` · ${p.cities.length} cities` : ''}</span><strong>${esc(p.title)}</strong><span class="post-card-lead">${esc(p.description)}</span></span></a>`).join('');
   const ld = [{ '@context': 'https://schema.org', '@type': 'Blog', name: 'Rail & Road Watch', url: ORIGIN + path, publisher: { '@type': 'Organization', name: 'Home Surroundings Check' }, blogPost: posts.map(p => ({ '@type': 'BlogPosting', headline: p.title, url: `${ORIGIN}/blog/${p.slug}/`, datePublished: p.date })) }, crumbs([['Home', '/'], ['Rail & Road Watch', path]])];
   const html = `${head({ title: `${title} | Home Surroundings Check`, description, path, image: '/og/blog.jpg', ld })}
 <body class="gv gv-blog">${HEADER}

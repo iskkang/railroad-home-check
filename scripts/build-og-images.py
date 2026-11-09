@@ -19,7 +19,7 @@ def font_face():
     return ''.join(out)
 FONTS = font_face()
 
-def dots_svg(slug, w=430, h=470, home=False):
+def dots_svg(slug, w=430, h=470, home=False, r=4.2):
     m = maps[slug]; la0, la1, lo0, lo1 = m['b']
     k = math.cos(math.radians((la0 + la1) / 2))
     bw, bh = (lo1 - lo0) * k, la1 - la0
@@ -28,7 +28,7 @@ def dots_svg(slug, w=430, h=470, home=False):
     for i in range(0, len(raw) - 2, 3):
         x, y, c = raw[i], raw[i + 1], raw[i + 2]
         pts.append((ox + x / 255 * bw * s, oy + y / 255 * bh * s, c))
-    circles = ''.join(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{4.2 if c else 3.2}" fill="{COL[c]}" stroke="#0f1b33" stroke-width="1.2"/>' for c in (0, 1, 2, 3) for x, y, cc in pts if cc == c)
+    circles = ''.join(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r if c else r*0.76:.1f}" fill="{COL[c]}" stroke="#0f1b33" stroke-width="{r*0.28:.1f}"/>' for c in (0, 1, 2, 3) for x, y, cc in pts if cc == c)
     pin = ''
     if home:
         dx = ox + (m['dt'][1] - lo0) * k * s; dy = oy + (la1 - m['dt'][0]) * s
@@ -83,6 +83,8 @@ posts = json.load(open(f'{ROOT}/data/blog/posts.json')) if os.path.exists(f'{ROO
 jobs.append(('blog', page('RAIL & ROAD WATCH', 'Train horn, quiet zone and weather news for homebuyers', 'Checked against federal records.', 'st-louis-mo')))
 for po in posts:
     jobs.append((f'blog-{po["slug"]}', page('RAIL & ROAD WATCH', po['title'], '', po.get('city') or (po.get('cities') or ['houston-tx'])[0], foot='Home Surroundings Check · checked against federal records')))
+THUMB_CSS = "*{box-sizing:border-box}body{margin:0;width:400px;height:400px;background:#0f1b33;font-family:PJS,sans-serif;overflow:hidden;position:relative}.glow{position:absolute;inset:0;background:radial-gradient(260px 220px at 60% 45%,rgba(36,81,230,.45),transparent 70%)}svg{position:absolute;left:0;top:0}.tag{position:absolute;left:0;right:0;bottom:0;background:#2451e6;color:#fff;font-weight:800;font-size:54px;letter-spacing:.02em;padding:16px 0 20px;text-align:center}"
+thumbs = [(f'thumb-{po["slug"]}', f"<html><head><style>{FONTS}{THUMB_CSS}</style></head><body><div class='glow'></div>{dots_svg(po.get('city') or (po.get('cities') or ['houston-tx'])[0], w=400, h=310, r=11)}<div class='tag'>{html.escape(po.get('tag', 'NEWS'))}</div></body></html>") for po in posts]
 ONLY = os.environ.get('ONLY')
 if ONLY: jobs = [j for j in jobs if j[0].startswith(ONLY)]
 os.makedirs(f'{ROOT}/og', exist_ok=True)
@@ -92,5 +94,9 @@ with sync_playwright() as p:
     for name, doc in jobs:
         pg.set_content(doc); pg.wait_for_timeout(60)
         pg.screenshot(path=f'{ROOT}/og/{name}.jpg', type='jpeg', quality=80)
+    pg.set_viewport_size({'width': 400, 'height': 400})
+    for name, doc in thumbs:
+        pg.set_content(doc); pg.wait_for_timeout(60)
+        pg.screenshot(path=f'{ROOT}/og/{name}.jpg', type='jpeg', quality=82)
     b.close()
 print(len(jobs), 'images')
