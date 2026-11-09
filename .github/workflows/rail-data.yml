@@ -15,6 +15,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
+      - name: Census population and place centers
+        run: |
+          curl -fsSL https://www2.census.gov/programs-surveys/popest/datasets/2020-2023/cities/totals/sub-est2023.csv -o /tmp/pop.csv
+          curl -fsSL https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2023_Gazetteer/2023_Gaz_place_national.zip -o /tmp/gaz.zip
+          unzip -p /tmp/gaz.zip > /tmp/gaz.txt
+          wc -l /tmp/pop.csv /tmp/gaz.txt
       - run: node scripts/fetch-rail-cities.mjs
       - name: Commit data
         run: |
