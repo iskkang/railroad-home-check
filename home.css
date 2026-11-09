@@ -342,3 +342,42 @@
  .home .report-sidebar-nav,.home .report-sidebar-note{display:none!important}
  .home .report-main{box-shadow:none}
 }
+
+
+/* Mobile-first report presentation: the dashboard should not look like a squeezed desktop sidebar. */
+@media(max-width:760px){
+ .home .results{padding:0 10px!important;margin:12px auto 28px}
+ .home .report-workspace{display:flex!important;flex-direction:column!important;gap:12px!important}
+ .home .report-sidebar{display:block!important;position:static!important;width:100%!important;max-width:none!important;padding:16px!important;border:1px solid #d8e6f5!important;border-radius:18px!important;background:linear-gradient(155deg,#fff 0%,#f1f7ff 100%)!important;box-shadow:0 10px 28px rgba(25,69,123,.09)!important}
+ .home .report-sidebar-label{font-size:10px;letter-spacing:.14em}
+ .home .report-sidebar .result-heading{display:block!important;margin:0!important;padding:0 0 12px!important;border:0!important;box-shadow:none!important;background:transparent!important}
+ .home .report-sidebar .result-heading h2{font-size:20px!important;line-height:1.3!important;color:#112e53!important}
+ .home .report-sidebar .compact-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;margin:0!important}
+ .home .report-sidebar .compact-actions .action-button{min-height:46px!important;padding:8px 5px!important;font-size:12px!important;border-radius:10px!important}
+ .home .report-sidebar .compact-actions>.small-note{grid-column:1/-1!important;margin:2px 0 0}
+ .home .report-sidebar-nav{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:6px!important;padding-top:12px!important;margin-top:12px!important}
+ .home .report-sidebar-nav a{min-height:42px!important;border:1px solid #dbe8f7!important;background:#fff!important;border-radius:99px!important;padding:7px 11px!important}
+ .home .report-sidebar-nav a:first-child{background:#e1efff!important;color:#0d56ad!important}
+ .home .report-sidebar-note{display:grid!important;margin-top:12px!important;padding:11px 13px!important}
+ .home .report-main{display:block!important;width:100%!important;min-width:0!important;padding:13px!important;border-radius:18px!important}
+ .home .report-main>.topic-tabs{display:flex!important;overflow-x:auto!important;max-width:100%!important}
+ .home #topicContent{display:flex!important;flex-direction:column!important;gap:12px!important;min-width:0!important}
+ .home #topicContent>.overview-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important;gap:9px!important;margin:0!important}
+ .home #topicContent>.overview-grid .overview-card{min-width:0!important;padding:13px!important;min-height:110px!important}
+ .home #topicContent>.overview-grid .overview-card:last-child{grid-column:1/-1!important}
+ .home #topicContent>.overview-caveat,.home #topicContent>#contextControls,.home #topicContent>.map-panel,.home #topicContent>#contextResults,.home #topicContent>.report-details{width:100%!important;min-width:0!important;margin:0!important}
+ .home #topicContent>.map-panel{order:4!important;padding:13px!important}
+ .home #topicContent>#contextResults{order:5!important}
+ .home #topicContent>.report-details{order:6!important}
+ .home #topicContent>.overview-grid{order:1!important}
+ .home #topicContent>.overview-caveat{order:2!important}
+ .home #topicContent>#contextControls{order:3!important}
+ .home #propertyMap{width:100%!important;height:330px!important;min-height:330px!important;border-radius:12px!important}
+ .home .map-legend{font-size:11px!important;gap:7px 10px!important}
+}
+@media(max-width:390px){
+ .home .report-sidebar .compact-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .home .report-sidebar .compact-actions .action-button:first-child{grid-column:1/-1!important}
+ .home #topicContent>.overview-grid{grid-template-columns:1fr!important}
+ .home #topicContent>.overview-grid .overview-card:last-child{grid-column:auto!important}
+}
