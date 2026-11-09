@@ -1,0 +1,32 @@
+name: Verify site
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: SEO, API tests and JavaScript syntax
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --check app.js
+          node --check report-glance.js
+          node --check api/nearby.js
+      - name: Check SEO pages and sitemap
+        run: npm run check:seo
+      - name: Test nearby data API and UI error handling
+        run: npm run test:nearby
