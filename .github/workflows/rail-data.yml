@@ -1,0 +1,24 @@
+name: Rail city data
+# Fetches FRA / Census data for the /trains/ city pages (the build sandbox cannot reach these APIs).
+on:
+  push:
+    branches: [data-refresh]
+    paths: ['scripts/fetch-rail-cities.mjs', '.github/workflows/rail-data.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node scripts/fetch-rail-cities.mjs
+      - name: Commit data
+        run: |
+          git config user.name "rail-data-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/rail-cities
+          git diff --cached --quiet || (git commit -m "Refresh rail city data [skip ci]" && git push)
