@@ -67,6 +67,7 @@ async function fetchJSON(url, options = {}) {
 }
 
 function trackEvent(eventName) {
+  globalThis.GuideJourney?.track(eventName);
   if (typeof window.gtag === 'function') {
     window.gtag('event', eventName);
   }

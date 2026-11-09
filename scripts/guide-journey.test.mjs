@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
+const code=readFileSync(new URL('../guide-analytics.js',import.meta.url),'utf8');
+function runtime(path,blocked=false){const storage=new Map(),events=[],listeners={};const context={location:{pathname:path},Date,JSON,Number,sessionStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>{if(blocked)throw Error();storage.set(k,v)},removeItem:k=>storage.delete(k)},gtag:(...e)=>events.push(e),document:{addEventListener:(name,f)=>listeners[name]=f}};vm.createContext(context);vm.runInContext(code,context);return {context,storage,events,listeners};}
+test('guide attribution connects checks using only a public guide path',()=>{const r=runtime('/open-house-questions-checklist/');r.context.GuideJourney.mark();r.context.location.pathname='/';r.context.GuideJourney.track('property_check_started');r.context.GuideJourney.track('property_check_completed');assert.equal(r.events.length,3);for(const e of r.events)assert.deepEqual(Object.keys(e[2]).sort(),['guide_path','transport_type']);assert.equal(r.events[2][2].guide_path,'/open-house-questions-checklist/');});
+test('expired or malformed attribution does not label a check',()=>{const r=runtime('/');for(const entry of [{path:'/valid/',time:Date.now()-1800001},{path:'/private?address=secret',time:Date.now()},{path:'/valid/',time:Date.now()+60000}]){r.storage.set('home-guide-entry-v1',JSON.stringify(entry));r.context.GuideJourney.track('property_check_completed');}assert.equal(r.events.length,0);});
+test('blocked storage does not interrupt the checker',()=>{const r=runtime('/open-house-questions-checklist/',true);assert.doesNotThrow(()=>r.context.GuideJourney.mark());assert.doesNotThrow(()=>r.context.GuideJourney.track('property_check_started'));assert.equal(r.events.length,1);});
+test('home brand clicks do not create a guide conversion',()=>{const r=runtime('/guides/');r.listeners.click({target:{closest:()=>({getAttribute:()=> '/',matches:()=>false})}});assert.equal(r.events.length,0);});

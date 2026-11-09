@@ -6,10 +6,11 @@
     form.addEventListener('submit', event => {
       event.preventDefault();
       const value = (form.querySelector('input')?.value || '').trim();
-      if (typeof window.gtag === 'function') window.gtag('event', 'guide_checker_click', { guide_path: path, transport_type: 'beacon' });
+      window.GuideJourney?.mark();
       location.href = value ? '/#' + new URLSearchParams({ address: value }) : '/';
     });
   });
+  document.querySelectorAll('[data-print-checklist]').forEach(button => button.addEventListener('click', () => window.print()));
   const hero = document.querySelector('.guide-hero');
   const sticky = document.querySelector('.gv-sticky');
   if (hero && sticky && 'IntersectionObserver' in window) {
