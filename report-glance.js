@@ -119,7 +119,7 @@
       unmapped: ['neutral', 'NO MAP', 'FEMA has no digital flood map for this spot.']
     }[f.level] || ['neutral', 'CHECK', ''];
     const bfe = f.bfe !== null && f.bfe !== undefined ? ` Base flood elevation ${f.bfe} ft.` : '';
-    return row({ ic: 'flood', tone: t[0], k: 'FEMA flood zone', v: esc(f.label), note: `${esc(t[2] + bfe)} · ${link}`, badge: t[1] });
+    return row({ ic: 'flood', tone: t[0], k: 'FEMA flood zone', v: esc(f.level === 'unverified' ? 'Map coverage unverified' : f.label), note: `${esc(t[2] + bfe)} · ${link}`, badge: t[1] });
   }
 
   // FEMA National Risk Index, census tract: which weather hazards rate higher here than in most of the U.S.
@@ -217,7 +217,7 @@
     el.innerHTML = `<div class="g-head"><h3>Your surroundings at a glance</h3><p class="g-sub">Four starting points. Open each source note before drawing a conclusion.</p></div><ul class="g-list">${railRow(state)}${roadRow(state)}${noiseRow(state)}${floodRow(state)}</ul><nav class="g-jump" aria-label="Jump to report section"><a href="#propertyMap" data-glance="map">Explore map ↓</a><a href="#paneRail" data-glance="pane">Rail details</a><a href="#paneRoad" data-glance="pane">Road details</a><a href="#topicliving" data-glance="living">Nearby facilities</a></nav>`;
     const insights = document.getElementById('mapInsights');
     if (insights) {
-      insights.innerHTML = `<div class="insight-head"><span class="panel-kicker">READ THE MAP</span><h3>Key takeaways</h3><p>Distances start at your approximate property pin.</p></div>${nearList(state)}<details class="more-findings"><summary>Crossings, horns &amp; other checks</summary><ul class="g-list">${crossingRows(state.report)}${hazardRow(state)}${nightRow(state)}${siteRow(state)}</ul></details><p class="insight-note">ⓘ Public records and modeled estimates are not a measurement at this home. Confirm the pin and visit at different times.</p>`;
+      insights.innerHTML = `<div class="insight-head"><span class="panel-kicker">READ THE MAP</span><h3>Key takeaways</h3><p>Distances start at your approximate property pin.</p></div><p class="insight-crossings">${(state.report.crossings || []).length} crossing records returned within 3.25 mi. Open the rail details for counts and source years.</p>${nearList(state)}<details class="more-findings"><summary>Crossings, horns &amp; other checks</summary><ul class="g-list">${crossingRows(state.report)}${hazardRow(state)}${nightRow(state)}${siteRow(state)}</ul></details><p class="insight-note">ⓘ Public records and modeled estimates are not a measurement at this home. Confirm the pin and visit at different times.</p>`;
       if (!insights.dataset.bound) { insights.addEventListener('click', onClick); insights.dataset.bound = '1'; }
     }
     updateSummaries(state);

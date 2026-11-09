@@ -70,3 +70,6 @@
 @media(max-width:360px){.home .brand{font-size:15px}.home-nav a{font-size:10px}.home .hero h1{font-size:29px}.home .results{padding:0 8px}.report-main{padding:11px}.home .g-row{padding:9px}.home .g-v{font-size:13px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.home *{transition:none!important}}
 @media print{.dashboard-heading,.report-sidebar-nav,.report-sidebar-note,.report-meta,.home .g-jump,.home .report-actionbar{display:none!important}.home .report-workspace,.home #topicContent{display:block}.home .g-source[open] .g-note{display:block}.home .g-source>summary{display:none}.home .g-source>.g-note{display:block!important}.home .report-glance>.g-list{grid-template-columns:1fr 1fr}.home .g-row{break-inside:avoid}.home .print-sheet .g-list{grid-template-columns:1fr 1fr}.home .print-sheet .g-row{padding:6px;border:0!important}.home .print-sheet .g-source{margin-top:3px}.home .print-sheet .g-note{font-size:8px}}
+
+.home #topicContent>.ctx-more{grid-column:1/-1}.insight-crossings{font-size:11px;line-height:1.6;padding:12px 14px;margin:0;background:#fff;border:1px solid var(--line)}
+@media(max-width:760px){.home #topicContent>.ctx-more{order:3;width:100%}}
