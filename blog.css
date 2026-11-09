@@ -1,7 +1,9 @@
 /* Rail & Road Watch (blog) — on top of guide-v2.css */
 .post-byline{font-size:13px;color:#c9d4ee;margin:-6px 0 0;font-weight:600}
 .post-body .post-table{overflow-x:auto;margin:14px 0 6px;border:1px solid var(--line);border-radius:12px}
-.post-body .post-table table{display:table;width:100%;min-width:520px;font-size:14px}
+.post-body .post-table table{display:table;width:100%;font-size:14px}
+.post-body .post-table th,.post-body .post-table td{white-space:normal}
+@media(max-width:600px){.post-body .post-table table{font-size:13px}.post-body .post-table th,.post-body .post-table td{padding:9px 8px}}
 .post-body .post-table th{background:var(--soft);font-size:12.5px;text-transform:none;color:#44506a}
 .post-body .post-table td:first-child{font-weight:600;color:var(--ink)}
 .post-body ol li{margin-bottom:10px}
