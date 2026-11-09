@@ -20,11 +20,15 @@ jobs:
       - name: Submit sitemap URLs
         run: |
           python3 - <<'PY'
-          import json, re, urllib.request
+          import json, re, urllib.request, urllib.error
           urls = re.findall(r'<loc>([^<]+)</loc>', open('sitemap.xml').read())
           body = json.dumps({"host": "railroad-home-check.vercel.app", "key": "4404fff1bc3019e0aaecfdd423e3acac",
                              "keyLocation": "https://railroad-home-check.vercel.app/4404fff1bc3019e0aaecfdd423e3acac.txt", "urlList": urls}).encode()
-          req = urllib.request.Request("https://api.indexnow.org/indexnow", data=body, headers={"Content-Type": "application/json; charset=utf-8"})
-          with urllib.request.urlopen(req, timeout=60) as r:
-              print("IndexNow", r.status, len(urls), "urls")
+          for ep in ["https://www.bing.com/indexnow", "https://api.indexnow.org/indexnow"]:
+              req = urllib.request.Request(ep, data=body, headers={"Content-Type": "application/json; charset=utf-8"})
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as r:
+                      print(ep, r.status, len(urls), "urls", r.read()[:300])
+              except urllib.error.HTTPError as e:
+                  print(ep, e.code, e.read()[:500])
           PY
