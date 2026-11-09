@@ -31,7 +31,7 @@ test('FEMA provider JSON errors never become successful empty risk results',asyn
  await mocked(async()=>Response.json({error:{code:500}}),async()=>{const r=response();await risk({method:'GET',query:{lat:38.9,lon:-77}},r);assert.equal(r.statusCode,502);});
 });
 test('non-object request bodies return 400 without provider requests',async()=>{
- await mocked(()=>{throw Error('Unexpected source call')},async()=>{for(const handler of [geocode,autocomplete,roadnames])for(const body of ['null','[]','123']){const r=response();await handler({method:'POST',body},r);assert.equal(r.statusCode,400)}});
+ await mocked(()=>{throw Error('Unexpected source call')},async()=>{for(const handler of [geocode,autocomplete,roadnames])for(const body of [null,[],123,'null','[]','123']){const r=response();await handler({method:'POST',body},r);assert.equal(r.statusCode,400)}});
 });
 test('Census no-match uses a house-level US fallback',async()=>{
  let calls=0;await mocked(async()=>++calls===1?Response.json({result:{addressMatches:[]}}):Response.json({features:[{properties:{countrycode:'US',housenumber:'350',street:'5th Avenue'},geometry:{coordinates:[-73.98,40.74]}}]}),async()=>{const r=response();await geocode({method:'POST',body:{address:'350 5th Avenue, New York, NY'}},r);assert.equal(r.statusCode,200);assert.equal(r.data.source,'photon');});

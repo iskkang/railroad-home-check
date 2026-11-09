@@ -5,7 +5,7 @@ const TIGER = 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Tra
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return res.status(405).json({ error: 'Use POST.' }); }
-  let body = req.body || {};
+  let body = (req.body === undefined ? {} : req.body);
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch { return res.status(400).json({ error: 'Invalid JSON.' }); } }
   if (!body || typeof body !== 'object' || Array.isArray(body)) return res.status(400).json({error:'Expected a JSON object.'});
   const pts = Array.isArray(body.pts) ? body.pts.slice(0, 15) : [];

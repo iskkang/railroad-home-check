@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed. Use POST.' });
   }
 
-  let body = req.body || {};
+  let body = (req.body === undefined ? {} : req.body);
   if (typeof body === 'string') {
     try {
       body = JSON.parse(body);
