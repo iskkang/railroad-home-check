@@ -5,7 +5,6 @@ const statusBox = document.getElementById('status');
 const results = document.getElementById('results');
 let currentReport = null;
 let propertyMap = null;
-const shortlist = [];
 
 const $ = (id) => document.getElementById(id);
 
@@ -39,7 +38,7 @@ form.addEventListener('submit', async (event) => {
     }
     setStatus('Checking nearby FRA grade-crossing records…');
     const report = await fetchJSON(`/api/crossings?lat=${geo.lat}&lon=${geo.lon}`);
-    renderReport({ ...report, lat: geo.lat, lon: geo.lon, matchedAddress: geo.matchedAddress || address, locationConfirmed: validSelectedPoint(chosenLocation), requestedAt: new Date().toISOString() });
+    renderReport({ ...report, lat: geo.lat, lon: geo.lon, matchedAddress: geo.matchedAddress || address, locationConfirmed: chosenLocation?.source === 'Confirmed map point', requestedAt: new Date().toISOString() });
     trackEvent('property_check_completed');
     statusBox.classList.add('hidden');
     results.classList.remove('hidden');
@@ -225,54 +224,13 @@ $('compareAnother').addEventListener('click', () => {
   form.scrollIntoView({ behavior: 'smooth', block: 'center' });
   addressInput.focus({ preventScroll: true });
 });
-$('clearComparison').addEventListener('click', () => { shortlist.length = 0; renderComparison(); });
-$('addCompare').addEventListener('click', () => {
-  if (!currentReport) return;
-  if (shortlist.some(r => r.matchedAddress === currentReport.matchedAddress)) {
-    $('actionStatus').textContent = 'This address is already in your comparison.';
-    return;
-  }
-  if (shortlist.length >= 3) {
-    $('actionStatus').textContent = 'Your comparison has three homes. Remove one below to add another.';
-    $('comparison').scrollIntoView({ behavior: 'smooth' });
-    return;
-  }
-  shortlist.push(currentReport);
-  renderComparison();
-  trackEvent('property_added_to_comparison');
-  $('actionStatus').textContent = 'Added to comparison. Check another address to build your shortlist.';
-  $('comparison').scrollIntoView({ behavior: 'smooth', block: 'start' });
+$('addCompare').addEventListener('click', () => { if (currentReport) globalThis.ShortlistUI?.save(currentReport); });
+window.addEventListener('shortlist-refresh', event => {
+  const item=event.detail;
+  if(button.disabled||!item)return;
+  chosenLocation={lat:item.lat,lon:item.lon,label:item.address,source:'Saved approximate location'};
+  addressInput.value=item.address;cancelSuggestions();form.requestSubmit();
 });
-function renderComparison() {
-  $('comparison').classList.toggle('hidden', shortlist.length === 0);
-  const table = document.createElement('table');
-  const header = document.createElement('tr');
-  const label = document.createElement('th'); label.textContent = 'Nearest crossing facts'; label.scope = 'col'; header.append(label);
-  shortlist.forEach((report, i) => {
-    const cell = document.createElement('th'); cell.scope = 'col';
-    const name = document.createElement('p'); name.textContent = report.matchedAddress; cell.append(name);
-    const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'text-button'; remove.textContent = 'Remove';
-    remove.setAttribute('aria-label', `Remove ${report.matchedAddress}`);
-    remove.addEventListener('click', () => { shortlist.splice(i, 1); renderComparison(); }); cell.append(remove); header.append(cell);
-  });
-  const head = document.createElement('thead'); head.append(header); table.append(head);
-  const body = document.createElement('tbody');
-  const fields = [
-    ['Crossing distance (not tracks)', c => `${c.distanceMiles.toFixed(2)} mi`],
-    ['Night movements · 6 PM–6 AM', c => numberOrDash(c.nightTrains)],
-    ['Day movements · 6 AM–6 PM', c => numberOrDash(c.dayTrains)],
-    ['Train-count year', c => c.trainCountYear || 'Not reported'],
-    ['Quiet-zone status', c => c.quietZone?.label || 'Not reported'],
-    ['Crossing street', c => c.street || 'Not reported'],
-    ['Railroad', c => c.railroadName || c.railroadCode || 'Not reported']
-  ];
-  fields.forEach(([name, format]) => {
-    const row = document.createElement('tr'); const th = document.createElement('th'); th.scope = 'row'; th.textContent = name; row.append(th);
-    shortlist.forEach(report => { const td = document.createElement('td'); td.textContent = report.crossings?.[0] ? format(report.crossings[0]) : 'No crossing returned'; row.append(td); });
-    body.append(row);
-  });
-  table.append(body); $('comparisonTable').replaceChildren(table);
-}
 $('shareReport').addEventListener('click', async () => {
   if (!currentReport) return;
   const url = new URL(location.pathname, location.origin);
@@ -600,6 +558,7 @@ $('loadMap').addEventListener('click',()=>{
 });
 function updateRailOverview(report,meters) {
   if(currentReport!==report)return;
+  report.railMeters=meters;
   $('overviewRail').textContent=Number.isFinite(meters)&&meters<=5230.368 ? (meters<160.9344?Math.round(meters/0.3048)+' ft':(meters/1609.344).toFixed(2)+' mi') : 'None returned';
   $('overviewRailNote').textContent='Mapped centerline · Approximate distance';
   globalThis.ReportGlance?.rail(report,meters);
@@ -607,6 +566,7 @@ function updateRailOverview(report,meters) {
 function updateRoadOverview(report,rows) {
   if(currentReport!==report)return;
   const nearest=rows[0];
+  report.roadSummary=nearest?{aadt:Number(nearest.a.AADT),meters:nearest.meters,year:nearest.a.DATA_YEAR||null,name:nearest.name}:null;
   $('overviewRoad').closest('.overview-card').style.borderTopColor=trafficVolumeBand(nearest?.a.AADT).color;
   $('overviewRoad').textContent=nearest ? Number(nearest.a.AADT).toLocaleString('en-US') : 'Not reported';
   $('overviewRoadNote').textContent=nearest ? 'vehicles/day · '+(nearest.a.DATA_YEAR||'Year unknown')+' · '+nearest.name : 'No counts returned within 1 mi';

@@ -45,7 +45,7 @@
   <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/guides.css" />
-  <link rel="stylesheet" href="/home.css?v=20261110-dashboard4" />
+  <link rel="stylesheet" href="/home.css?v=20261110-shortlist1" />
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -116,7 +116,7 @@
         </div>
         <button type="submit" id="searchButton">Check this address</button>
       </form><ul id="addressSuggestions" role="listbox" class="hidden address-suggestions" aria-label="Address candidates"></ul></div>
-      <div class="hero-alt"><button type="button" id="tryExample" class="text-button">Try Santa Ana, CA →</button><button type="button" id="chooseOnMap" class="text-button">Pick on map</button></div>
+      <div class="hero-alt"><button type="button" id="tryExample" class="text-button">Try Santa Ana, CA →</button><button type="button" id="chooseOnMap" class="text-button">Pick on map</button><button type="button" id="openShortlist" class="text-button hidden">Saved homes</button></div>
       <p id="addressHelp" class="small-note" role="status">Choose a candidate, enter a full U.S. address, or position a pin on the map.</p>
       <div class="microcopy" id="privacyNote">Suggestions use Photon/OpenStreetMap as you type. Searches use Census, ArcGIS and OpenStreetMap. Shared links include the address and coordinates.</div>
       <section id="locationPicker" class="panel hidden location-picker" aria-label="Choose property location">
@@ -143,7 +143,7 @@
       <aside class="report-sidebar" aria-label="Report navigation and actions">
       <div class="report-sidebar-label">PROPERTY REPORT</div>
       <div class="result-heading"><div><div class="eyebrow">YOUR SURROUNDINGS REPORT</div><h2 id="resultAddress"></h2><p class="small-note">A clearer view of nearby roads and rail. Reported data, with dates and sources.</p></div><div id="attentionBadge" class="attention-badge"></div></div>
-      <div class="report-actions compact-actions"><button type="button" id="addCompare" class="action-button">Compare</button><button type="button" id="shareReport" class="action-button secondary">Share address</button><button type="button" id="printReport" class="action-button secondary">Print / PDF</button><span class="small-note">Shared links include the address and coordinates.</span></div>
+      <div class="report-actions compact-actions"><button type="button" id="addCompare" class="action-button">Save home</button><button type="button" id="shareReport" class="action-button secondary">Share address</button><button type="button" id="printReport" class="action-button secondary">Print / PDF</button><span class="small-note">Shared links include the address and coordinates.</span></div>
       <p id="actionStatus" role="status" class="small-note"></p><input id="shareLink" class="hidden share-link" readonly aria-label="Copyable property report link" />
       <nav class="report-sidebar-nav" aria-label="Jump to report sections"><a href="#glancePanel">Report overview</a><a href="#propertyMap">View on map</a><a href="#paneRail">Railroads &amp; crossings</a><a href="#paneRoad">Traffic &amp; roads</a><a href="#reportDetailsHeading">Detailed findings</a></nav>
       <div class="report-sidebar-note"><strong>Check the map pin</strong><span>Geocoded coordinates and public records are approximate. Verify the location before relying on this report.</span></div>
@@ -246,8 +246,9 @@
     </section>
 
     <section id="comparison" class="comparison-section hidden" aria-labelledby="compareTitle">
-      <div class="eyebrow">YOUR SHORTLIST</div><h2 id="compareTitle">Compare the facts. Visit the homes.</h2>
-      <p class="small-note">Up to three properties in this tab. Refreshing clears your shortlist. Counts describe each home's nearest reported crossing, not total trains around the home; the same trains may pass several crossings.</p>
+      <div class="eyebrow">YOUR SHORTLIST</div><h2 id="compareTitle">Compare your shortlisted homes.</h2>
+      <p class="small-note">Save up to three candidates on this browser. Keep original listing links, compare the reported surroundings, and save a viewing checklist. These records describe different source locations and years; they do not rank which home is better.</p>
+      <p id="shortlistStatus" class="small-note hidden" role="status"></p><div id="savedHomes" class="saved-homes"></div>
       <div id="comparisonTable" class="table-scroll" tabindex="0" aria-label="Property comparison"></div>
       <div class="report-actions"><button type="button" id="compareAnother" class="action-button">Check another address</button><button type="button" id="clearComparison" class="action-button secondary">Clear comparison</button></div>
     </section>
@@ -325,7 +326,7 @@
   </main>
 
   <footer>
-    <p><strong>Address privacy:</strong> Typed suggestions use Photon/OpenStreetMap; full-address searches may use the U.S. Census Geocoder. Comparisons stay in this tab’s memory. Shared links include the address and coordinates; maps and data providers receive the requested area or coordinates. We do not store addresses in a database or use them for marketing.</p>
+    <p><strong>Address privacy:</strong> Typed suggestions use Photon/OpenStreetMap; full-address searches may use the U.S. Census Geocoder. Saved candidates, listing links and viewing checklists stay in this browser until you remove them or clear site data; they do not sync between devices. Shared links include the address and coordinates; maps and data providers receive the requested area or coordinates. We do not store addresses in a database or use them for marketing.</p>
     <p><strong>Analytics:</strong> We use Google Analytics, which may use cookies, to measure aggregate site traffic and property-check completion rates. Property addresses are not sent in Analytics events.</p>
     <p>Data includes USDOT/FRA, FHWA road traffic records, OpenStreetMap, FAA/BTS and EPA sources. Municipal report layers currently cover New York City only. This site is an independent informational tool and is not affiliated with the FRA, DOT, a railroad, a real-estate broker, or a home inspector.</p>
     <p>Not a noise measurement, safety certification, appraisal, or substitute for on-site due diligence.</p>
@@ -339,9 +340,16 @@
     </nav>
   </footer>
 
+  <dialog id="saveHomeDialog" aria-labelledby="saveHomeTitle" aria-describedby="saveHomePrivacy"><form id="saveHomeForm">
+    <h2 id="saveHomeTitle">Save this home</h2><p id="saveHomeAddress"></p>
+    <label for="homeListingUrl">Original listing link · optional</label><input id="homeListingUrl" type="url" maxlength="2048" placeholder="https://…" autocomplete="off">
+    <p id="saveHomePrivacy" class="small-note">Saved only on this browser, not synced to other devices. Reports are snapshots. Listing links are not fetched automatically.</p>
+    <p id="saveHomeError" role="alert"></p><div class="save-dialog-actions"><button type="button" id="cancelSaveHome">Cancel</button><button type="submit">Save candidate</button></div>
+  </form></dialog>
+  <script src="/shortlist.js?v=20261110-shortlist1" defer></script>
   <script src="/vendor/leaflet/leaflet.js" defer></script>
   <script src="/rail-map.js" defer></script>
-  <script src="/report-glance.js?v=20261110-dashboard4" defer></script>
-  <script src="/app.js?v=20261110-dashboard4" defer></script>
+  <script src="/report-glance.js?v=20261110-shortlist1" defer></script>
+  <script src="/app.js?v=20261110-shortlist1" defer></script>
 </body>
 </html>

@@ -73,3 +73,28 @@
 
 .home #topicContent>.ctx-more{grid-column:1/-1}.insight-crossings{font-size:11px;line-height:1.6;padding:12px 14px;margin:0;background:#fff;border:1px solid var(--line)}
 @media(max-width:760px){.home #topicContent>.ctx-more{order:3;width:100%}}
+
+/* Saved candidates: editable prices, comparable source facts, and viewing tasks. */
+.home .comparison-section{max-width:1384px;padding:24px;margin:24px auto 40px;border:1px solid var(--line);background:#fff;border-radius:18px}
+.home .saved-homes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}
+.home .saved-home{min-width:0;border:1px solid var(--line);border-radius:14px;padding:18px;background:#f8fbff}
+.home .saved-home h3{font-size:15px;line-height:1.5;margin:0 0 12px;overflow-wrap:anywhere}
+.home .saved-home .small-note{font-size:11px;line-height:1.6}
+.home .saved-home>a{font-size:12px;color:var(--accent)}
+.home .saved-actions{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.home .saved-actions button{font-family:inherit;font-size:11px;font-weight:650;border:1px solid var(--line);border-radius:8px;min-height:40px;padding:8px;background:#fff;color:#245787;cursor:pointer}
+.home .visit-checklist{padding:12px 0 0;border:0;border-top:1px solid var(--line);margin:14px 0 0}
+.home .visit-checklist legend{font-size:12px;font-weight:750;padding:0 8px 0 0}
+.home .visit-checklist label{display:flex;align-items:flex-start;gap:9px;margin:8px 0;padding:5px 0;font-size:11px;line-height:1.6;cursor:pointer}
+.home .visit-checklist input{width:18px;height:18px;flex:none;accent-color:var(--accent);margin:2px 0}
+.home #comparisonTable{max-width:100%;margin:20px 0}
+.home #comparisonTable th,.home #comparisonTable td{font-size:12px;line-height:1.6;min-width:170px;padding:14px;overflow-wrap:anywhere}
+.home #shortlistStatus{padding:12px;background:#edf5ff;color:#315d89;border-radius:10px}
+#saveHomeDialog{box-sizing:border-box;width:min(480px,calc(100% - 28px));max-height:calc(100dvh - 32px);overflow:auto;border:1px solid #dce6f0;border-radius:18px;padding:24px;color:#102440;background:#fff;box-shadow:0 20px 90px #10244040;font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+#saveHomeDialog::backdrop{background:#10244088;backdrop-filter:blur(3px)}
+#saveHomeDialog h2{font-size:23px;margin:0 0 10px}#saveHomeAddress{font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+#saveHomeDialog label{display:block;font-size:12px;font-weight:700;margin:18px 0 7px}
+#saveHomeDialog input{box-sizing:border-box;display:block;width:100%;height:48px;border:1px solid #bccde0;border-radius:10px;padding:0 12px;font-family:inherit;font-size:16px;background:#f8fbff;color:#102440}
+#saveHomeDialog .small-note{font-size:11px;line-height:1.6;color:#52677e;margin-top:14px}#saveHomeError{color:#a52d18;font-size:12px}
+.save-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.save-dialog-actions button{min-height:44px;padding:10px 16px;border-radius:10px;border:1px solid #dce6f0;background:#fff;color:#102440;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}.save-dialog-actions button[type=submit]{background:#0966d6;color:#fff;border-color:#0966d6}
+@media(max-width:760px){.home .comparison-section{padding:16px;margin:16px 12px 30px}.home .saved-homes{grid-template-columns:1fr}.home .saved-home{padding:15px}.home .saved-actions button{min-height:44px}.home #comparisonTable th,.home #comparisonTable td{min-width:160px;font-size:11px;padding:12px}#saveHomeDialog{padding:20px}}

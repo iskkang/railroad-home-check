@@ -221,6 +221,7 @@
       if (!insights.dataset.bound) { insights.addEventListener('click', onClick); insights.dataset.bound = '1'; }
     }
     updateSummaries(state);
+    globalThis.ShortlistUI?.sync(state.report);
   }
 
   // One-line result in each collapsed "Look closer" section, so the sections can stay closed.
@@ -282,7 +283,7 @@
     bar.className = 'report-actionbar';
     bar.setAttribute('role', 'region');
     bar.setAttribute('aria-label', 'Report actions');
-    bar.innerHTML = '<button type="button" data-for="addCompare">Compare</button><button type="button" data-for="shareReport">Share</button><button type="button" data-for="printReport" class="primary">Save PDF</button>';
+    bar.innerHTML = '<button type="button" data-for="addCompare">Save home</button><button type="button" data-for="shareReport">Share</button><button type="button" data-for="printReport" class="primary">Save PDF</button>';
     bar.addEventListener('click', e => { const b = e.target.closest('button[data-for]'); if (b) document.getElementById(b.dataset.for)?.click(); });
     document.body.append(bar);
   }
