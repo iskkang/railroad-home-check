@@ -35,6 +35,9 @@
     },
     "api/risk.js": {
       "maxDuration": 15
+    },
+    "api/noise.js": {
+      "maxDuration": 15
     }
   }
 }

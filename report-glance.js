@@ -50,7 +50,8 @@
     moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/>',
     flood: '<path d="M3 15c2 0 2-1.5 4.5-1.5S9.5 15 12 15s2.5-1.5 4.5-1.5S19 15 21 15"/><path d="M3 19.5c2 0 2-1.5 4.5-1.5s2 1.5 4.5 1.5 2.5-1.5 4.5-1.5 2.5 1.5 4.5 1.5"/><path d="M12 3 7.5 9.5a4.5 4.5 0 0 0 9 0Z"/>',
     hazard: '<path d="M12 2v2M4.9 4.9l1.4 1.4M2 12h2M19.1 4.9l-1.4 1.4M22 12h-2"/><path d="M8 12a4 4 0 0 1 8 0"/><path d="M6 17h12M8 21h8"/>',
-    site: '<path d="M3 21V9l6 4V9l6 4V5h6v16Z"/>'
+    site: '<path d="M3 21V9l6 4V9l6 4V5h6v16Z"/>',
+    noise: '<path d="M3 10v4"/><path d="M7 7v10"/><path d="M11 4v16"/><path d="M15 8v8"/><path d="M19 10v4"/>'
   };
   const icon = n => `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
 
@@ -134,6 +135,32 @@
     return row({ ic: 'hazard', tone: high.length ? 'warn' : 'ok', k: 'Weather & natural hazards', v: esc(v), note: `${esc(note)}<br><span class="g-why">FEMA National Risk Index, census tract ${esc(h.tract)}. Ratings compare risk with other U.S. tracts; they are not an insurance or flood determination.</span>`, badge: high.length ? `${high.length} HIGHER` : 'LOWER' });
   }
 
+  // USDOT/BTS National Transportation Noise Map 2020: modeled 24-hour average (LAeq) outdoors, by legend band.
+  const NOISE_LEVEL = [
+    ['ok', 'QUIET', 'Quiet', 'Nothing modeled at 45 dB or louder from roads, rail or aircraft'],
+    ['ok', 'LOW', 'Low', 'Background level, around the hum of a refrigerator'],
+    ['ok', 'LOW', 'Low', 'Background level, around the hum of a refrigerator'],
+    ['neutral', 'MODERATE', 'Moderate', 'Noticeable outdoors; at or above the 55 dB outdoor level in EPA\'s 1974 noise guidance'],
+    ['warn', 'LOUD', 'Loud', 'Typical next to a busy road or active rail line'],
+    ['warn', 'VERY LOUD', 'Very loud', 'Typical right beside a highway, rail yard or airport'],
+    ['warn', 'VERY LOUD', 'Very loud', 'Typical right beside a highway, rail yard or airport'],
+    ['warn', 'VERY LOUD', 'Very loud', 'Typical right beside a highway, rail yard or airport']
+  ];
+  function noiseRow(s) {
+    const n = s.noise, K = 'Transportation noise';
+    if (n === undefined) return row({ ic: 'noise', tone: 'neutral', k: K, v: 'Checking…' });
+    if (n === 'error') return row({ ic: 'noise', tone: 'neutral', k: K, v: 'Unavailable', note: 'The USDOT noise map did not respond', badge: 'RETRY LATER' });
+    if (!n.region || !n.all) return row({ ic: 'noise', tone: 'neutral', k: K, v: 'Not covered', note: 'The USDOT noise map does not cover this location' });
+    const L = NOISE_LEVEL[n.all.band] || NOISE_LEVEL[0];
+    const src = [['Road', n.road], ['Rail', n.rail], ['Aircraft', n.aviation]].filter(([, x]) => x);
+    const top = Math.max(...src.map(([, x]) => x.band));
+    const from = top > 0 ? ` · mostly ${src.filter(([, x]) => x.band === top).map(([k]) => k.toLowerCase()).join(' and ')}` : '';
+    const v = n.all.band ? `${n.all.label} average · ${L[2]}${from}` : 'Below 45 dB average · Quiet';
+    const parts = src.map(([k, x]) => `${k}: ${x.band ? x.label : 'below 45 dB'}`).join(' · ');
+    const why = `USDOT 2020 noise map: a modeled 24-hour average outdoors on a ~30 m grid. Short events such as horns or flyovers are averaged in, so peaks are much louder. Not a measurement at this home.`;
+    return row({ ic: 'noise', tone: L[0], k: K, v: esc(v), note: `${esc(L[3])}. ${esc(parts)}<br><span class="g-why">${esc(why)}</span>`, badge: L[1] });
+  }
+
   function roadRow(s) {
     if (s.roads === undefined) return row({ ic: 'road', tone: 'neutral', k: 'Nearest counted road', v: 'Checking…' });
     if (s.roads === 'error') return row({ ic: 'road', tone: 'neutral', k: 'Nearest counted road', v: 'Unavailable', note: 'Retry under Road traffic' });
@@ -186,7 +213,7 @@
   function render() {
     if (!state) return;
     const el = panel();
-    el.innerHTML = `<div class="g-head"><h3>At a glance</h3><p class="g-sub">Each line is a different source, place and year — not a combined noise or safety score.</p></div><ul class="g-list">${railRow(state)}${crossingRows(state.report)}${floodRow(state)}${hazardRow(state)}${roadRow(state)}${nightRow(state)}${siteRow(state)}</ul>${nearList(state)}<nav class="g-jump" aria-label="Jump to report section"><a href="#paneRail" data-glance="pane">Rail</a><a href="#paneRoad" data-glance="pane">Roads</a><a href="#paneHourly" data-glance="pane">At night</a><a href="#topicliving" data-glance="living">Nearby sites</a><a href="#propertyMap" data-glance="map">Map</a></nav>`;
+    el.innerHTML = `<div class="g-head"><h3>At a glance</h3><p class="g-sub">Each line is a different source, place and year — not a single overall score.</p></div><ul class="g-list">${railRow(state)}${crossingRows(state.report)}${noiseRow(state)}${floodRow(state)}${hazardRow(state)}${roadRow(state)}${nightRow(state)}${siteRow(state)}</ul>${nearList(state)}<nav class="g-jump" aria-label="Jump to report section"><a href="#paneRail" data-glance="pane">Rail</a><a href="#paneRoad" data-glance="pane">Roads</a><a href="#paneHourly" data-glance="pane">At night</a><a href="#topicliving" data-glance="living">Nearby sites</a><a href="#propertyMap" data-glance="map">Map</a></nav>`;
     updateSummaries(state);
   }
 
@@ -266,7 +293,7 @@
     el.innerHTML = `<header class="ps-head"><div><div class="ps-brand">Home Surroundings Check</div><h1>${esc(r.matchedAddress || '')}</h1></div><div class="ps-date">Summary · ${esc(date)}<br>railroad-home-check.vercel.app</div></header>
       <div class="ps-map" id="printSheetMap"></div>
       <div class="ps-key"><span><i class="cat-dot cat-night"></i>Night trains</span><span><i class="cat-dot cat-qz"></i>Quiet zone</span><span><i class="cat-dot cat-day"></i>Daytime only</span><span><i class="cat-dot cat-none"></i>No count</span><span><i class="horn-key"></i>Horn zone (¼ mi)</span></div>
-      <ul class="g-list ps-list">${railRow(s)}${crossingRows(r)}${floodRow(s)}${hazardRow(s)}${roadRow(s)}${nightRow(s)}${(s.report.nearbyContext?.responses?.facilities || s.report.nearbyContext?.responses?.epa) ? siteRow(s) : ''}</ul>
+      <ul class="g-list ps-list">${railRow(s)}${crossingRows(r)}${noiseRow(s)}${floodRow(s)}${hazardRow(s)}${roadRow(s)}${nightRow(s)}${(s.report.nearbyContext?.responses?.facilities || s.report.nearbyContext?.responses?.epa) ? siteRow(s) : ''}</ul>
       ${nearList(s)}
       <footer class="ps-foot">Sources: FRA Crossing Inventory (Form 71), FHWA HPMS road counts, FEMA National Flood Hazard Layer, OpenStreetMap. Reported data with its own dates; not a noise measurement, flood determination, appraisal or inspection. Distances are straight-line from an approximate geocoded point.</footer>`;
     el.querySelectorAll('.g-btn').forEach(b => b.remove());
@@ -350,11 +377,15 @@
 
   window.ReportGlance = {
     start(report) {
-      state = { report, rail: undefined, roads: undefined, night: undefined, flood: undefined, hazard: undefined };
+      state = { report, rail: undefined, roads: undefined, night: undefined, flood: undefined, hazard: undefined, noise: undefined };
       fetch(`/api/risk?lat=${encodeURIComponent(report.lat)}&lon=${encodeURIComponent(report.lon)}`, { signal: AbortSignal.timeout(15000) })
         .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
         .then(d => { report.hazard = d; if (state?.report === report) { state.hazard = d; render(); } })
         .catch(() => { report.hazard = 'error'; if (state?.report === report) { state.hazard = 'error'; render(); } });
+      fetch(`/api/noise?lat=${encodeURIComponent(report.lat)}&lon=${encodeURIComponent(report.lon)}`, { signal: AbortSignal.timeout(15000) })
+        .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+        .then(d => { report.noise = d; if (state?.report === report) { state.noise = d; render(); } })
+        .catch(() => { report.noise = 'error'; if (state?.report === report) { state.noise = 'error'; render(); } });
       fetch(`/api/flood?lat=${encodeURIComponent(report.lat)}&lon=${encodeURIComponent(report.lon)}`, { signal: AbortSignal.timeout(20000) })
         .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
         .then(d => { report.flood = d; if (state?.report === report) { state.flood = d; render(); } })
