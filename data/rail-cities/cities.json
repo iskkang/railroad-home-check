@@ -1,32 +1,2110 @@
 {
-  "fetchedOn": "2026-11-09",
-  "incidentWindow": { "from": "2021-01-01", "to": "2026-08-31" },
-  "filters": "Open (crossingclosed = No), at-grade (crossingpositioncode = 1), public (crossingtypecode = 3) crossings whose FRA inventory city code matches the city. Includes records reported as in or near the city.",
-  "cities": {
-    "houston-tx": { "code": "482013280", "name": "Houston", "st": "TX" },
-    "chicago-il": { "code": "170311670", "name": "Chicago", "st": "IL" },
-    "dallas-tx": { "code": "481131730", "name": "Dallas", "st": "TX" },
-    "san-antonio-tx": { "code": "480296090", "name": "San Antonio", "st": "TX" },
-    "fort-worth-tx": { "code": "484392450", "name": "Fort Worth", "st": "TX" },
-    "austin-tx": { "code": "484530330", "name": "Austin", "st": "TX" },
-    "los-angeles-ca": { "code": "060371980", "name": "Los Angeles", "st": "CA" },
-    "san-diego-ca": { "code": "060733260", "name": "San Diego", "st": "CA" },
-    "portland-or": { "code": "410511650", "name": "Portland", "st": "OR" },
-    "seattle-wa": { "code": "530331960", "name": "Seattle", "st": "WA" },
-    "salt-lake-city-ut": { "code": "490351700", "name": "Salt Lake City", "st": "UT" },
-    "denver-co": { "code": "080310600", "name": "Denver", "st": "CO" },
-    "phoenix-az": { "code": "040130370", "name": "Phoenix", "st": "AZ" },
-    "oklahoma-city-ok": { "code": "401093550", "name": "Oklahoma City", "st": "OK" },
-    "kansas-city-mo": { "code": "290954120", "name": "Kansas City", "st": "MO" },
-    "st-louis-mo": { "code": "295107080", "name": "St. Louis", "st": "MO" },
-    "memphis-tn": { "code": "471571620", "name": "Memphis", "st": "TN" },
-    "nashville-tn": { "code": "470371760", "name": "Nashville", "st": "TN" },
-    "new-orleans-la": { "code": "220711690", "name": "New Orleans", "st": "LA" },
-    "indianapolis-in": { "code": "180972210", "name": "Indianapolis", "st": "IN" },
-    "detroit-mi": { "code": "261631260", "name": "Detroit", "st": "MI" },
-    "charlotte-nc": { "code": "371190870", "name": "Charlotte", "st": "NC" },
-    "jacksonville-fl": { "code": "120311510", "name": "Jacksonville", "st": "FL" },
-    "tampa-fl": { "code": "120572950", "name": "Tampa", "st": "FL" },
-    "philadelphia-pa": { "code": "421016540", "name": "Philadelphia", "st": "PA" }
+ "fetchedOn": "2026-11-09",
+ "incidentWindow": {
+  "from": "2021-01-01",
+  "to": "2026-08-31"
+ },
+ "filters": "Open (crossingclosed = No), at-grade (crossingpositioncode = 1), public (crossingtypecode = 3) crossings whose FRA inventory city code matches the city. Includes records reported as in or near the city.",
+ "cities": {
+  "new-york-ny": {
+   "code": "360814170,360054170,360474170",
+   "name": "New York",
+   "st": "NY",
+   "pop": 8258035,
+   "center": "city"
+  },
+  "los-angeles-ca": {
+   "code": "060371980",
+   "name": "Los Angeles",
+   "st": "CA",
+   "pop": 3820914,
+   "center": "downtown"
+  },
+  "chicago-il": {
+   "code": "170311670",
+   "name": "Chicago",
+   "st": "IL",
+   "pop": 2664452,
+   "center": "downtown"
+  },
+  "houston-tx": {
+   "code": "483393280,481573280,482013280",
+   "name": "Houston",
+   "st": "TX",
+   "pop": 2314157,
+   "center": "downtown"
+  },
+  "phoenix-az": {
+   "code": "040130370",
+   "name": "Phoenix",
+   "st": "AZ",
+   "pop": 1650070,
+   "center": "downtown"
+  },
+  "philadelphia-pa": {
+   "code": "421016540",
+   "name": "Philadelphia",
+   "st": "PA",
+   "pop": 1550542,
+   "center": "downtown"
+  },
+  "san-antonio-tx": {
+   "code": "480296090",
+   "name": "San Antonio",
+   "st": "TX",
+   "pop": 1495295,
+   "center": "downtown"
+  },
+  "san-diego-ca": {
+   "code": "060733260",
+   "name": "San Diego",
+   "st": "CA",
+   "pop": 1388320,
+   "center": "downtown"
+  },
+  "dallas-tx": {
+   "code": "481211730,481131730,480851730",
+   "name": "Dallas",
+   "st": "TX",
+   "pop": 1302868,
+   "center": "downtown"
+  },
+  "jacksonville-fl": {
+   "code": "120311510",
+   "name": "Jacksonville",
+   "st": "FL",
+   "pop": 985843,
+   "center": "downtown"
+  },
+  "austin-tx": {
+   "code": "484910330,484530330",
+   "name": "Austin",
+   "st": "TX",
+   "pop": 979882,
+   "center": "downtown"
+  },
+  "fort-worth-tx": {
+   "code": "484392450",
+   "name": "Fort Worth",
+   "st": "TX",
+   "pop": 978468,
+   "center": "downtown"
+  },
+  "san-jose-ca": {
+   "code": "060853340",
+   "name": "San Jose",
+   "st": "CA",
+   "pop": 969655,
+   "center": "city"
+  },
+  "columbus-oh": {
+   "code": "390491800",
+   "name": "Columbus",
+   "st": "OH",
+   "pop": 913175,
+   "center": "city"
+  },
+  "charlotte-nc": {
+   "code": "371190870",
+   "name": "Charlotte",
+   "st": "NC",
+   "pop": 911311,
+   "center": "downtown"
+  },
+  "indianapolis-in": {
+   "code": "180972210",
+   "name": "Indianapolis",
+   "st": "IN",
+   "pop": 888578,
+   "center": "downtown"
+  },
+  "louisville-ky": {
+   "code": "211112090",
+   "name": "Louisville",
+   "st": "KY",
+   "pop": 772144,
+   "center": "city"
+  },
+  "seattle-wa": {
+   "code": "530331960",
+   "name": "Seattle",
+   "st": "WA",
+   "pop": 755078,
+   "center": "downtown"
+  },
+  "denver-co": {
+   "code": "080310600",
+   "name": "Denver",
+   "st": "CO",
+   "pop": 716577,
+   "center": "downtown"
+  },
+  "nashville-tn": {
+   "code": "470371760",
+   "name": "Nashville",
+   "st": "TN",
+   "pop": 712334,
+   "center": "downtown"
+  },
+  "oklahoma-city-ok": {
+   "code": "401093550,400173550,401253550",
+   "name": "Oklahoma City",
+   "st": "OK",
+   "pop": 702767,
+   "center": "downtown"
+  },
+  "el-paso-tx": {
+   "code": "481412190",
+   "name": "El Paso",
+   "st": "TX",
+   "pop": 678958,
+   "center": "city"
+  },
+  "detroit-mi": {
+   "code": "261631260",
+   "name": "Detroit",
+   "st": "MI",
+   "pop": 633218,
+   "center": "downtown"
+  },
+  "portland-or": {
+   "code": "410051650,410511650",
+   "name": "Portland",
+   "st": "OR",
+   "pop": 630498,
+   "center": "downtown"
+  },
+  "memphis-tn": {
+   "code": "471571620",
+   "name": "Memphis",
+   "st": "TN",
+   "pop": 618639,
+   "center": "downtown"
+  },
+  "baltimore-md": {
+   "code": "240050050,245100050",
+   "name": "Baltimore",
+   "st": "MD",
+   "pop": 565239,
+   "center": "city"
+  },
+  "milwaukee-wi": {
+   "code": "550793100",
+   "name": "Milwaukee",
+   "st": "WI",
+   "pop": 561385,
+   "center": "city"
+  },
+  "albuquerque-nm": {
+   "code": "350010030",
+   "name": "Albuquerque",
+   "st": "NM",
+   "pop": 560274,
+   "center": "city"
+  },
+  "tucson-az": {
+   "code": "040190530",
+   "name": "Tucson",
+   "st": "AZ",
+   "pop": 547239,
+   "center": "city"
+  },
+  "fresno-ca": {
+   "code": "060191370",
+   "name": "Fresno",
+   "st": "CA",
+   "pop": 545716,
+   "center": "city"
+  },
+  "sacramento-ca": {
+   "code": "060673150",
+   "name": "Sacramento",
+   "st": "CA",
+   "pop": 526384,
+   "center": "city"
+  },
+  "atlanta-ga": {
+   "code": "131210280",
+   "name": "Atlanta",
+   "st": "GA",
+   "pop": 510823,
+   "center": "city"
+  },
+  "kansas-city-mo": {
+   "code": "290474120,290954120",
+   "name": "Kansas City",
+   "st": "MO",
+   "pop": 510704,
+   "center": "downtown"
+  },
+  "omaha-ne": {
+   "code": "310553620",
+   "name": "Omaha",
+   "st": "NE",
+   "pop": 483335,
+   "center": "city"
+  },
+  "raleigh-nc": {
+   "code": "371833750",
+   "name": "Raleigh",
+   "st": "NC",
+   "pop": 482295,
+   "center": "city"
+  },
+  "miami-fl": {
+   "code": "120252010,120862010",
+   "name": "Miami",
+   "st": "FL",
+   "pop": 455924,
+   "center": "city"
+  },
+  "long-beach-ca": {
+   "code": "060371970",
+   "name": "Long Beach",
+   "st": "CA",
+   "pop": 449468,
+   "center": "city"
+  },
+  "oakland-ca": {
+   "code": "060012480",
+   "name": "Oakland",
+   "st": "CA",
+   "pop": 436504,
+   "center": "city"
+  },
+  "minneapolis-mn": {
+   "code": "270534760",
+   "name": "Minneapolis",
+   "st": "MN",
+   "pop": 425115,
+   "center": "city"
+  },
+  "bakersfield-ca": {
+   "code": "060290240",
+   "name": "Bakersfield",
+   "st": "CA",
+   "pop": 413381,
+   "center": "city"
+  },
+  "tulsa-ok": {
+   "code": "401434780,401134780",
+   "name": "Tulsa",
+   "st": "OK",
+   "pop": 411894,
+   "center": "city"
+  },
+  "tampa-fl": {
+   "code": "120572950",
+   "name": "Tampa",
+   "st": "FL",
+   "pop": 403364,
+   "center": "downtown"
+  },
+  "arlington-tx": {
+   "code": "484390260",
+   "name": "Arlington",
+   "st": "TX",
+   "pop": 398431,
+   "center": "city"
+  },
+  "wichita-ks": {
+   "code": "201735880",
+   "name": "Wichita",
+   "st": "KS",
+   "pop": 396119,
+   "center": "city"
+  },
+  "aurora-co": {
+   "code": "080010110,080050110",
+   "name": "Aurora",
+   "st": "CO",
+   "pop": 395052,
+   "center": "city"
+  },
+  "new-orleans-la": {
+   "code": "220711690",
+   "name": "New Orleans",
+   "st": "LA",
+   "pop": 364136,
+   "center": "downtown"
+  },
+  "cleveland-oh": {
+   "code": "390351680",
+   "name": "Cleveland",
+   "st": "OH",
+   "pop": 362656,
+   "center": "city"
+  },
+  "anaheim-ca": {
+   "code": "060590080",
+   "name": "Anaheim",
+   "st": "CA",
+   "pop": 340512,
+   "center": "city"
+  },
+  "orlando-fl": {
+   "code": "120952360",
+   "name": "Orlando",
+   "st": "FL",
+   "pop": 320742,
+   "center": "city"
+  },
+  "lexington-fayette-ky": {
+   "code": "210671980",
+   "name": "Lexington-Fayette",
+   "st": "KY",
+   "pop": 320154,
+   "center": "city"
+  },
+  "stockton-ca": {
+   "code": "060773770",
+   "name": "Stockton",
+   "st": "CA",
+   "pop": 319543,
+   "center": "city"
+  },
+  "riverside-ca": {
+   "code": "060653070",
+   "name": "Riverside",
+   "st": "CA",
+   "pop": 318858,
+   "center": "city"
+  },
+  "corpus-christi-tx": {
+   "code": "483551550",
+   "name": "Corpus Christi",
+   "st": "TX",
+   "pop": 316595,
+   "center": "city"
+  },
+  "cincinnati-oh": {
+   "code": "390611610",
+   "name": "Cincinnati",
+   "st": "OH",
+   "pop": 311097,
+   "center": "city"
+  },
+  "santa-ana-ca": {
+   "code": "060593420",
+   "name": "Santa Ana",
+   "st": "CA",
+   "pop": 310539,
+   "center": "city"
+  },
+  "newark-nj": {
+   "code": "340132130",
+   "name": "Newark",
+   "st": "NJ",
+   "pop": 304960,
+   "center": "city"
+  },
+  "st-paul-mn": {
+   "code": "271236330",
+   "name": "St. Paul",
+   "st": "MN",
+   "pop": 303820,
+   "center": "city"
+  },
+  "pittsburgh-pa": {
+   "code": "420036600",
+   "name": "Pittsburgh",
+   "st": "PA",
+   "pop": 303255,
+   "center": "city"
+  },
+  "greensboro-nc": {
+   "code": "370811940",
+   "name": "Greensboro",
+   "st": "NC",
+   "pop": 302296,
+   "center": "city"
+  },
+  "durham-nc": {
+   "code": "370631360",
+   "name": "Durham",
+   "st": "NC",
+   "pop": 296186,
+   "center": "city"
+  },
+  "lincoln-ne": {
+   "code": "311092830",
+   "name": "Lincoln",
+   "st": "NE",
+   "pop": 294757,
+   "center": "city"
+  },
+  "plano-tx": {
+   "code": "480855390",
+   "name": "Plano",
+   "st": "TX",
+   "pop": 290190,
+   "center": "city"
+  },
+  "anchorage-ak": {
+   "code": "020200130",
+   "name": "Anchorage",
+   "st": "AK",
+   "pop": 286075,
+   "center": "city"
+  },
+  "st-louis-mo": {
+   "code": "291897080,295107080",
+   "name": "St. Louis",
+   "st": "MO",
+   "pop": 281754,
+   "center": "downtown"
+  },
+  "madison-wi": {
+   "code": "550252780",
+   "name": "Madison",
+   "st": "WI",
+   "pop": 280305,
+   "center": "city"
+  },
+  "chandler-az": {
+   "code": "040130080",
+   "name": "Chandler",
+   "st": "AZ",
+   "pop": 280167,
+   "center": "city"
+  },
+  "buffalo-ny": {
+   "code": "360290750",
+   "name": "Buffalo",
+   "st": "NY",
+   "pop": 274678,
+   "center": "city"
+  },
+  "chula-vista-ca": {
+   "code": "060730710",
+   "name": "Chula Vista",
+   "st": "CA",
+   "pop": 274333,
+   "center": "city"
+  },
+  "fort-wayne-in": {
+   "code": "180031580",
+   "name": "Fort Wayne",
+   "st": "IN",
+   "pop": 269994,
+   "center": "city"
+  },
+  "lubbock-tx": {
+   "code": "483034140",
+   "name": "Lubbock",
+   "st": "TX",
+   "pop": 266878,
+   "center": "city"
+  },
+  "toledo-oh": {
+   "code": "390958120",
+   "name": "Toledo",
+   "st": "OH",
+   "pop": 265304,
+   "center": "city"
+  },
+  "laredo-tx": {
+   "code": "484793899",
+   "name": "Laredo",
+   "st": "TX",
+   "pop": 257602,
+   "center": "city"
+  },
+  "irving-tx": {
+   "code": "481133420",
+   "name": "Irving",
+   "st": "TX",
+   "pop": 254373,
+   "center": "city"
+  },
+  "chesapeake-va": {
+   "code": "515500468",
+   "name": "Chesapeake",
+   "st": "VA",
+   "pop": 253886,
+   "center": "city"
+  },
+  "glendale-az": {
+   "code": "040130200",
+   "name": "Glendale",
+   "st": "AZ",
+   "pop": 253855,
+   "center": "city"
+  },
+  "winston-salem-nc": {
+   "code": "370675120",
+   "name": "Winston-Salem",
+   "st": "NC",
+   "pop": 252975,
+   "center": "city"
+  },
+  "garland-tx": {
+   "code": "481132590",
+   "name": "Garland",
+   "st": "TX",
+   "pop": 243470,
+   "center": "city"
+  },
+  "boise-city-id": {
+   "code": "160010160",
+   "name": "Boise City",
+   "st": "ID",
+   "pop": 235421,
+   "center": "city"
+  },
+  "norfolk-va": {
+   "code": "517101760",
+   "name": "Norfolk",
+   "st": "VA",
+   "pop": 230930,
+   "center": "city"
+  },
+  "spokane-wa": {
+   "code": "530632110",
+   "name": "Spokane",
+   "st": "WA",
+   "pop": 229447,
+   "center": "city"
+  },
+  "richmond-va": {
+   "code": "517602060",
+   "name": "Richmond",
+   "st": "VA",
+   "pop": 229247,
+   "center": "city"
+  },
+  "huntsville-al": {
+   "code": "010891730",
+   "name": "Huntsville",
+   "st": "AL",
+   "pop": 225564,
+   "center": "city"
+  },
+  "san-bernardino-ca": {
+   "code": "060713210",
+   "name": "San Bernardino",
+   "st": "CA",
+   "pop": 223728,
+   "center": "city"
+  },
+  "tacoma-wa": {
+   "code": "530532230",
+   "name": "Tacoma",
+   "st": "WA",
+   "pop": 222906,
+   "center": "city"
+  },
+  "hialeah-fl": {
+   "code": "120861340,120251340",
+   "name": "Hialeah",
+   "st": "FL",
+   "pop": 221300,
+   "center": "city"
+  },
+  "baton-rouge-la": {
+   "code": "220330150",
+   "name": "Baton Rouge",
+   "st": "LA",
+   "pop": 219573,
+   "center": "city"
+  },
+  "modesto-ca": {
+   "code": "060992200",
+   "name": "Modesto",
+   "st": "CA",
+   "pop": 218915,
+   "center": "city"
+  },
+  "fontana-ca": {
+   "code": "060711305",
+   "name": "Fontana",
+   "st": "CA",
+   "pop": 215465,
+   "center": "city"
+  },
+  "des-moines-ia": {
+   "code": "191532260",
+   "name": "Des Moines",
+   "st": "IA",
+   "pop": 210381,
+   "center": "city"
+  },
+  "fayetteville-nc": {
+   "code": "370511670",
+   "name": "Fayetteville",
+   "st": "NC",
+   "pop": 209749,
+   "center": "city"
+  },
+  "salt-lake-city-ut": {
+   "code": "490351700",
+   "name": "Salt Lake City",
+   "st": "UT",
+   "pop": 209593,
+   "center": "downtown"
+  },
+  "sioux-falls-sd": {
+   "code": "460992450",
+   "name": "Sioux Falls",
+   "st": "SD",
+   "pop": 206410,
+   "center": "city"
+  },
+  "augusta-richmond-county-ga": {
+   "code": "132450310",
+   "name": "Augusta-Richmond County",
+   "st": "GA",
+   "pop": 205414,
+   "center": "city"
+  },
+  "little-rock-ar": {
+   "code": "051192320",
+   "name": "Little Rock",
+   "st": "AR",
+   "pop": 203842,
+   "center": "city"
+  },
+  "amarillo-tx": {
+   "code": "483750150,483810150",
+   "name": "Amarillo",
+   "st": "TX",
+   "pop": 202408,
+   "center": "city"
+  },
+  "tallahassee-fl": {
+   "code": "120732940",
+   "name": "Tallahassee",
+   "st": "FL",
+   "pop": 202221,
+   "center": "city"
+  },
+  "grand-prairie-tx": {
+   "code": "484392800,481132800",
+   "name": "Grand Prairie",
+   "st": "TX",
+   "pop": 202134,
+   "center": "city"
+  },
+  "columbus-ga": {
+   "code": "132151280",
+   "name": "Columbus",
+   "st": "GA",
+   "pop": 201877,
+   "center": "city"
+  },
+  "oxnard-ca": {
+   "code": "061112620",
+   "name": "Oxnard",
+   "st": "CA",
+   "pop": 198488,
+   "center": "city"
+  },
+  "knoxville-tn": {
+   "code": "470931300",
+   "name": "Knoxville",
+   "st": "TN",
+   "pop": 198162,
+   "center": "city"
+  },
+  "birmingham-al": {
+   "code": "010730350",
+   "name": "Birmingham",
+   "st": "AL",
+   "pop": 196644,
+   "center": "city"
+  },
+  "grand-rapids-mi": {
+   "code": "260812010",
+   "name": "Grand Rapids",
+   "st": "MI",
+   "pop": 196608,
+   "center": "city"
+  },
+  "vancouver-wa": {
+   "code": "530112370",
+   "name": "Vancouver",
+   "st": "WA",
+   "pop": 196442,
+   "center": "city"
+  },
+  "montgomery-al": {
+   "code": "011012130",
+   "name": "Montgomery",
+   "st": "AL",
+   "pop": 195287,
+   "center": "city"
+  },
+  "brownsville-tx": {
+   "code": "480610940",
+   "name": "Brownsville",
+   "st": "TX",
+   "pop": 190158,
+   "center": "city"
+  },
+  "tempe-az": {
+   "code": "040130490",
+   "name": "Tempe",
+   "st": "AZ",
+   "pop": 189834,
+   "center": "city"
+  },
+  "akron-oh": {
+   "code": "391530070",
+   "name": "Akron",
+   "st": "OH",
+   "pop": 188701,
+   "center": "city"
+  },
+  "chattanooga-tn": {
+   "code": "470650400",
+   "name": "Chattanooga",
+   "st": "TN",
+   "pop": 187030,
+   "center": "city"
+  },
+  "fort-lauderdale-fl": {
+   "code": "120111050",
+   "name": "Fort Lauderdale",
+   "st": "FL",
+   "pop": 184255,
+   "center": "city"
+  },
+  "mobile-al": {
+   "code": "010972100",
+   "name": "Mobile",
+   "st": "AL",
+   "pop": 182595,
+   "center": "city"
+  },
+  "ontario-ca": {
+   "code": "060712550",
+   "name": "Ontario",
+   "st": "CA",
+   "pop": 182457,
+   "center": "city"
+  },
+  "clarksville-tn": {
+   "code": "471250410",
+   "name": "Clarksville",
+   "st": "TN",
+   "pop": 180716,
+   "center": "city"
+  },
+  "cary-nc": {
+   "code": "371830800",
+   "name": "Cary",
+   "st": "NC",
+   "pop": 180010,
+   "center": "city"
+  },
+  "shreveport-la": {
+   "code": "220172130",
+   "name": "Shreveport",
+   "st": "LA",
+   "pop": 177959,
+   "center": "city"
+  },
+  "eugene-or": {
+   "code": "410390660",
+   "name": "Eugene",
+   "st": "OR",
+   "pop": 177899,
+   "center": "city"
+  },
+  "salem-or": {
+   "code": "410471810",
+   "name": "Salem",
+   "st": "OR",
+   "pop": 177432,
+   "center": "city"
+  },
+  "santa-rosa-ca": {
+   "code": "060973490",
+   "name": "Santa Rosa",
+   "st": "CA",
+   "pop": 175845,
+   "center": "city"
+  },
+  "fort-collins-co": {
+   "code": "080690860",
+   "name": "Fort Collins",
+   "st": "CO",
+   "pop": 170376,
+   "center": "city"
+  },
+  "springfield-mo": {
+   "code": "290777460",
+   "name": "Springfield",
+   "st": "MO",
+   "pop": 170188,
+   "center": "city"
+  },
+  "oceanside-ca": {
+   "code": "060732510",
+   "name": "Oceanside",
+   "st": "CA",
+   "pop": 170020,
+   "center": "city"
+  },
+  "palmdale-ca": {
+   "code": "060372645",
+   "name": "Palmdale",
+   "st": "CA",
+   "pop": 161404,
+   "center": "city"
+  },
+  "denton-tx": {
+   "code": "481211840",
+   "name": "Denton",
+   "st": "TX",
+   "pop": 158349,
+   "center": "city"
+  },
+  "macon-bibb-county-ga": {
+   "code": "130213390",
+   "name": "Macon-Bibb County",
+   "st": "GA",
+   "pop": 156512,
+   "center": "city"
+  },
+  "paterson-nj": {
+   "code": "340312510",
+   "name": "Paterson",
+   "st": "NJ",
+   "pop": 156452,
+   "center": "city"
+  },
+  "hayward-ca": {
+   "code": "060011560",
+   "name": "Hayward",
+   "st": "CA",
+   "pop": 155675,
+   "center": "city"
+  },
+  "charleston-sc": {
+   "code": "450190410",
+   "name": "Charleston",
+   "st": "SC",
+   "pop": 155369,
+   "center": "city"
+  },
+  "hollywood-fl": {
+   "code": "120111420",
+   "name": "Hollywood",
+   "st": "FL",
+   "pop": 153859,
+   "center": "city"
+  },
+  "kansas-city-ks": {
+   "code": "202092820",
+   "name": "Kansas City",
+   "st": "KS",
+   "pop": 152933,
+   "center": "city"
+  },
+  "joliet-il": {
+   "code": "171974300",
+   "name": "Joliet",
+   "st": "IL",
+   "pop": 150489,
+   "center": "city"
+  },
+  "savannah-ga": {
+   "code": "130514910",
+   "name": "Savannah",
+   "st": "GA",
+   "pop": 147748,
+   "center": "city"
+  },
+  "olathe-ks": {
+   "code": "200914140",
+   "name": "Olathe",
+   "st": "KS",
+   "pop": 147461,
+   "center": "city"
+  },
+  "mcallen-tx": {
+   "code": "482154197",
+   "name": "McAllen",
+   "st": "TX",
+   "pop": 146593,
+   "center": "city"
+  },
+  "rockford-il": {
+   "code": "172017460",
+   "name": "Rockford",
+   "st": "IL",
+   "pop": 146120,
+   "center": "city"
+  },
+  "pomona-ca": {
+   "code": "060372870",
+   "name": "Pomona",
+   "st": "CA",
+   "pop": 145502,
+   "center": "city"
+  },
+  "visalia-ca": {
+   "code": "061074050",
+   "name": "Visalia",
+   "st": "CA",
+   "pop": 144998,
+   "center": "city"
+  },
+  "waco-tx": {
+   "code": "483097210",
+   "name": "Waco",
+   "st": "TX",
+   "pop": 144816,
+   "center": "city"
+  },
+  "jackson-ms": {
+   "code": "280491220",
+   "name": "Jackson",
+   "st": "MS",
+   "pop": 143709,
+   "center": "city"
+  },
+  "columbia-sc": {
+   "code": "450630520,450790520",
+   "name": "Columbia",
+   "st": "SC",
+   "pop": 142416,
+   "center": "city"
+  },
+  "torrance-ca": {
+   "code": "060373870",
+   "name": "Torrance",
+   "st": "CA",
+   "pop": 139224,
+   "center": "city"
+  },
+  "midland-tx": {
+   "code": "483294560",
+   "name": "Midland",
+   "st": "TX",
+   "pop": 138397,
+   "center": "city"
+  },
+  "orange-ca": {
+   "code": "060592560",
+   "name": "Orange",
+   "st": "CA",
+   "pop": 138337,
+   "center": "city"
+  },
+  "cedar-rapids-ia": {
+   "code": "191131340",
+   "name": "Cedar Rapids",
+   "st": "IA",
+   "pop": 135958,
+   "center": "city"
+  },
+  "dayton-oh": {
+   "code": "391132090",
+   "name": "Dayton",
+   "st": "OH",
+   "pop": 135512,
+   "center": "city"
+  },
+  "lewisville-tx": {
+   "code": "481213960",
+   "name": "Lewisville",
+   "st": "TX",
+   "pop": 133553,
+   "center": "city"
+  },
+  "kent-wa": {
+   "code": "530331030",
+   "name": "Kent",
+   "st": "WA",
+   "pop": 133378,
+   "center": "city"
+  },
+  "fargo-nd": {
+   "code": "380171020",
+   "name": "Fargo",
+   "st": "ND",
+   "pop": 133188,
+   "center": "city"
+  },
+  "carrollton-tx": {
+   "code": "481211190,481131190",
+   "name": "Carrollton",
+   "st": "TX",
+   "pop": 132918,
+   "center": "city"
+  },
+  "round-rock-tx": {
+   "code": "484915990",
+   "name": "Round Rock",
+   "st": "TX",
+   "pop": 130406,
+   "center": "city"
+  },
+  "norman-ok": {
+   "code": "400273430",
+   "name": "Norman",
+   "st": "OK",
+   "pop": 130046,
+   "center": "city"
+  },
+  "columbia-mo": {
+   "code": "290191800",
+   "name": "Columbia",
+   "st": "MO",
+   "pop": 129330,
+   "center": "city"
+  },
+  "abilene-tx": {
+   "code": "484410030",
+   "name": "Abilene",
+   "st": "TX",
+   "pop": 129043,
+   "center": "city"
+  },
+  "topeka-ks": {
+   "code": "201775400",
+   "name": "Topeka",
+   "st": "KS",
+   "pop": 125475,
+   "center": "city"
+  },
+  "allentown-pa": {
+   "code": "420770110",
+   "name": "Allentown",
+   "st": "PA",
+   "pop": 124880,
+   "center": "city"
+  },
+  "west-palm-beach-fl": {
+   "code": "120993190",
+   "name": "West Palm Beach",
+   "st": "FL",
+   "pop": 124130,
+   "center": "city"
+  },
+  "wilmington-nc": {
+   "code": "371295060",
+   "name": "Wilmington",
+   "st": "NC",
+   "pop": 122698,
+   "center": "city"
+  },
+  "rochester-mn": {
+   "code": "271095960",
+   "name": "Rochester",
+   "st": "MN",
+   "pop": 122413,
+   "center": "city"
+  },
+  "lakeland-fl": {
+   "code": "121051690",
+   "name": "Lakeland",
+   "st": "FL",
+   "pop": 122264,
+   "center": "city"
+  },
+  "north-charleston-sc": {
+   "code": "450191805",
+   "name": "North Charleston",
+   "st": "SC",
+   "pop": 121469,
+   "center": "city"
+  },
+  "lafayette-la": {
+   "code": "220551230",
+   "name": "Lafayette",
+   "st": "LA",
+   "pop": 121467,
+   "center": "city"
+  },
+  "arvada-co": {
+   "code": "080590080,080010080",
+   "name": "Arvada",
+   "st": "CO",
+   "pop": 121414,
+   "center": "city"
+  },
+  "independence-mo": {
+   "code": "290953940",
+   "name": "Independence",
+   "st": "MO",
+   "pop": 120922,
+   "center": "city"
+  },
+  "billings-mt": {
+   "code": "301110100",
+   "name": "Billings",
+   "st": "MT",
+   "pop": 120864,
+   "center": "city"
+  },
+  "ann-arbor-mi": {
+   "code": "261610150",
+   "name": "Ann Arbor",
+   "st": "MI",
+   "pop": 119381,
+   "center": "city"
+  },
+  "broken-arrow-ok": {
+   "code": "401430590",
+   "name": "Broken Arrow",
+   "st": "OK",
+   "pop": 119194,
+   "center": "city"
+  },
+  "richardson-tx": {
+   "code": "480855730,481135730",
+   "name": "Richardson",
+   "st": "TX",
+   "pop": 117435,
+   "center": "city"
+  },
+  "antioch-ca": {
+   "code": "060130110",
+   "name": "Antioch",
+   "st": "CA",
+   "pop": 117096,
+   "center": "city"
+  },
+  "high-point-nc": {
+   "code": "370812170",
+   "name": "High Point",
+   "st": "NC",
+   "pop": 116926,
+   "center": "city"
+  },
+  "clearwater-fl": {
+   "code": "121030570",
+   "name": "Clearwater",
+   "st": "FL",
+   "pop": 116850,
+   "center": "city"
+  },
+  "odessa-tx": {
+   "code": "481355030",
+   "name": "Odessa",
+   "st": "TX",
+   "pop": 115743,
+   "center": "city"
+  },
+  "evansville-in": {
+   "code": "181631480",
+   "name": "Evansville",
+   "st": "IN",
+   "pop": 115332,
+   "center": "city"
+  },
+  "west-jordan-ut": {
+   "code": "490352100",
+   "name": "West Jordan",
+   "st": "UT",
+   "pop": 114908,
+   "center": "city"
+  },
+  "nampa-id": {
+   "code": "160271200",
+   "name": "Nampa",
+   "st": "ID",
+   "pop": 114268,
+   "center": "city"
+  },
+  "richmond-ca": {
+   "code": "060133010",
+   "name": "Richmond",
+   "st": "CA",
+   "pop": 114106,
+   "center": "city"
+  },
+  "pompano-beach-fl": {
+   "code": "120112570",
+   "name": "Pompano Beach",
+   "st": "FL",
+   "pop": 113619,
+   "center": "city"
+  },
+  "provo-ut": {
+   "code": "490491560",
+   "name": "Provo",
+   "st": "UT",
+   "pop": 113343,
+   "center": "city"
+  },
+  "elgin-il": {
+   "code": "170312690,170892690",
+   "name": "Elgin",
+   "st": "IL",
+   "pop": 113310,
+   "center": "city"
+  },
+  "greeley-co": {
+   "code": "081231070",
+   "name": "Greeley",
+   "st": "CO",
+   "pop": 112609,
+   "center": "city"
+  },
+  "springfield-il": {
+   "code": "171678220",
+   "name": "Springfield",
+   "st": "IL",
+   "pop": 112544,
+   "center": "city"
+  },
+  "beaumont-tx": {
+   "code": "482450490",
+   "name": "Beaumont",
+   "st": "TX",
+   "pop": 112193,
+   "center": "city"
+  },
+  "lansing-mi": {
+   "code": "260372700,260652700",
+   "name": "Lansing",
+   "st": "MI",
+   "pop": 112115,
+   "center": "city"
+  },
+  "tuscaloosa-al": {
+   "code": "011253050",
+   "name": "Tuscaloosa",
+   "st": "AL",
+   "pop": 111338,
+   "center": "city"
+  },
+  "pueblo-co": {
+   "code": "081012050",
+   "name": "Pueblo",
+   "st": "CO",
+   "pop": 111077,
+   "center": "city"
+  },
+  "new-braunfels-tx": {
+   "code": "481874870,480914870",
+   "name": "New Braunfels",
+   "st": "TX",
+   "pop": 110958,
+   "center": "city"
+  },
+  "gresham-or": {
+   "code": "410510880",
+   "name": "Gresham",
+   "st": "OR",
+   "pop": 110685,
+   "center": "city"
+  },
+  "peoria-il": {
+   "code": "171436850",
+   "name": "Peoria",
+   "st": "IL",
+   "pop": 110460,
+   "center": "city"
+  },
+  "tyler-tx": {
+   "code": "484237070",
+   "name": "Tyler",
+   "st": "TX",
+   "pop": 110327,
+   "center": "city"
+  },
+  "santa-maria-ca": {
+   "code": "060833460",
+   "name": "Santa Maria",
+   "st": "CA",
+   "pop": 109987,
+   "center": "city"
+  },
+  "buckeye-az": {
+   "code": "040130060",
+   "name": "Buckeye",
+   "st": "AZ",
+   "pop": 108909,
+   "center": "city"
+  },
+  "sugar-land-tx": {
+   "code": "481576660",
+   "name": "Sugar Land",
+   "st": "TX",
+   "pop": 108515,
+   "center": "city"
+  },
+  "conroe-tx": {
+   "code": "483391510",
+   "name": "Conroe",
+   "st": "TX",
+   "pop": 108248,
+   "center": "city"
+  },
+  "spokane-valley-wa": {
+   "code": "530632113",
+   "name": "Spokane Valley",
+   "st": "WA",
+   "pop": 108235,
+   "center": "city"
+  },
+  "hillsboro-or": {
+   "code": "410671000",
+   "name": "Hillsboro",
+   "st": "OR",
+   "pop": 107730,
+   "center": "city"
+  },
+  "dearborn-mi": {
+   "code": "261631210",
+   "name": "Dearborn",
+   "st": "MI",
+   "pop": 105811,
+   "center": "city"
+  },
+  "edinburg-tx": {
+   "code": "482152110",
+   "name": "Edinburg",
+   "st": "TX",
+   "pop": 105799,
+   "center": "city"
+  },
+  "green-bay-wi": {
+   "code": "550092000",
+   "name": "Green Bay",
+   "st": "WI",
+   "pop": 105744,
+   "center": "city"
+  },
+  "bend-or": {
+   "code": "410170190",
+   "name": "Bend",
+   "st": "OR",
+   "pop": 104557,
+   "center": "city"
+  },
+  "south-bend-in": {
+   "code": "181414580",
+   "name": "South Bend",
+   "st": "IN",
+   "pop": 103395,
+   "center": "city"
+  },
+  "rialto-ca": {
+   "code": "060713000",
+   "name": "Rialto",
+   "st": "CA",
+   "pop": 103391,
+   "center": "city"
+  },
+  "wichita-falls-tx": {
+   "code": "484857490,480097490",
+   "name": "Wichita Falls",
+   "st": "TX",
+   "pop": 102691,
+   "center": "city"
+  },
+  "fayetteville-ar": {
+   "code": "051431310",
+   "name": "Fayetteville",
+   "st": "AR",
+   "pop": 101680,
+   "center": "city"
+  },
+  "chico-ca": {
+   "code": "060070660",
+   "name": "Chico",
+   "st": "CA",
+   "pop": 101301,
+   "center": "city"
+  },
+  "suffolk-va": {
+   "code": "518002390",
+   "name": "Suffolk",
+   "st": "VA",
+   "pop": 100659,
+   "center": "city"
+  },
+  "hesperia-ca": {
+   "code": "060711603",
+   "name": "Hesperia",
+   "st": "CA",
+   "pop": 100633,
+   "center": "city"
+  },
+  "davenport-ia": {
+   "code": "191632080",
+   "name": "Davenport",
+   "st": "IA",
+   "pop": 100354,
+   "center": "city"
+  },
+  "san-angelo-tx": {
+   "code": "484516080",
+   "name": "San Angelo",
+   "st": "TX",
+   "pop": 99262,
+   "center": "city"
+  },
+  "longmont-co": {
+   "code": "080131530",
+   "name": "Longmont",
+   "st": "CO",
+   "pop": 98630,
+   "center": "city"
+  },
+  "vista-ca": {
+   "code": "060734060",
+   "name": "Vista",
+   "st": "CA",
+   "pop": 98344,
+   "center": "city"
+  },
+  "kenosha-wi": {
+   "code": "550592400",
+   "name": "Kenosha",
+   "st": "WI",
+   "pop": 98211,
+   "center": "city"
+  },
+  "tracy-ca": {
+   "code": "060773880",
+   "name": "Tracy",
+   "st": "CA",
+   "pop": 98010,
+   "center": "city"
+  },
+  "fort-myers-fl": {
+   "code": "120711070",
+   "name": "Fort Myers",
+   "st": "FL",
+   "pop": 97372,
+   "center": "city"
+  },
+  "roanoke-va": {
+   "code": "511612100,517702100",
+   "name": "Roanoke",
+   "st": "VA",
+   "pop": 97171,
+   "center": "city"
+  },
+  "beaverton-or": {
+   "code": "410670180",
+   "name": "Beaverton",
+   "st": "OR",
+   "pop": 96945,
+   "center": "city"
+  },
+  "portsmouth-va": {
+   "code": "517401970",
+   "name": "Portsmouth",
+   "st": "VA",
+   "pop": 96793,
+   "center": "city"
+  },
+  "yakima-wa": {
+   "code": "530772590",
+   "name": "Yakima",
+   "st": "WA",
+   "pop": 96750,
+   "center": "city"
+  },
+  "lawrence-ks": {
+   "code": "200453010",
+   "name": "Lawrence",
+   "st": "KS",
+   "pop": 96207,
+   "center": "city"
+  },
+  "asheville-nc": {
+   "code": "370210170",
+   "name": "Asheville",
+   "st": "NC",
+   "pop": 95056,
+   "center": "city"
+  },
+  "bellingham-wa": {
+   "code": "530730110",
+   "name": "Bellingham",
+   "st": "WA",
+   "pop": 94720,
+   "center": "city"
+  },
+  "san-marcos-ca": {
+   "code": "060733375",
+   "name": "San Marcos",
+   "st": "CA",
+   "pop": 94188,
+   "center": "city"
+  },
+  "merced-ca": {
+   "code": "060472150",
+   "name": "Merced",
+   "st": "CA",
+   "pop": 93692,
+   "center": "city"
+  },
+  "temple-tx": {
+   "code": "480276810",
+   "name": "Temple",
+   "st": "TX",
+   "pop": 93095,
+   "center": "city"
+  },
+  "erie-pa": {
+   "code": "420492640",
+   "name": "Erie",
+   "st": "PA",
+   "pop": 92957,
+   "center": "city"
+  },
+  "manteca-ca": {
+   "code": "060772070",
+   "name": "Manteca",
+   "st": "CA",
+   "pop": 91059,
+   "center": "city"
+  },
+  "compton-ca": {
+   "code": "060370810",
+   "name": "Compton",
+   "st": "CA",
+   "pop": 90986,
+   "center": "city"
+  },
+  "lawton-ok": {
+   "code": "400312750",
+   "name": "Lawton",
+   "st": "OK",
+   "pop": 90245,
+   "center": "city"
+  },
+  "south-gate-ca": {
+   "code": "060373690",
+   "name": "South Gate",
+   "st": "CA",
+   "pop": 90070,
+   "center": "city"
+  },
+  "greenville-nc": {
+   "code": "371471950",
+   "name": "Greenville",
+   "st": "NC",
+   "pop": 90053,
+   "center": "city"
+  },
+  "fort-smith-ar": {
+   "code": "051311370",
+   "name": "Fort Smith",
+   "st": "AR",
+   "pop": 89770,
+   "center": "city"
+  },
+  "bryan-tx": {
+   "code": "480410970",
+   "name": "Bryan",
+   "st": "TX",
+   "pop": 89615,
+   "center": "city"
+  },
+  "santa-fe-nm": {
+   "code": "350490710",
+   "name": "Santa Fe",
+   "st": "NM",
+   "pop": 89167,
+   "center": "city"
+  },
+  "duluth-mn": {
+   "code": "271371900",
+   "name": "Duluth",
+   "st": "MN",
+   "pop": 87680,
+   "center": "city"
+  },
+  "bloomington-mn": {
+   "code": "270530675",
+   "name": "Bloomington",
+   "st": "MN",
+   "pop": 87398,
+   "center": "city"
+  },
+  "mission-tx": {
+   "code": "482154650",
+   "name": "Mission",
+   "st": "TX",
+   "pop": 87292,
+   "center": "city"
+  },
+  "melbourne-fl": {
+   "code": "120091990",
+   "name": "Melbourne",
+   "st": "FL",
+   "pop": 86960,
+   "center": "city"
+  },
+  "san-leandro-ca": {
+   "code": "060013360",
+   "name": "San Leandro",
+   "st": "CA",
+   "pop": 85784,
+   "center": "city"
+  },
+  "sioux-city-ia": {
+   "code": "191937850",
+   "name": "Sioux City",
+   "st": "IA",
+   "pop": 85727,
+   "center": "city"
+  },
+  "kennewick-wa": {
+   "code": "530051020",
+   "name": "Kennewick",
+   "st": "WA",
+   "pop": 85158,
+   "center": "city"
+  },
+  "medford-or": {
+   "code": "410291310",
+   "name": "Medford",
+   "st": "OR",
+   "pop": 85098,
+   "center": "city"
+  },
+  "folsom-ca": {
+   "code": "060671300",
+   "name": "Folsom",
+   "st": "CA",
+   "pop": 84782,
+   "center": "city"
+  },
+  "warner-robins-ga": {
+   "code": "131535790",
+   "name": "Warner Robins",
+   "st": "GA",
+   "pop": 84537,
+   "center": "city"
+  },
+  "baytown-tx": {
+   "code": "482010480",
+   "name": "Baytown",
+   "st": "TX",
+   "pop": 84067,
+   "center": "city"
+  },
+  "gastonia-nc": {
+   "code": "370711800",
+   "name": "Gastonia",
+   "st": "NC",
+   "pop": 83942,
+   "center": "city"
+  },
+  "auburn-wa": {
+   "code": "530330100",
+   "name": "Auburn",
+   "st": "WA",
+   "pop": 83870,
+   "center": "city"
+  },
+  "longview-tx": {
+   "code": "482034080,481834080",
+   "name": "Longview",
+   "st": "TX",
+   "pop": 83236,
+   "center": "city"
+  },
+  "rancho-cordova-ca": {
+   "code": "060672934",
+   "name": "Rancho Cordova",
+   "st": "CA",
+   "pop": 82605,
+   "center": "city"
+  },
+  "daytona-beach-fl": {
+   "code": "121270780",
+   "name": "Daytona Beach",
+   "st": "FL",
+   "pop": 82485,
+   "center": "city"
+  },
+  "auburn-al": {
+   "code": "010810200",
+   "name": "Auburn",
+   "st": "AL",
+   "pop": 82025,
+   "center": "city"
+  },
+  "kissimmee-fl": {
+   "code": "120971590",
+   "name": "Kissimmee",
+   "st": "FL",
+   "pop": 81269,
+   "center": "city"
+  },
+  "redwood-city-ca": {
+   "code": "060812980",
+   "name": "Redwood City",
+   "st": "CA",
+   "pop": 80996,
+   "center": "city"
+  },
+  "jonesboro-ar": {
+   "code": "050312070",
+   "name": "Jonesboro",
+   "st": "AR",
+   "pop": 80650,
+   "center": "city"
+  },
+  "perris-ca": {
+   "code": "060652730",
+   "name": "Perris",
+   "st": "CA",
+   "pop": 80603,
+   "center": "city"
+  },
+  "flint-mi": {
+   "code": "260491730",
+   "name": "Flint",
+   "st": "MI",
+   "pop": 79661,
+   "center": "city"
+  },
+  "lake-charles-la": {
+   "code": "220191250",
+   "name": "Lake Charles",
+   "st": "LA",
+   "pop": 79633,
+   "center": "city"
+  },
+  "lynchburg-va": {
+   "code": "516801490",
+   "name": "Lynchburg",
+   "st": "VA",
+   "pop": 79535,
+   "center": "city"
+  },
+  "rapid-city-sd": {
+   "code": "461032250",
+   "name": "Rapid City",
+   "st": "SD",
+   "pop": 79404,
+   "center": "city"
+  },
+  "loveland-co": {
+   "code": "080691550",
+   "name": "Loveland",
+   "st": "CO",
+   "pop": 79352,
+   "center": "city"
+  },
+  "bloomington-in": {
+   "code": "181050380",
+   "name": "Bloomington",
+   "st": "IN",
+   "pop": 78840,
+   "center": "city"
+  },
+  "bloomington-il": {
+   "code": "171130840",
+   "name": "Bloomington",
+   "st": "IL",
+   "pop": 78587,
+   "center": "city"
+  },
+  "napa-ca": {
+   "code": "060552330",
+   "name": "Napa",
+   "st": "CA",
+   "pop": 77492,
+   "center": "city"
+  },
+  "racine-wi": {
+   "code": "551013970",
+   "name": "Racine",
+   "st": "WI",
+   "pop": 76602,
+   "center": "city"
+  },
+  "bowling-green-ky": {
+   "code": "212270350",
+   "name": "Bowling Green",
+   "st": "KY",
+   "pop": 76212,
+   "center": "city"
+  },
+  "hammond-in": {
+   "code": "180892010",
+   "name": "Hammond",
+   "st": "IN",
+   "pop": 76193,
+   "center": "city"
+  },
+  "scranton-pa": {
+   "code": "420697460",
+   "name": "Scranton",
+   "st": "PA",
+   "pop": 75805,
+   "center": "city"
+  },
+  "iowa-city-ia": {
+   "code": "191034050",
+   "name": "Iowa City",
+   "st": "IA",
+   "pop": 75678,
+   "center": "city"
+  },
+  "rock-hill-sc": {
+   "code": "450912200",
+   "name": "Rock Hill",
+   "st": "SC",
+   "pop": 75654,
+   "center": "city"
+  },
+  "bismarck-nd": {
+   "code": "380150370",
+   "name": "Bismarck",
+   "st": "ND",
+   "pop": 75092,
+   "center": "city"
+  },
+  "appleton-wi": {
+   "code": "550870170,550150170",
+   "name": "Appleton",
+   "st": "WI",
+   "pop": 74719,
+   "center": "city"
+  },
+  "rogers-ar": {
+   "code": "050073390",
+   "name": "Rogers",
+   "st": "AR",
+   "pop": 74035,
+   "center": "city"
+  },
+  "johnson-city-tn": {
+   "code": "471791250",
+   "name": "Johnson City",
+   "st": "TN",
+   "pop": 73337,
+   "center": "city"
+  },
+  "kalamazoo-mi": {
+   "code": "260772520",
+   "name": "Kalamazoo",
+   "st": "MI",
+   "pop": 73126,
+   "center": "city"
+  },
+  "marysville-wa": {
+   "code": "530611280",
+   "name": "Marysville",
+   "st": "WA",
+   "pop": 72916,
+   "center": "city"
+  },
+  "greenville-sc": {
+   "code": "450451040",
+   "name": "Greenville",
+   "st": "SC",
+   "pop": 72824,
+   "center": "city"
+  },
+  "gulfport-ms": {
+   "code": "280471020",
+   "name": "Gulfport",
+   "st": "MS",
+   "pop": 72823,
+   "center": "city"
+  },
+  "redlands-ca": {
+   "code": "060712960",
+   "name": "Redlands",
+   "st": "CA",
+   "pop": 72556,
+   "center": "city"
+  },
+  "turlock-ca": {
+   "code": "060993950",
+   "name": "Turlock",
+   "st": "CA",
+   "pop": 72100,
+   "center": "city"
+  },
+  "wilmington-de": {
+   "code": "100030490",
+   "name": "Wilmington",
+   "st": "DE",
+   "pop": 71675,
+   "center": "city"
+  },
+  "san-marcos-tx": {
+   "code": "482096170",
+   "name": "San Marcos",
+   "st": "TX",
+   "pop": 71569,
+   "center": "city"
+  },
+  "harlingen-tx": {
+   "code": "480613030",
+   "name": "Harlingen",
+   "st": "TX",
+   "pop": 71510,
+   "center": "city"
+  },
+  "dothan-al": {
+   "code": "010690930",
+   "name": "Dothan",
+   "st": "AL",
+   "pop": 71258,
+   "center": "city"
+  },
+  "lafayette-in": {
+   "code": "181572480",
+   "name": "Lafayette",
+   "st": "IN",
+   "pop": 71216,
+   "center": "city"
+  },
+  "tulare-ca": {
+   "code": "061073920",
+   "name": "Tulare",
+   "st": "CA",
+   "pop": 71092,
+   "center": "city"
+  },
+  "st-cloud-mn": {
+   "code": "270096250,271456250,271416250",
+   "name": "St. Cloud",
+   "st": "MN",
+   "pop": 71013,
+   "center": "city"
+  },
+  "north-richland-hills-tx": {
+   "code": "484394965",
+   "name": "North Richland Hills",
+   "st": "TX",
+   "pop": 70658,
+   "center": "city"
+  },
+  "st-joseph-mo": {
+   "code": "290217070",
+   "name": "St. Joseph",
+   "st": "MO",
+   "pop": 70634,
+   "center": "city"
+  },
+  "eau-claire-wi": {
+   "code": "550171470,550351470",
+   "name": "Eau Claire",
+   "st": "WI",
+   "pop": 70542,
+   "center": "city"
+  },
+  "waukesha-wi": {
+   "code": "551335060",
+   "name": "Waukesha",
+   "st": "WI",
+   "pop": 70446,
+   "center": "city"
+  },
+  "conway-ar": {
+   "code": "050450860",
+   "name": "Conway",
+   "st": "AR",
+   "pop": 69580,
+   "center": "city"
+  },
+  "grand-junction-co": {
+   "code": "080771040",
+   "name": "Grand Junction",
+   "st": "CO",
+   "pop": 69412,
+   "center": "city"
+  },
+  "canton-oh": {
+   "code": "391511320",
+   "name": "Canton",
+   "st": "OH",
+   "pop": 69197,
+   "center": "city"
+  },
+  "portland-me": {
+   "code": "230056400",
+   "name": "Portland",
+   "st": "ME",
+   "pop": 69104,
+   "center": "city"
+  },
+  "decatur-il": {
+   "code": "171152250",
+   "name": "Decatur",
+   "st": "IL",
+   "pop": 68670,
+   "center": "city"
+  },
+  "ocala-fl": {
+   "code": "120832270",
+   "name": "Ocala",
+   "st": "FL",
+   "pop": 68426,
+   "center": "city"
+  },
+  "caldwell-id": {
+   "code": "160270210",
+   "name": "Caldwell",
+   "st": "ID",
+   "pop": 68336,
+   "center": "city"
+  },
+  "jackson-tn": {
+   "code": "471131200",
+   "name": "Jackson",
+   "st": "TN",
+   "pop": 68264,
+   "center": "city"
+  },
+  "commerce-city-co": {
+   "code": "080010434",
+   "name": "Commerce City",
+   "st": "CO",
+   "pop": 68245,
+   "center": "city"
+  },
+  "madera-ca": {
+   "code": "060392050",
+   "name": "Madera",
+   "st": "CA",
+   "pop": 68079,
+   "center": "city"
+  },
+  "idaho-falls-id": {
+   "code": "160190790",
+   "name": "Idaho Falls",
+   "st": "ID",
+   "pop": 68001,
+   "center": "city"
+  },
+  "lodi-ca": {
+   "code": "060771940",
+   "name": "Lodi",
+   "st": "CA",
+   "pop": 67679,
+   "center": "city"
+  },
+  "gary-in": {
+   "code": "180891730",
+   "name": "Gary",
+   "st": "IN",
+   "pop": 67652,
+   "center": "city"
+  },
+  "delray-beach-fl": {
+   "code": "120990820",
+   "name": "Delray Beach",
+   "st": "FL",
+   "pop": 67536,
+   "center": "city"
+  },
+  "albany-ga": {
+   "code": "130950090",
+   "name": "Albany",
+   "st": "GA",
+   "pop": 66877,
+   "center": "city"
   }
+ }
 }
