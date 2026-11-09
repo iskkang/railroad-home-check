@@ -155,6 +155,44 @@ ${chips ? `<h3>FEMA National Risk Index${k.nri.county ? `: ${esc(k.nri.county)} 
   if (k.frz !== null) faq.push([`Does it freeze or snow in ${name}?`, `About ${r0(k.frz)} nights a year drop below freezing${k.snow !== null ? `, and normal snowfall is ${Math.round(k.snow)} inches a year` : ''}. Winter nights average ${r0(k.djfMin)}°F.`]);
   return { html, faq };
 }
+// USDOT/BTS National Transportation Noise Map 2020, shares (per mille) of land within N miles of the center by band:
+// 0 <45, 1 45-50, 2 50-55, 3 55-60, 4 60-70, 5 70-80, 6 80-90, 7 90+
+let noise = { cities: {} };
+try { noise = JSON.parse(await readFile(resolve(root, 'data/noise/cities.json'), 'utf8')); } catch {}
+const N_BANDS = ['below 45 dB', '45–50 dB', '50–55 dB', '55–60 dB', '60–70 dB', '70–80 dB', '80–90 dB', '90 dB or more'];
+const atLeast = (arr, i) => (arr ? arr.slice(i).reduce((m, v) => m + v, 0) : null); // per mille at band i or louder
+const npct = pm => (pm === null ? null : pm >= 995 ? '100%' : pm > 0 && pm < 5 ? '<1%' : `${Math.round(pm / 10)}%`);
+const noiseRank = (() => {
+  const v = Object.entries(noise.cities || {}).map(([k, x]) => [k, atLeast(x.all, 3)]).filter(([, x]) => x !== null).sort((a, b) => b[1] - a[1]);
+  return Object.fromEntries(v.map(([k, x]) => [k, { n: v.filter(([, y]) => y > x).length + 1, of: v.length }]));
+})();
+function noiseSection(slug, name) {
+  const k = noise.cities?.[slug];
+  if (!k || !k.all) return { html: '', faq: [] };
+  const mi = noise.radiusMi || 3, where = dtLabel(slug).toLowerCase();
+  const all55 = atLeast(k.all, 3), all60 = atLeast(k.all, 4);
+  const src = [['Roads', k.road], ['Rail', k.rail], ['Aircraft', k.aviation]].filter(([, a]) => a);
+  const tiles = [['All transportation', all55], ...src.map(([l, a]) => [l, atLeast(a, 3)])]
+    .map(([l, v]) => `<li><span class="rc-ck">${l}</span><span class="rc-cv">${npct(v)}</span><span class="rc-cn">of land at 55 dB+</span></li>`).join('');
+  // stacked bars: 45-55, 55-60, 60-70, 70+
+  const seg = a => [[1, 2, 'n1'], [3, 3, 'n2'], [4, 4, 'n3'], [5, 7, 'n4']].map(([i, j, c]) => [c, a.slice(i, j + 1).reduce((m, v) => m + v, 0)]);
+  const bars = [['All', k.all], ...src].map(([l, a]) => `<div class="rc-nb"><span class="rc-nl">${l}</span><span class="rc-nt" role="img" aria-label="${esc(l)}: ${npct(atLeast(a, 1))} of land at 45 dB or louder, ${npct(atLeast(a, 3))} at 55 dB or louder">${seg(a).filter(([, v]) => v > 0).map(([c, v]) => `<i class="rc-${c}" style="width:${(v / 10).toFixed(1)}%"></i>`).join('')}</span></div>`).join('');
+  const rank = noiseRank[slug];
+  const rankTxt = rank ? ` That ranks ${rank.n === 1 ? 'loudest' : `${ordinal(rank.n)} loudest`} of the ${rank.of} cities we cover on this measure.` : '';
+  const c = k.center;
+  const top = c ? Math.max(c.road || 0, c.rail || 0, c.aviation || 0) : 0;
+  const by = c && top ? [['road', c.road], ['rail', c.rail], ['aircraft', c.aviation]].filter(([, b]) => b === top).map(([l]) => l).join(' and ') : '';
+  const centerTxt = c && c.all !== null ? ` At the ${where} point itself the model shows ${c.all ? `${N_BANDS[c.all]}${by ? `, mostly from ${by}` : ''}` : 'less than 45 dB'}.` : '';
+  const html = `<section class="rc-wrap rc-sec rc-noise" id="noise"><h2>Transportation noise in ${esc(name)}</h2>
+<p class="rc-sub">Share of land within ${mi} miles of the ${esc(where)} where roads, rail or aircraft produce a modeled 24-hour average of 55 dB or more outdoors. EPA's 1974 noise guidance used 55 dB as the outdoor level for residential areas.</p>
+<ul class="rc-ctiles">${tiles}</ul>
+<div class="rc-card rc-nbars"><h3>How loud, by source</h3>${bars}<div class="rc-key rc-nkey"><span><i class="rc-n1"></i>45–55 dB</span><span><i class="rc-n2"></i>55–60</span><span><i class="rc-n3"></i>60–70</span><span><i class="rc-n4"></i>70+</span></div></div>
+<p class="rc-note">${npct(all55)} of the area is at 55 dB or louder and ${npct(all60)} at 60 dB or louder.${esc(rankTxt)}${esc(centerTxt)} Source: <a href="https://www.bts.gov/geospatial/national-transportation-noise-map" rel="nofollow">USDOT National Transportation Noise Map</a> (2020 traffic, ~30 m grid). It is a simplified national model of average sound, not a measurement; train horns and flyovers are much louder than the average. Check one address for the level at that home.</p>
+</section>`;
+  const faq = [[`Is ${name} a noisy city?`, `Within ${mi} miles of the ${where}, ${npct(all55)} of land has modeled transportation noise of 55 dB or more as a 24-hour average (USDOT 2020 noise map).${rankTxt} Noise varies block by block, so check the specific address.`]];
+  return { html, faq };
+}
+function ordinal(n) { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
 let blogPosts = [];
 try { blogPosts = JSON.parse(await readFile(resolve(root, 'data/blog/posts.json'), 'utf8')); } catch {}
 const newsFor = slug => blogPosts.filter(p => p.city === slug || (p.cities || []).includes(slug)).slice(0, 2);
@@ -339,11 +377,13 @@ function cityPage(slug) {
   const related = others.map(s => { const g = mapGeometry(s); return `<a class="rc-city" href="/trains/${s}/"><div class="rc-mini" ${mapAttrs(s)}><img src="/trains/${s}/map.svg" alt="" width="${g.W + 40}" height="${g.H + 40}" loading="lazy"/></div><strong>${esc(label(s))}</strong><span>${plural(summary[s].n, 'crossing')} · ${fmt(summary[s].night)} with night trains</span></a>`; }).join('');
 
   const clim = climateSection(slug, name);
+  const nz = noiseSection(slug, name);
   const faq = [
     [`Do trains run at night in ${name}?`, `${fmt(c.night)} of ${fmt(c.withTrains)} crossings with reported traffic list trains between 6 PM and 6 AM. Check the specific crossing near a home, because night traffic varies by line.`],
     [`Are there railroad quiet zones in ${name}?`, qz ? `${fmt(qz)} public crossings are reported in an FRA quiet zone${c.qzC ? ` (including ${fmt(c.qzC)} Chicago-excused crossings)` : ''}. Status is reported per crossing, so confirm the crossing nearest the address.` : `None of the ${fmt(c.n)} public crossings in this set is reported in an FRA quiet zone, so routine horn sounding is the default at public crossings.`],
     [`Which railroads operate in ${name}?`, `By number of public crossings: ${railroads.slice(0, 4).map(r => `${r.name} (${r.k})`).join(', ')}.`],
     [`How fast do trains go through ${name}?`, `The highest maximum timetable speed reported at these crossings is ${c.maxSpeed} mph. Many urban crossings report much lower limits; the busiest-crossing list shows the speed for each.`],
+    ...nz.faq,
     ...clim.faq
   ].map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('');
 
@@ -373,6 +413,7 @@ ${transitList}
 <section class="rc-wrap rc-sec rc-prose"><h2>What this means for a home search in ${esc(name)}</h2>${paras.join('\n')}
 <h3>Railroads with public crossings</h3><ul class="rc-chips">${railroads.map(r => `<li>${esc(r.name)} <strong>${fmt(r.k)}</strong></li>`).join('')}</ul></section>
 
+${nz.html}
 ${clim.html}
 ${newsFor(slug).length ? `<section class="rc-wrap rc-sec rc-news"><h2>In the news</h2><div class="rc-news-list">${newsFor(slug).map(p => `<a href="/blog/${p.slug}/"><span>Rail &amp; Road Watch · ${esc(p.date)}</span><strong>${esc(p.title)}</strong></a>`).join('')}</div></section>` : ''}
 <section class="rc-wrap rc-sec"><h2>Before you make an offer</h2><div class="rc-steps">${steps}</div><p class="rc-more">More detail: <a href="/how-many-trains-pass-near-my-house/">how many trains pass near my house</a>, <a href="/freight-train-noise-at-night/">freight train noise at night</a> and <a href="/railroad-vibration-homebuyer-checklist/">the vibration checklist</a>.</p></section>
