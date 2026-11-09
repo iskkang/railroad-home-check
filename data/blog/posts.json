@@ -78,6 +78,57 @@
   "slug": "kent-wa-quiet-zone-bnsf-2026"
  },
  {
+  "title": "Which U.S. cities are loudest? Road, rail and airplane noise where people actually live",
+  "seoTitle": "Noisiest U.S. Cities for Traffic, Train and Airplane Noise: 299 Cities Ranked by Residents Exposed",
+  "description": "USDOT's national noise map, matched to 2020 census population: in Newark 20% of residents live where transportation noise averages 55 dB or more. The median city: 2.9%. Full ranking and what it means for a home search.",
+  "tag": "NOISE",
+  "image": {
+   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/I-95_Noise_Wall_Pelham_Manor.jpg/960px-I-95_Noise_Wall_Pelham_Manor.jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/I-95_Noise_Wall_Pelham_Manor.jpg/330px-I-95_Noise_Wall_Pelham_Manor.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:I-95_Noise_Wall_Pelham_Manor.jpg",
+   "author": "Transpoman",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "alt": "Concrete noise wall along I-95 at the end of a residential street in Pelham Manor, New York",
+   "pos": "center 55%"
+  },
+  "date": "2026-11-09",
+  "cities": [
+   "newark-nj",
+   "miami-fl",
+   "laredo-tx",
+   "chicago-il",
+   "louisville-ky",
+   "hammond-in",
+   "seattle-wa",
+   "new-york-ny",
+   "austin-tx",
+   "phoenix-az"
+  ],
+  "lead": "Every city has a highway, a rail line or an airport. What differs is how many people live next to them. We matched the federal transportation noise map to where residents of 299 cities live, and the spread is wider than you might expect.",
+  "ctaTitle": "See the noise level at one address",
+  "ctaText": "The report shows the modeled road, rail and aircraft noise at the home, plus the nearest crossing, train counts and road traffic.",
+  "sources": [
+   [
+    "USDOT Bureau of Transportation Statistics: National Transportation Noise Map (2020 data)",
+    "https://www.bts.gov/geospatial/national-transportation-noise-map"
+   ],
+   [
+    "U.S. Census Bureau: 2020 Centers of Population by block group",
+    "https://www.census.gov/geographies/reference-files/time-series/geo/centers-population.html"
+   ],
+   [
+    "U.S. Census Bureau: TIGERweb 2020 incorporated places",
+    "https://tigerweb.geo.census.gov/"
+   ],
+   [
+    "U.S. EPA: EPA Identifies Noise Levels Affecting Health and Welfare (April 2, 1974)",
+    "https://www.epa.gov/archive/epa/aboutepa/epa-identifies-noise-levels-affecting-health-and-welfare.html"
+   ]
+  ],
+  "slug": "noisiest-us-cities-transportation-noise-2026"
+ },
+ {
   "title": "St. Louis train horns: the quiet zone is coming back. Here is what the federal records show",
   "seoTitle": "St. Louis Quiet Zone Reinstated (Nov 2026): Which Crossings, How Many Night Trains",
   "description": "St. Louis lost its railroad quiet zone in September 2026 and is getting it back in mid-November. FRA records: 138 of 147 crossings flagged quiet zone, 99 with night trains.",
