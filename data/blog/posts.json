@@ -1,5 +1,52 @@
 [
  {
+  "title": "Nashville's flight-path fight: what the federal noise map shows, and what it misses",
+  "seoTitle": "Nashville Airport Noise 2026: BNA Flight Path Changes and What the Federal Noise Map Shows",
+  "description": "Metro Council backed South Nashville residents on BNA flight paths. USDOT's map: 22% of Nashville residents live where aircraft noise reaches 45 dB or more.",
+  "tag": "AIRPORT NOISE",
+  "image": {
+   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Skyline%2C_Nashville%2C_Tennessee_LCCN2010630791.tif/lossy-page1-960px-Skyline%2C_Nashville%2C_Tennessee_LCCN2010630791.tif.jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Skyline%2C_Nashville%2C_Tennessee_LCCN2010630791.tif/lossy-page1-330px-Skyline%2C_Nashville%2C_Tennessee_LCCN2010630791.tif.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Skyline,_Nashville,_Tennessee_LCCN2010630791.tif",
+   "author": "Carol M. Highsmith",
+   "license": "Public domain",
+   "alt": "Nashville, Tennessee skyline seen across the city",
+   "pos": "center 50%"
+  },
+  "date": "2026-11-10",
+  "city": "nashville-tn",
+  "ctaTitle": "Check aircraft noise at a specific address",
+  "ctaText": "Enter the address to see modeled road, rail and aircraft noise at the home, plus the nearest rail crossing and the busiest road nearby.",
+  "lead": "Nashville's Metro Council has sided with South Nashville neighbors who say new departure routes from Nashville International Airport put a steady stream of jets over their homes. Here is what happened, what the federal noise map shows for Nashville, and why a buyer should not rely on that map alone near BNA.",
+  "sources": [
+   [
+    "NewsChannel 5 Nashville: Metro Council backs South Nashville residents in fight over BNA flight paths (Nov 6, 2026)",
+    "https://www.newschannel5.com/news/metro-council-backs-south-nashville-residents-in-fight-over-bna-flight-paths"
+   ],
+   [
+    "WKRN via Yahoo News: Metro Council resolution for neighbors' concerns over flight paths moves forward (Nov 6, 2026)",
+    "https://www.yahoo.com/news/us/articles/metro-council-resolution-neighbors-concerns-045514845.html"
+   ],
+   [
+    "WKRN via Yahoo News: Metro Council members weigh in on South Nashville flight path concerns (Nov 9, 2026)",
+    "https://www.yahoo.com/news/us/articles/metro-council-members-weigh-south-012331565.html"
+   ],
+   [
+    "WSMV: South Nashville groups sue FAA over airport flight-path changes (Sep 10, 2026)",
+    "https://www.wsmv.com/2026/09/10/south-nashville-groups-sue-faa-over-airport-flight-path-changes/"
+   ],
+   [
+    "FAA: Community Engagement, Nashville (BNA departure headings)",
+    "https://www.faa.gov/air_traffic/community_engagement/nash_bna/"
+   ],
+   [
+    "USDOT Bureau of Transportation Statistics: National Transportation Noise Map (2020 data)",
+    "https://www.bts.gov/geospatial/national-transportation-noise-map"
+   ]
+  ],
+  "slug": "nashville-bna-flight-path-noise-2026"
+ },
+ {
   "title": "Frozen-pipe season: where freezing nights are routine, and where a rare freeze does more damage",
   "seoTitle": "Frozen Pipes 2026: Freezing Nights in 300 U.S. Cities (NOAA) and Where Rare Freezes Hit Hardest",
   "description": "NOAA normals for 300 U.S. cities: Anchorage averages 204 freezing nights a year, Houston about 4. Why rare-freeze cities can be the riskier place for pipes, and what to check before buying.",
