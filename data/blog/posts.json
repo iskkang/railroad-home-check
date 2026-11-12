@@ -1,5 +1,48 @@
 [
  {
+  "title": "Ice storms don't follow the snow: where FEMA rates the risk Very High",
+  "seoTitle": "Ice Storm Risk 2026: FEMA Ratings for 300 U.S. Cities, From Dallas to Oklahoma City",
+  "description": "57 of 300 U.S. cities sit in counties FEMA rates Very High for ice storm risk, including Dallas, with just 23 freezing nights a year. What to check in a home.",
+  "tag": "WINTER",
+  "date": "2026-11-12",
+  "ctaTitle": "Check a specific home before ice season",
+  "ctaText": "Enter the address to see its census-tract ice storm, winter weather and cold wave ratings, plus rail and road traffic nearby.",
+  "cities": [
+   "dallas-tx",
+   "fort-worth-tx",
+   "oklahoma-city-ok",
+   "tulsa-ok",
+   "wichita-ks",
+   "little-rock-ar",
+   "omaha-ne",
+   "mcallen-tx"
+  ],
+  "lead": "Snow piles up in Bismarck and Denver, but an ice storm is a different hazard: freezing rain that glazes trees and power lines. Using FEMA's National Risk Index and NOAA climate normals for the 300 cities we track, here is where ice storm risk rates highest, why the list looks nothing like a snowfall map, and what to check in a house before the season starts.",
+  "sources": [
+   [
+    "FEMA National Risk Index: Understanding Scores and Ratings",
+    "https://hazards.fema.gov/nri/understanding-scores-ratings"
+   ],
+   [
+    "FEMA National Risk Index: Determining Risk",
+    "https://hazards.fema.gov/nri/determining-risk"
+   ],
+   [
+    "National Weather Service: Winter Weather Warnings, Watches and Advisories",
+    "https://www.weather.gov/safety/winter-ww"
+   ],
+   [
+    "National Weather Service Baltimore/Washington: Identify Weather Threats, Ice",
+    "https://www.weather.gov/lwx/IdentifyThreatsIce"
+   ],
+   [
+    "NOAA U.S. Climate Normals 1991–2020 (annual and seasonal)",
+    "https://www.ncei.noaa.gov/data/normals-annualseasonal/1991-2020/access/"
+   ]
+  ],
+  "slug": "ice-storm-risk-us-cities-2026"
+ },
+ {
   "title": "Nashville's flight-path fight: what the federal noise map shows, and what it misses",
   "seoTitle": "Nashville Airport Noise 2026: BNA Flight Path Changes and What the Federal Noise Map Shows",
   "description": "Metro Council backed South Nashville residents on BNA flight paths. USDOT's map: 22% of Nashville residents live where aircraft noise reaches 45 dB or more.",
