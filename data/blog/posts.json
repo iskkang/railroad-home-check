@@ -1,5 +1,60 @@
 [
  {
+  "title": "Night trains, no quiet zone: where the most rail crossings stay loud after dark",
+  "seoTitle": "Train Horns at Night 2026: U.S. Cities With the Most Night-Train Crossings Outside a Quiet Zone",
+  "description": "Houston has 240 rail crossings with night trains and no quiet zone, the most of 300 U.S. cities. FRA data on night trains, quiet zones and the busiest crossings.",
+  "tag": "NIGHT TRAINS",
+  "image": {
+   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Freight_yard_in_the_southern_reaches_of_Dallas%2C_Texas._The_Dallas_skyline_is_in_the_distance_LCCN2015631008.tif/lossy-page1-960px-Freight_yard_in_the_southern_reaches_of_Dallas%2C_Texas._The_Dallas_skyline_is_in_the_distance_LCCN2015631008.tif.jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Freight_yard_in_the_southern_reaches_of_Dallas%2C_Texas._The_Dallas_skyline_is_in_the_distance_LCCN2015631008.tif/lossy-page1-330px-Freight_yard_in_the_southern_reaches_of_Dallas%2C_Texas._The_Dallas_skyline_is_in_the_distance_LCCN2015631008.tif.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Freight_yard_in_the_southern_reaches_of_Dallas,_Texas._The_Dallas_skyline_is_in_the_distance_LCCN2015631008.tif",
+   "author": "Carol M. Highsmith",
+   "license": "Public domain",
+   "licenseUrl": "",
+   "alt": "Freight yard in southern Dallas, Texas, with the downtown skyline in the distance",
+   "pos": "center 60%"
+  },
+  "date": "2026-11-15",
+  "ctaTitle": "Find the crossing nearest a home",
+  "ctaText": "Enter an address to see the nearest public crossing, its day and night train counts, quiet-zone status and incident history.",
+  "cities": [
+   "houston-tx",
+   "san-antonio-tx",
+   "dallas-tx",
+   "chicago-il",
+   "baton-rouge-la",
+   "fort-worth-tx",
+   "memphis-tn",
+   "fresno-ca",
+   "jacksonville-fl",
+   "san-diego-ca",
+   "auburn-wa",
+   "kansas-city-mo",
+   "amarillo-tx",
+   "olathe-ks",
+   "gary-in",
+   "south-bend-in",
+   "riverside-ca",
+   "kansas-city-ks"
+  ],
+  "lead": "A crossing with trains at night and no quiet zone is where routine horns are most likely to reach a bedroom. We counted those crossings in the 300 cities we track using the federal crossing inventory: which cities have the most, which single crossings report the most night trains, and what to check before you buy near one.",
+  "sources": [
+   [
+    "FRA Highway-Rail Crossing Inventory (Form 71), current data, retrieved Nov 9, 2026",
+    "https://data.transportation.gov/d/m2f8-22s6"
+   ],
+   [
+    "FRA: U.S. DOT Crossing Inventory Form (Form FRA F 6180.71), field definitions",
+    "https://railroads.dot.gov/sites/fra.dot.gov/files/2021-07/FRA%20F%206180.71.pdf"
+   ],
+   [
+    "eCFR: 49 CFR 222.3, Use of Locomotive Horns at Public Highway-Rail Grade Crossings, application",
+    "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-II/part-222/subpart-A/section-222.3"
+   ]
+  ],
+  "slug": "night-trains-no-quiet-zone-us-cities-2026"
+ },
+ {
   "title": "Ice storms don't follow the snow: where FEMA rates the risk Very High",
   "seoTitle": "Ice Storm Risk 2026: FEMA Ratings for 300 U.S. Cities, From Dallas to Oklahoma City",
   "description": "57 of 300 U.S. cities sit in counties FEMA rates Very High for ice storm risk, including Dallas, with just 23 freezing nights a year. What to check in a home.",
