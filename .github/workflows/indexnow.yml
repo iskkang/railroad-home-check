@@ -22,7 +22,7 @@ jobs:
           python3 - <<'PY'
           import json, re, urllib.request
           urls = re.findall(r'<loc>([^<]+)</loc>', open('sitemap.xml').read())
-          body = json.dumps({"host": "railroad-home-check.vercel.app", "key": "4404fff1bc3019e0aaecfdd423e3acac",
+          body = json.dumps({"host": "www.checkaroundhome.com", "key": "4404fff1bc3019e0aaecfdd423e3acac",
                              "keyLocation": "https://www.checkaroundhome.com/4404fff1bc3019e0aaecfdd423e3acac.txt", "urlList": urls}).encode()
           req = urllib.request.Request("https://api.indexnow.org/indexnow", data=body, headers={"Content-Type": "application/json; charset=utf-8"})
           with urllib.request.urlopen(req, timeout=60) as r:
