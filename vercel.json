@@ -54,5 +54,6 @@
       "destination": "https://www.checkaroundhome.com/:path*",
       "statusCode": 301
     }
-  ]
+  ],
+  "outputDirectory": "legacy-redirect-output"
 }
