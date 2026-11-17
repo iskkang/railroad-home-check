@@ -7,7 +7,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const ORIGIN = 'https://railroad-home-check.vercel.app';
+const ORIGIN = 'https://www.checkaroundhome.com';
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const cities = JSON.parse(await readFile(resolve(root, 'data/rail-cities/cities.json'), 'utf8')).cities;
 const photos = JSON.parse(await readFile(resolve(root, 'data/rail-cities/photos.json'), 'utf8'));

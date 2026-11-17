@@ -1,6 +1,6 @@
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {applySiteShell} from './site-shell.mjs';
-const origin='https://railroad-home-check.vercel.app',date='2026-11-10';
+const origin='https://www.checkaroundhome.com',date='2026-11-10';
 const pages=[
 {slug:'what-to-check-before-buying-a-house',group:'Before you buy',title:'What to Check Before Buying a House',description:'A practical U.S. homebuyer checklist: investigate the property, surrounding streets, flood maps and unanswered questions before committing to a home.',lead:'Look beyond the listing photos. Build an evidence trail for the home, the location and the questions that still need an answer.',answer:'Start with three separate checks: the condition of the building, the surroundings you will live with, and the documents and costs you need to verify. An address report covers only part of that work.',sections:[
 ['1. Separate what you know from what you assume','<p>Create a short list for each candidate: confirmed, needs a document, needs a visit. A renovated kitchen says little about drainage, nearby freight activity or a roof. Record who supplied each answer and when.</p><p>Before deciding, identify the issues that would change your decision: a difficult driveway, a bedroom facing a busy street, recurring water entry, or a repair you cannot take on. Investigate those first.</p>'],

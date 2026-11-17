@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://railroad-home-check.vercel.app/sitemap.xml
+Sitemap: https://www.checkaroundhome.com/sitemap.xml

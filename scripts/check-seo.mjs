@@ -3,7 +3,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const origin = 'https://railroad-home-check.vercel.app';
+const origin = 'https://www.checkaroundhome.com';
 const read = p => readFile(resolve(root, p), 'utf8');
 const sitemap = await read('sitemap.xml');
 const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(x => x[1]);

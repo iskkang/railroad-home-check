@@ -1,6 +1,6 @@
 # Organic search validation
 
-Production origin: https://railroad-home-check.vercel.app
+Production origin: https://www.checkaroundhome.com
 
 ## Implemented on 2026-11-08
 
@@ -30,9 +30,9 @@ A NYC noise-layer request through production returned HTTP 502 on 2026-11-08. Th
 
 Search Console access is not available through the connected tools. Actual query impressions, clicks, rank and Google indexing have not been verified.
 
-1. In Google Search Console, add/select the URL-prefix property `https://railroad-home-check.vercel.app/`.
+1. In Google Search Console, add/select the URL-prefix property `https://www.checkaroundhome.com/`.
 2. Verify ownership using a supported owner method. Existing GA4 code does not by itself prove verification or account access.
-3. Submit `https://railroad-home-check.vercel.app/sitemap.xml`.
+3. Submit `https://www.checkaroundhome.com/sitemap.xml`.
 4. Inspect the homepage, guide hub and the focused search pages; check Google's selected canonical and rendered page. Request indexing for important new pages where appropriate.
 5. Use Search Console Performance and Page indexing reports to decide the next change. Do not infer indexing from a `site:` query alone.
 
