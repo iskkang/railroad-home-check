@@ -1,5 +1,65 @@
 [
  {
+  "title": "California's atmospheric river: one storm can bring a fifth of a year's rain. Here is how FEMA rates the flood risk",
+  "seoTitle": "California Flooding 2026: Atmospheric River Flood Risk for 50 California Cities (FEMA)",
+  "description": "30 of 58 U.S. cities we track in counties FEMA rates Very High for river flooding are in California. What 3 inches of rain means in San Jose, Oakland and L.A.",
+  "tag": "FLOOD",
+  "date": "2026-11-17",
+  "ctaTitle": "Check a specific home's flood ratings",
+  "ctaText": "Enter the address to see its census-tract river and coastal flood ratings from FEMA, plus rail and road traffic nearby.",
+  "cities": [
+   "los-angeles-ca",
+   "san-jose-ca",
+   "oakland-ca",
+   "long-beach-ca",
+   "hayward-ca",
+   "torrance-ca",
+   "richmond-ca",
+   "antioch-ca",
+   "redwood-city-ca",
+   "santa-rosa-ca",
+   "compton-ca",
+   "pomona-ca",
+   "palmdale-ca"
+  ],
+  "lead": "An atmospheric river reaches the California coast this week, with flash flood risk forecast for the Bay Area on Wednesday and the Los Angeles area on Thursday. We checked the 50 California cities we track against FEMA's flood ratings and NOAA rainfall normals: where river flood risk rates highest, what a 3-inch storm means in a city that averages 12 to 19 inches a year, and what to check in a home before you buy.",
+  "sources": [
+   [
+    "Fox Weather: Flash flooding threatens 30M along California coast as latest atmospheric river fuels storms (Nov 17, 2026)",
+    "https://www.foxweather.com/weather-news/30-million-along-california-coast-under-flash-flood-threat-from-latest-atmospheric-river-storm"
+   ],
+   [
+    "SFist: 'Exceptionally wet' several weeks likely ahead, with atmospheric river incoming Wednesday (Nov 16, 2026)",
+    "https://sfist.com/2026/11/16/exceptionally-wet-several-weeks-likely-ahead-with-atmospheric-river-incoming-wednesday/"
+   ],
+   [
+    "The Weather Channel: West storms to bring feet of mountain snow, flooding in California (Nov 17, 2026)",
+    "https://weather.com/2026/11/17/forecast/regional/storms-50-foot-waves-mountain-snow-heavy-rain-west"
+   ],
+   [
+    "FEMA National Risk Index: Riverine Flooding",
+    "https://hazards.fema.gov/nri/riverine-flooding"
+   ],
+   [
+    "FEMA National Risk Index: Coastal Flooding",
+    "https://hazards.fema.gov/nri/coastal-flooding"
+   ],
+   [
+    "FloodSmart (National Flood Insurance Program)",
+    "https://www.floodsmart.gov/"
+   ],
+   [
+    "FEMA Flood Map Service Center",
+    "https://msc.fema.gov/portal/home"
+   ],
+   [
+    "NOAA U.S. Climate Normals 1991–2020 (annual and seasonal)",
+    "https://www.ncei.noaa.gov/data/normals-annualseasonal/1991-2020/access/"
+   ]
+  ],
+  "slug": "california-atmospheric-river-flood-risk-2026"
+ },
+ {
   "title": "Night trains, no quiet zone: where the most rail crossings stay loud after dark",
   "seoTitle": "Train Horns at Night 2026: U.S. Cities With the Most Night-Train Crossings Outside a Quiet Zone",
   "description": "Houston has 240 rail crossings with night trains and no quiet zone, the most of 300 U.S. cities. FRA data on night trains, quiet zones and the busiest crossings.",
