@@ -68,6 +68,17 @@ check(robots.includes(`Sitemap: ${origin}/sitemap.xml`), 'Sitemap missing from r
 check(!/^Disallow:\s*\/\s*$/m.test(robots), 'robots.txt blocks the whole site');
 check(!/Railroad Home Check/.test(await read('index.html')), 'Old homepage brand');
 
+
+// Domain migration checks: prevent canonical/metadata regressions to the retired host.
+const retiredHost = 'railroad-home-check.vercel.app';
+check(!sitemap.includes(retiredHost), 'Retired domain found in sitemap');
+check(!robots.includes(retiredHost), 'Retired domain found in robots.txt');
+for (const [path, source] of pages) {
+  check(!source.includes(retiredHost), `Retired domain found in page HTML: ${path}`);
+  const ogUrl = source.match(/<meta property="og:url" content="([^"]+)"/i)?.[1];
+  if (ogUrl) check(ogUrl === new URL(path, origin).href, `Open Graph URL differs from canonical domain: ${path}`);
+}
+
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exitCode = 1;
