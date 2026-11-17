@@ -42,5 +42,17 @@
     "api/crossings.js": {
       "maxDuration": 35
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "https://www.checkaroundhome.com/",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "destination": "https://www.checkaroundhome.com/:path*",
+      "permanent": true
+    }
+  ]
 }
