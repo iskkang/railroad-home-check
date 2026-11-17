@@ -47,12 +47,12 @@
     {
       "source": "/",
       "destination": "https://www.checkaroundhome.com/",
-      "permanent": true
+      "statusCode": 301
     },
     {
       "source": "/:path*",
       "destination": "https://www.checkaroundhome.com/:path*",
-      "permanent": true
+      "statusCode": 301
     }
   ]
 }
