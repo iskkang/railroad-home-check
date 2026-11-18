@@ -17,10 +17,19 @@
       try { sessionStorage.setItem(key, JSON.stringify({path, time:Date.now()})); } catch {}
       if (typeof gtag === 'function') gtag('event', 'guide_checker_click', {guide_path:path, transport_type:'beacon'});
     },
-    track(eventName) {
+    track(eventName, diagnostics) {
       if (!['property_check_started','property_check_completed','property_check_failed'].includes(eventName)) return;
       const source = attribution();
-      if (source && typeof gtag === 'function') gtag('event', 'guide_' + eventName, {guide_path:source, transport_type:'beacon'});
+      if (source && typeof gtag === 'function') {
+        const params = {guide_path:source, transport_type:'beacon'};
+        if (eventName === 'property_check_failed' && diagnostics) {
+          const code = diagnostics.error_code;
+          params.error_code = ['REQUEST_TIMEOUT','REQUEST_ABORTED','NETWORK_ERROR','INVALID_JSON','RENDER_ERROR','UNEXPECTED_ERROR'].includes(code) || /^HTTP_[45][0-9]{2}$/.test(code || '') ? code : 'UNEXPECTED_ERROR';
+          params.failure_stage = ['geocode','crossings','render'].includes(diagnostics.failure_stage) ? diagnostics.failure_stage : 'unknown';
+          params.duration_ms = Math.min(86400000, Math.max(0, Math.round(Number(diagnostics.duration_ms) || 0)));
+        }
+        gtag('event', 'guide_' + eventName, params);
+      }
     }
   };
   document.addEventListener('click', event => {
