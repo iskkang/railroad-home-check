@@ -147,7 +147,7 @@ function trackEvent(eventName, diagnostics) {
 
 function setLoading(isLoading, message) {
   button.disabled = isLoading;
-  button.textContent = isLoading ? 'Checking…' : 'Check this address';
+  button.textContent = isLoading ? 'Checking…' : 'Check this home';
   if (isLoading) setStatus(message || 'Checking…');
 }
 

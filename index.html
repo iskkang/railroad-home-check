@@ -94,7 +94,7 @@
 }
 </script>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
-<link rel="stylesheet" href="/site-shell.css?v=20261110-shell1"></head>
+<link rel="stylesheet" href="/site-shell.css?v=20261110-shell1"><link rel="stylesheet" href="/mobile-entry.css?v=20261118-entry"><script src="/mobile-entry.js?v=20261118-entry" defer></script></head>
 <body class="home">
   <header class="site-header app-header"><a class="brand app-brand" href="/" aria-label="Home Surroundings Check home"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M5 18 20 6l15 12M10 16v18h20V16M16 34V23h8v11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Home Surroundings Check</span></a><nav class="app-nav" aria-label="Main"><a href="#searchForm" aria-current="page">Check address</a><a href="/trains/">Cities</a><a href="/blog/">News</a><a href="/guides/">Guides</a><a href="/home-surroundings-data/">Data &amp; coverage</a><a href="/about/">About</a></nav></header>
 
@@ -105,8 +105,8 @@
       <div class="hero-in">
       <div class="hero-grid"><div class="hero-main">
       <div class="eyebrow">FREE · PUBLIC DATA FOR U.S. HOME BUYERS</div>
-      <h1>Check your home’s <span>surroundings.</span></h1>
-      <p class="hero-copy">Railroads, road traffic, transportation noise and flood maps. Know what to check before your next viewing.</p>
+      <h1>Before you buy or rent,<br><span>check around the home.</span></h1>
+      <p class="hero-copy">See nearby traffic, rail activity, modeled noise and flood maps — all from one U.S. address.</p>
       <div class="hero-card">
       <label for="address" class="hero-card-label">Enter a U.S. property address</label>
       <div class="address-search-area"><form id="searchForm" class="search-box">
@@ -114,11 +114,11 @@
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.2 7-12A7 7 0 1 0 5 9c0 6.8 7 12 7 12Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="9" r="2.4" stroke="currentColor" stroke-width="1.8"/></svg>
           <input id="address" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="addressSuggestions" aria-expanded="false" placeholder="Street address, city, state and ZIP" aria-describedby="privacyNote" required />
         </div>
-        <button type="submit" id="searchButton">Check this address</button>
+        <button type="submit" id="searchButton">Check this home</button>
       </form><ul id="addressSuggestions" role="listbox" class="hidden address-suggestions" aria-label="Address candidates"></ul></div>
-      <div class="hero-alt"><button type="button" id="tryExample" class="text-button">Try Santa Ana, CA →</button><button type="button" id="chooseOnMap" class="text-button">Pick on map</button><button type="button" id="openShortlist" class="text-button hidden">Saved homes</button></div>
+      <div class="hero-alt"><button type="button" id="tryExample" class="text-button">See a sample report →</button><button type="button" id="chooseOnMap" class="text-button">Pick on map</button><button type="button" id="openShortlist" class="text-button hidden">Saved homes</button></div>
       <p id="addressHelp" class="small-note" role="status">Choose a candidate, enter a full U.S. address, or position a pin on the map.</p>
-      <div class="microcopy" id="privacyNote">Suggestions use Photon/OpenStreetMap as you type. Searches use Census, ArcGIS and OpenStreetMap. Shared links include the address and coordinates.</div>
+      <div class="microcopy" id="privacyNote">No account needed. Property addresses are not sent to Analytics.</div><details class="search-privacy"><summary>How your address is used</summary><p>Suggestions use Photon/OpenStreetMap as you type. Searches use Census, ArcGIS and OpenStreetMap. Shared links include the address and coordinates. <a href="/privacy.html">Privacy details</a></p></details>
       <section id="locationPicker" class="panel hidden location-picker" aria-label="Choose property location">
         <div class="section-title-row"><h3>Confirm the property pin</h3><button type="button" id="closePicker" class="text-button">Close</button></div>
         <p class="small-note">Click the map or drag the pin. Candidate locations are approximate; a street/place match is not a house location. Map tiles are supplied by OpenStreetMap.</p>
@@ -127,7 +127,7 @@
         <p id="pickerStatus" class="small-note" role="status"></p><button type="button" id="useMapPoint" class="action-button" disabled>Run check at this location</button>
       </section>
       </div>
-      <ul class="hero-trust" aria-label="Report coverage"><li>Railroads &amp; crossings</li><li>Traffic &amp; roads</li><li>Modeled noise</li><li>FEMA flood maps</li><li>Nearby facilities</li></ul>
+      <div class="report-preview" aria-label="What you get"><p>YOUR REPORT, AT A GLANCE</p><div><span><b>Rail activity</b>Day &amp; night estimates</span><span><b>Road traffic</b>Reported vehicle counts</span><span><b>Modeled noise</b>Transportation sources</span><span><b>Flood maps</b>FEMA zone records</span></div><small>Public-data indicators, not an on-site inspection. Coverage varies.</small></div><ul class="hero-trust" aria-label="Report coverage"><li>Railroads &amp; crossings</li><li>Traffic &amp; roads</li><li>Modeled noise</li><li>FEMA flood maps</li><li>Nearby facilities</li></ul>
       <div class="steps-strip"><span>01 · Enter an address</span><span>02 · Explore the map</span><span>03 · Compare your shortlist</span></div>
       </div>
 
