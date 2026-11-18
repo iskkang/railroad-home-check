@@ -14,8 +14,16 @@ export function applySiteShell(html){
   html=html.replace(/<header\b[^>]*>[\s\S]*?<\/header>/,header);
   html=html.replace(/<link\b[^>]*href="\/site-shell\.css[^\"]*"[^>]*>\s*/g,'');
   html=html.replace('</head>',`<link rel="stylesheet" href="/site-shell.css?v=${assetVersion}"></head>`);
+  const entryPaths = ['/', '/how-many-trains-pass-near-my-house/', '/blog/nashville-bna-flight-path-noise-2026/', '/trains/nashville-tn/', '/trains/grand-junction-co/'];
+  if (entryPaths.includes(path)) {
+    if (!html.includes('/mobile-entry.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/mobile-entry.css?v=20261118-entry"><script src="/mobile-entry.js?v=20261118-entry" defer></script></head>');
+    if (path === '/blog/nashville-bna-flight-path-noise-2026/' && !html.includes('entry-checker-wrap')) {
+      const cta = html.match(/<div class="guide-cta">[\s\S]*?<\/form><\/div>/)?.[0];
+      if (cta) html = html.replace(cta, '').replace('<section class="guide-shell">', '<section class="entry-checker-wrap">' + cta.replace('class="guide-cta"', 'class="guide-cta entry-checker"') + '</section><section class="guide-shell">');
+    }
+  }
   if(home)return html.replace('<section class="hero"','<section class="hero app-hero"');
-  return html.replace(/(<section\b[^>]*class=")([^\"]*(?:guide-hero|rc-hero|post-head)[^\"]*)("[^>]*>)([\s\S]*?)(<\/section>)/g,(_,a,classes,c,body,end)=>{
+  html = html.replace(/(<section\b[^>]*class=")([^\"]*(?:guide-hero|rc-hero|post-head)[^\"]*)("[^>]*>)([\s\S]*?)(<\/section>)/g,(_,a,classes,c,body,end)=>{
     let feature='';
     if(classes.includes('post-head')){
       body=body.replace(/<figure class="post-feature">[\s\S]*?<\/figure>/,match=>{feature=match;return '';});
@@ -27,6 +35,20 @@ export function applySiteShell(html){
     body=body.replace(/<form\b[^>]*>[\s\S]*?<\/form>/g,'');
     return a+classes.replace(/\s*app-hero\b/g,'')+' app-hero'+c+body+end+(feature?'<div class="app-article-image">'+feature+'</div>':'');
   });
+  return finalizeEntry(html, path);
+}
+function finalizeEntry(html, path) {
+  const cities = {'/trains/nashville-tn/':'Nashville', '/trains/grand-junction-co/':'Grand Junction'};
+  const city = cities[path];
+  if (city && !html.includes('entry-checker-wrap')) {
+    const entry = `<section class="entry-checker-wrap"><div class="entry-checker"><h2>Checking a home in ${city}?</h2><p>The city map is a starting point. Check the property's nearby rail activity and road traffic using public records.</p><form class="rc-search" action="/" role="search"><label for="addr-top">Full U.S. property address</label><input id="addr-top" name="address" type="text" autocomplete="street-address" maxlength="250" placeholder="Street address, city, state and ZIP" required><button type="submit">Check this home</button></form></div></section>`;
+    html = html.replace(/(<section[^>]*class="[^"]*rc-hero[^"]*"[^>]*>[\s\S]*?<\/section>)/, '$1' + entry);
+  }
+  if (path === '/blog/nashville-bna-flight-path-noise-2026/') {
+    const entry = html.match(/<section class="entry-checker-wrap">[\s\S]*?<\/section>/)?.[0];
+    if (entry && html.includes('<div class="app-article-image">')) html = html.replace(entry, '').replace('<div class="app-article-image">', entry + '<div class="app-article-image">');
+  }
+  return html;
 }
 async function walk(dir){for(const entry of await readdir(dir,{withFileTypes:true})){if(entry.name.startsWith('.')||['node_modules','vendor'].includes(entry.name))continue;const p=resolve(dir,entry.name);if(entry.isDirectory())await walk(p);else if(entry.name.endsWith('.html')){const before=await readFile(p,'utf8'),after=applySiteShell(before);if(before!==after){await writeFile(p,after);changed.push(relative(root,p));}}}}
 const changed=[];
