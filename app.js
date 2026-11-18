@@ -11,7 +11,9 @@ const $ = (id) => document.getElementById(id);
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   const address = addressInput.value.replace(/\+/g, ' ').replace(/\s+/g, ' ').trim();
-  if (!address) return;
+  if (!address || button.disabled) return;
+  const checkStartedAt = Date.now();
+  let checkStage = 'geocode';
 
   trackEvent('property_check_started');
   setLoading(true, 'Locating the property…');
@@ -37,16 +39,19 @@ form.addEventListener('submit', async (event) => {
       return;
     }
     setStatus('Checking nearby FRA grade-crossing records…');
+    checkStage = 'crossings';
     const report = await fetchJSON(`/api/crossings?lat=${geo.lat}&lon=${geo.lon}`);
+    checkStage = 'render';
     renderReport({ ...report, lat: geo.lat, lon: geo.lon, matchedAddress: geo.matchedAddress || address, locationConfirmed: chosenLocation?.source === 'Confirmed map point', requestedAt: new Date().toISOString() });
-    trackEvent('property_check_completed');
     statusBox.classList.add('hidden');
     results.classList.remove('hidden');
     $('loadMap').click();
     results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    trackEvent('property_check_completed');
   } catch (error) {
-    trackEvent('property_check_failed');
-    console.error(error);
+    const diagnostics = checkFailureDiagnostics(error, checkStage, Date.now() - checkStartedAt);
+    trackEvent('property_check_failed', diagnostics);
+    console.error('Property check failed', diagnostics);
     setError(error.message || 'We could not complete this check. Please try another full U.S. street address.');
   } finally {
     setLoading(false);
@@ -58,19 +63,86 @@ function streetKey(address) {
   return String(address).split(',')[0].toUpperCase().replace(/[^A-Z0-9 ]/g,' ').split(/\s+/).map(w=>aliases[w]||w).join('');
 }
 
-async function fetchJSON(url, options = {}) {
-  const timeout=AbortSignal.timeout(35000);
-  const response = await fetch(url, {...options,signal:options.signal?AbortSignal.any([options.signal,timeout]):timeout});
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
-  return data;
+// AbortController is supported by older Safari; static AbortSignal helpers are not.
+// Keep the deadline active until the response body has also been consumed.
+async function withRequestTimeout(operation, timeoutMs = 35000, externalSignal) {
+  const controller = new AbortController();
+  let timer;
+  let onAbort;
+  const stopped = new Promise((_, reject) => {
+    const stop = (code, name) => {
+      const error = new Error(code === 'REQUEST_TIMEOUT' ? 'Request timed out. Please try again.' : 'Request cancelled.');
+      error.name = name;
+      error.checkCode = code;
+      reject(error);
+      controller.abort();
+    };
+    onAbort = () => stop('REQUEST_ABORTED', 'AbortError');
+    if (externalSignal?.aborted) { onAbort(); return; }
+    externalSignal?.addEventListener('abort', onAbort, { once: true });
+    timer = setTimeout(() => stop('REQUEST_TIMEOUT', 'TimeoutError'), timeoutMs);
+  });
+  try {
+    const request = controller.signal.aborted
+      ? stopped
+      : Promise.resolve().then(() => operation(controller.signal));
+    return await Promise.race([request, stopped]);
+  } finally {
+    clearTimeout(timer);
+    externalSignal?.removeEventListener('abort', onAbort);
+  }
 }
 
-function trackEvent(eventName) {
-  globalThis.GuideJourney?.track(eventName);
-  if (typeof window.gtag === 'function') {
-    window.gtag('event', eventName);
-  }
+async function fetchJSON(url, options = {}, timeoutMs = 35000) {
+  return withRequestTimeout(async signal => {
+    let response;
+    try { response = await fetch(url, { ...options, signal }); }
+    catch (error) {
+      if (error.name === 'AbortError') throw error;
+      const networkError = new Error('Network request failed. Please try again.');
+      networkError.checkCode = 'NETWORK_ERROR';
+      throw networkError;
+    }
+    let data;
+    try { data = await response.json(); }
+    catch {
+      const error = new Error('The service returned an unreadable response. Please try again.');
+      error.checkCode = response.ok ? 'INVALID_JSON' : `HTTP_${response.status}`;
+      throw error;
+    }
+    if (!response.ok) {
+      const error = new Error(data?.error || `Request failed (${response.status})`);
+      error.checkCode = `HTTP_${response.status}`;
+      throw error;
+    }
+    return data;
+  }, timeoutMs, options.signal);
+}
+
+function checkFailureDiagnostics(error, stage, durationMs) {
+  const code = error?.checkCode;
+  const known = ['REQUEST_TIMEOUT', 'REQUEST_ABORTED', 'NETWORK_ERROR', 'INVALID_JSON'];
+  const errorCode = known.includes(code) || /^HTTP_[45][0-9]{2}$/.test(code || '')
+    ? code : stage === 'render' ? 'RENDER_ERROR' : 'UNEXPECTED_ERROR';
+  return {
+    error_code: errorCode,
+    failure_stage: ['geocode', 'crossings', 'render'].includes(stage) ? stage : 'unknown',
+    duration_ms: Math.min(86400000, Math.max(0, Math.round(Number(durationMs) || 0)))
+  };
+}
+
+function trackEvent(eventName, diagnostics) {
+  // Never forward an error message, URL, address, coordinates, or arbitrary event data.
+  const params = eventName === 'property_check_failed' && diagnostics
+    ? checkFailureDiagnostics({ checkCode: diagnostics.error_code }, diagnostics.failure_stage, diagnostics.duration_ms)
+    : null;
+  try { globalThis.GuideJourney?.track(eventName, params); } catch {}
+  try {
+    if (typeof window.gtag === 'function') {
+      if (params) window.gtag('event', eventName, params);
+      else window.gtag('event', eventName);
+    }
+  } catch {}
 }
 
 function setLoading(isLoading, message) {
@@ -320,9 +392,7 @@ function showRailDistance(report) {
     btn.disabled = true; status.textContent = 'Checking mapped rail lines…';
     try {
       const params = new URLSearchParams({f:'json', geometry:report.lon+','+report.lat,geometryType:'esriGeometryPoint',inSR:'4326',spatialRel:'esriSpatialRelIntersects',distance:'5230.368',units:'esriSRUnit_Meter',outFields:'OBJECTID',returnGeometry:'true',outSR:'4326',resultRecordCount:'1000'});
-      const response = await fetch('https://services.arcgis.com/xOi1kZaI0eWDREZv/arcgis/rest/services/NTAD_North_American_Rail_Network_Lines/FeatureServer/0/query?'+params, {signal:AbortSignal.timeout(20000)});
-      if (!response.ok) throw Error('Rail data request failed');
-      const data = await response.json();
+      const data = await fetchJSON('https://services.arcgis.com/xOi1kZaI0eWDREZv/arcgis/rest/services/NTAD_North_American_Rail_Network_Lines/FeatureServer/0/query?'+params, {}, 20000);
       if (data.error || !Array.isArray(data.features) || data.exceededTransferLimit) throw Error('Incomplete rail data');
       const paths = data.features.flatMap(f => f.geometry?.paths || []);
       const meters = nearestRailMeters(report.lat, report.lon, paths);
@@ -366,7 +436,7 @@ function nearestRailMeters(lat, lon, paths) {
 const ROAD_TRAFFIC_SERVICE = 'https://services.arcgis.com/xOi1kZaI0eWDREZv/ArcGIS/rest/services/HPMS_National_Current/FeatureServer/0';
 async function fetchTrafficFeatures(params) {
   const features = [];
-  const signal = AbortSignal.timeout(30000);
+  return withRequestTimeout(async signal => {
   params.set('resultRecordCount', '2000');
   params.set('orderByFields', 'OBJECTID ASC');
   for (let page = 0; page < 5; page++) {
@@ -380,6 +450,7 @@ async function fetchTrafficFeatures(params) {
     if (!data.features.length) break;
   }
   throw Error('Traffic data exceeds the bounded query limit');
+  }, 30000);
 }
 
 function showRoadTraffic(report) {
@@ -468,8 +539,8 @@ function segmentMid(lat,lon,paths){
 }
 // Street names for unnamed segments come from Census TIGERweb via /api/roadnames (one batched request).
 function streetNames(pts){
-  return fetch('/api/roadnames',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pts}),signal:AbortSignal.timeout(20000)})
-    .then(r=>r.ok?r.json():null).then(j=>Array.isArray(j?.names)?j.names:[]).catch(()=>[]);
+  return fetchJSON('/api/roadnames',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pts})},20000)
+    .then(j=>Array.isArray(j?.names)?j.names:[]).catch(()=>[]);
 }
 function trafficRows(features,lat,lon) {
   const segments = features.map(feature=>{

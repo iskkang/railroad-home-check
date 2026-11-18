@@ -20,7 +20,7 @@ test('different streets and compass directions cannot silently generate a report
 });
 test('dense road queries paginate and never present incomplete data as complete',async()=>{
  const source=app.slice(app.indexOf('async function fetchTrafficFeatures('),app.indexOf('function showRoadTraffic('));let calls=[];
- const c={URLSearchParams,AbortSignal,ROAD_TRAFFIC_SERVICE:'https://example.com',fetch:async url=>{const p=new URL(url).searchParams;calls.push(p.get('resultOffset'));return Response.json(calls.length===1?{features:[{id:1},{id:2}],exceededTransferLimit:true}:{features:[{id:3}]})}};vm.createContext(c);vm.runInContext(source,c);
+ const c={URLSearchParams,AbortController,setTimeout,clearTimeout,ROAD_TRAFFIC_SERVICE:'https://example.com',fetch:async url=>{const p=new URL(url).searchParams;calls.push(p.get('resultOffset'));return Response.json(calls.length===1?{features:[{id:1},{id:2}],exceededTransferLimit:true}:{features:[{id:3}]})}};vm.createContext(c);vm.runInContext(app.slice(app.indexOf('async function withRequestTimeout('),app.indexOf('async function fetchJSON(')),c);vm.runInContext(source,c);
  const d=await c.fetchTrafficFeatures(new URLSearchParams());assert.equal(d.features.length,3);assert.deepEqual(calls,['0','2']);
  c.fetch=async()=>Response.json({features:[{id:1}],exceededTransferLimit:true});await assert.rejects(()=>c.fetchTrafficFeatures(new URLSearchParams()),/bounded query limit/);
 });

@@ -385,16 +385,13 @@
   window.ReportGlance = {
     start(report) {
       state = { report, rail: undefined, roads: undefined, night: undefined, flood: undefined, hazard: undefined, noise: undefined };
-      fetch(`/api/risk?lat=${encodeURIComponent(report.lat)}&lon=${encodeURIComponent(report.lon)}`, { signal: AbortSignal.timeout(15000) })
-        .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      fetchJSON(`/api/risk?lat=${encodeURIComponent(report.lat)}&lon=${encodeURIComponent(report.lon)}`, {}, 15000)
         .then(d => { report.hazard = d; if (state?.report === report) { state.hazard = d; render(); } })
         .catch(() => { report.hazard = 'error'; if (state?.report === report) { state.hazard = 'error'; render(); } });
-      fetch(`/api/noise?lat=${encodeURIComponent(report.lat)}&lon=${encodeURIComponent(report.lon)}`, { signal: AbortSignal.timeout(15000) })
-        .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      fetchJSON(`/api/noise?lat=${encodeURIComponent(report.lat)}&lon=${encodeURIComponent(report.lon)}`, {}, 15000)
         .then(d => { report.noise = d; if (state?.report === report) { state.noise = d; render(); } })
         .catch(() => { report.noise = 'error'; if (state?.report === report) { state.noise = 'error'; render(); } });
-      fetch(`/api/flood?lat=${encodeURIComponent(report.lat)}&lon=${encodeURIComponent(report.lon)}`, { signal: AbortSignal.timeout(20000) })
-        .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      fetchJSON(`/api/flood?lat=${encodeURIComponent(report.lat)}&lon=${encodeURIComponent(report.lon)}`, {}, 20000)
         .then(d => { report.flood = d; if (state?.report === report) { state.flood = d; render(); } })
         .catch(() => { report.flood = 'error'; if (state?.report === report) { state.flood = 'error'; render(); } });
       const el = panel();
