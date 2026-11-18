@@ -17,7 +17,7 @@
     new IntersectionObserver(([e]) => document.body.classList.toggle('gv-sticky-on', !e.isIntersecting)).observe(hero);
     sticky.addEventListener('click', event => {
       event.preventDefault();
-      const input = document.querySelector('.guide-hero .gv-search input');
+      const input = document.querySelector('.entry-checker input') || document.querySelector('.guide-hero .gv-search input');
       if (!input) { location.href = '/'; return; }
       input.scrollIntoView({ behavior: 'smooth', block: 'center' });
       setTimeout(() => input.focus({ preventScroll: true }), 350);
