@@ -1,5 +1,58 @@
 [
  {
+  "title": "Train vs. tanker in Fort Worth: where railroad crossing crashes cluster in 300 U.S. cities",
+  "seoTitle": "Railroad Crossing Accidents by City: FRA Crash Reports for 300 U.S. Cities (2021–2026)",
+  "description": "FRA logged 2,894 incident reports at public rail crossings in the 300 cities we track since 2021. Houston leads with 145, and Texas cities account for 528.",
+  "tag": "CROSSINGS",
+  "date": "2026-11-19",
+  "ctaTitle": "Check the crossings near a home",
+  "ctaText": "Enter an address to see the nearest public crossings, their day and night train counts, quiet-zone status and FRA incident history.",
+  "cities": [
+   "fort-worth-tx",
+   "houston-tx",
+   "chicago-il",
+   "memphis-tn",
+   "san-antonio-tx",
+   "gary-in",
+   "phoenix-az",
+   "baton-rouge-la",
+   "midland-tx",
+   "los-angeles-ca",
+   "dallas-tx",
+   "oakland-ca",
+   "atlanta-ga",
+   "fort-lauderdale-fl",
+   "san-bernardino-ca",
+   "west-palm-beach-fl",
+   "hammond-in",
+   "odessa-tx"
+  ],
+  "lead": "A BNSF train hit a tanker truck stuck on a Fort Worth crossing last week, and the driver got out seconds before impact. We counted federal crossing accident reports at the public crossings in the 300 cities we track: which cities log the most, where a few crossings account for many reports, and what to check before you buy near the tracks.",
+  "sources": [
+   [
+    "FOX 4 Dallas-Fort Worth: Train collides with tanker truck in Fort Worth (Nov 11, 2026)",
+    "https://www.fox4news.com/news/train-collides-tanker-truck-fort-worth"
+   ],
+   [
+    "Operation Lifesaver: Collisions, Fatalities & Injuries by Year (FRA data, updated Nov 6, 2026)",
+    "https://oli.org/about-us/news/collisions-casulties"
+   ],
+   [
+    "Operation Lifesaver: Collisions & Fatalities by State (preliminary 2025 FRA data)",
+    "https://oli.org/track-statistics/collisions-fatalities-state"
+   ],
+   [
+    "FRA Highway-Rail Crossing Inventory (Form 71), current data, retrieved Nov 9, 2026",
+    "https://data.transportation.gov/d/m2f8-22s6"
+   ],
+   [
+    "FRA Highway-Rail Grade Crossing Accident/Incident Reports (Form 57)",
+    "https://data.transportation.gov/d/uwah-u9bn"
+   ]
+  ],
+  "slug": "railroad-crossing-accidents-us-cities-2026"
+ },
+ {
   "title": "California's atmospheric river: one storm can bring a fifth of a year's rain. Here is how FEMA rates the flood risk",
   "seoTitle": "California Flooding 2026: Atmospheric River Flood Risk for 50 California Cities (FEMA)",
   "description": "30 of 58 U.S. cities we track in counties FEMA rates Very High for river flooding are in California. What 3 inches of rain means in San Jose, Oakland and L.A.",
