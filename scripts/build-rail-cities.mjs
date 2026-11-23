@@ -483,7 +483,8 @@ await writeFile(homePath, home);
 
 const smPath = resolve(root, 'sitemap.xml');
 let sm = await readFile(smPath, 'utf8');
-sm = sm.replace(/\s*<url><loc>https:\/\/railroad-home-check\.vercel\.app\/trains\/[^<]*<\/loc>(?:<lastmod>[^<]*<\/lastmod>)?<\/url>/g, '');
+// Drop existing /trains/ entries on the current origin and the pre-migration vercel host, then re-append.
+sm = sm.replace(/\s*<url><loc>https:\/\/(?:www\.checkaroundhome\.com|railroad-home-check\.vercel\.app)\/trains\/[^<]*<\/loc>(?:<lastmod>[^<]*<\/lastmod>)?<\/url>/g, '');
 sm = sm.replace('</urlset>', `${pages.map(p => `  <url><loc>${ORIGIN}${p.path}</loc><lastmod>${FETCHED}</lastmod></url>`).join('\n')}\n</urlset>`);
 await writeFile(smPath, sm);
 

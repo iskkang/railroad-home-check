@@ -99,7 +99,8 @@ await mkdir(resolve(root, 'data/blog'), { recursive: true });
 await writeFile(resolve(root, 'data/blog/posts.json'), JSON.stringify(posts.map(({ body, ...m }) => m), null, 1));
 const smPath = resolve(root, 'sitemap.xml');
 let sm = await readFile(smPath, 'utf8');
-sm = sm.replace(/\s*<url><loc>https:\/\/railroad-home-check\.vercel\.app\/blog\/[^<]*<\/loc>[\s\S]*?<\/url>/g, '');
+// Drop existing blog entries on the current origin and the pre-migration vercel host, then re-append.
+sm = sm.replace(/\s*<url><loc>https:\/\/(?:www\.checkaroundhome\.com|railroad-home-check\.vercel\.app)\/blog\/[^<]*<\/loc>[\s\S]*?<\/url>/g, '');
 const latest = posts[0]?.updated || posts[0]?.date;
 const entries = [`  <url><loc>${ORIGIN}/blog/</loc><lastmod>${latest}</lastmod></url>`, ...posts.map(p => `  <url><loc>${ORIGIN}/blog/${p.slug}/</loc><lastmod>${p.updated || p.date}</lastmod></url>`)].join('\n');
 sm = sm.replace('</urlset>', `${entries}\n</urlset>`);
