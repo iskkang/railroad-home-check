@@ -1,5 +1,60 @@
 [
  {
+  "title": "A king tide and a Thanksgiving storm: how FEMA rates coastal flood risk from Charleston to New York",
+  "seoTitle": "Coastal Flooding Risk 2026: FEMA Ratings for East Coast Cities, Charleston to New York",
+  "description": "Only 10 of 299 U.S. cities we rate are Very High for coastal flooding, Charleston among them. What this week's storm means for homes from Savannah to New York.",
+  "tag": "COASTAL FLOOD",
+  "date": "2026-11-25",
+  "ctaTitle": "Check a specific home's flood ratings",
+  "ctaText": "Enter the address to see its census-tract coastal and river flood ratings from FEMA, plus rail and road traffic nearby.",
+  "cities": [
+   "charleston-sc",
+   "north-charleston-sc",
+   "savannah-ga",
+   "wilmington-nc",
+   "norfolk-va",
+   "wilmington-de",
+   "philadelphia-pa",
+   "new-york-ny",
+   "chesapeake-va",
+   "portsmouth-va",
+   "baltimore-md",
+   "newark-nj"
+  ],
+  "lead": "A coastal storm is moving up the East Coast for Thanksgiving, on top of the year's last king tides. We checked the cities we track against FEMA's coastal flood ratings: which ones on the storm's path rate highest, how rare a Very High rating is nationally, and what to check in a home near tidal water before you buy.",
+  "sources": [
+   [
+    "Post and Courier: Forecast calls for highest tide of 2026 in Charleston as king tide inundates coastal US (Nov 24, 2026)",
+    "https://www.postandcourier.com/rising-waters/charleston-venice-flooding-king-tide-el-nino/article_8296dcfc-d0a3-473f-b60f-3f197ef4cf4c.html"
+   ],
+   [
+    "The Weather Channel: Major Thanksgiving storm ahead for Northeast, mid-Atlantic (Nov 24, 2026)",
+    "https://weather.com/2026/11/24/holiday/thanksgiving/east-coast-thanksgiving-storm-wind-rain-flooding"
+   ],
+   [
+    "Fox Weather: Timeline of the major East Coast Thanksgiving week storm (Nov 24, 2026)",
+    "https://www.foxweather.com/weather-news/timeline-major-east-coast-thanksgiving-storm-flood-rain-travel"
+   ],
+   [
+    "ABC News: Powerful storm threatens East Coast as Thanksgiving approaches (Nov 24, 2026)",
+    "https://abcnews.com/US/powerful-storm-threatens-east-coast-thanksgiving-approaches-forecast/story?id=138406163"
+   ],
+   [
+    "FEMA National Risk Index: Coastal Flooding",
+    "https://hazards.fema.gov/nri/coastal-flooding"
+   ],
+   [
+    "FEMA: Coastal Flood Risk (flood maps for coastal areas)",
+    "https://fema.gov/flood-maps/coastal"
+   ],
+   [
+    "FEMA Flood Map Service Center",
+    "https://msc.fema.gov/portal/home"
+   ]
+  ],
+  "slug": "east-coast-thanksgiving-storm-coastal-flood-risk-2026"
+ },
+ {
   "title": "Amtrak's Bridgeport rail yard: what the federal noise review found, and how loud Chicago's rails already are",
   "seoTitle": "Amtrak Bridgeport Rail Yard Noise (Chicago, 2026): Federal Review Findings and Rail Noise by City",
   "description": "A federal review of Amtrak's planned Bridgeport rail yard found moderate noise at 4 home clusters. 7.1% of Chicagoans already live with rail noise of 55 dB+.",
