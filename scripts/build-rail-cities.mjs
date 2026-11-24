@@ -314,6 +314,22 @@ function barRows(rows, max, { operator = false } = {}) {
   }).join('');
 }
 
+// Small search-snippet test for city pages with impressions but no clicks.
+const citySearchMetadata = {
+  'greeley-co': {
+    title: 'Greeley, CO Railroad Crossing Map & Night Trains',
+    description: 'See where Greeley crossings report overnight trains and which are in quiet zones. Check a specific address before buying or renting near the tracks.',
+  },
+  'denver-co': {
+    title: 'Denver, CO Train Noise: Crossing Map & Quiet Zones',
+    description: 'Compare Denver railroad crossings, reported night trains and quiet zones. Enter an address to check nearby crossings before you buy or rent.',
+  },
+  'chicago-il': {
+    title: 'Chicago, IL Train Noise: Night Trains & Quiet Zones',
+    description: 'Explore Chicago rail crossings and reported overnight train activity. Check quiet-zone coverage and find the nearest crossing to a home address.',
+  },
+};
+
 function cityPage(slug) {
   const c = summary[slug];
   const m = mainline[slug];
@@ -334,9 +350,9 @@ function cityPage(slug) {
   const recentShare = c.withTrains ? c.yRecent / c.withTrains : 0;
   const { width: mapW, height: mapH } = mapSvg(slug);
 
-  const title = `Trains in ${L}: Crossings, Night Trains & Quiet Zones`;
+  const title = citySearchMetadata[slug]?.title ?? `Trains in ${L}: Crossings, Night Trains & Quiet Zones`;
   const h1 = `Trains near a ${name} home: what the records show`;
-  const description = `FRA data for ${L}: ${fmt(c.n)} public rail crossings, ${fmt(c.night)} reporting night trains, ${fmt(qz)} in quiet zones. See the crossing map and what to check before buying.`;
+  const description = citySearchMetadata[slug]?.description ?? `FRA data for ${L}: ${fmt(c.n)} public rail crossings, ${fmt(c.night)} reporting night trains, ${fmt(qz)} in quiet zones. See the crossing map and what to check before buying.`;
 
   const lead = `The FRA inventory lists <strong>${plural(c.n, 'public at-grade crossing')}</strong> in or near ${esc(name)}. <strong>${fmt(c.night)}</strong> report trains between 6 PM and 6 AM, and <strong>${fmt(qz)}</strong> sit in a quiet zone. ${thin ? `Most activity here is light rail and commuter service; the busiest crossing reports <strong>${fmt(c.max)}</strong> trains a day.` : `On railroad-company lines, a typical active crossing reports about <strong>${plural(m.fMed, 'train')} a day</strong>; the busiest reports <strong>${fmt(m.fMax)}</strong>.`}`;
 
