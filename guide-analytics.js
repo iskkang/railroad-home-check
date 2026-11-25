@@ -1,7 +1,7 @@
 // Only public page paths and a short-lived guide attribution token; never addresses or coordinates.
 (() => {
   const key = 'home-guide-entry-v1';
-  const validPath = value => typeof value === 'string' && /^\/[a-z0-9-]+\/$/.test(value);
+  const validPath = value => typeof value === 'string' && /^\/(?:trains\/)?[a-z0-9-]+\/$/.test(value);
   const path = location.pathname;
   const attribution = () => {
     try {
