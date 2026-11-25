@@ -10,3 +10,12 @@ test('blocked storage does not interrupt the checker',()=>{const r=runtime('/ope
 test('home brand clicks do not create a guide conversion',()=>{const r=runtime('/guides/');r.listeners.click({target:{closest:()=>({getAttribute:()=> '/',matches:()=>false})}});assert.equal(r.events.length,0);});
 
 test('guide failure diagnostics are allowlisted without addresses or arbitrary messages',()=>{const r=runtime('/open-house-questions-checklist/');r.context.GuideJourney.mark();r.context.GuideJourney.track('property_check_failed',{error_code:'HTTP_503',failure_stage:'geocode',duration_ms:1500,address:'123 Private St',message:'Private St'});const p=r.events[1][2];assert.equal(p.error_code,'HTTP_503');assert.equal(p.failure_stage,'geocode');assert.equal(p.duration_ms,1500);assert.deepEqual(Object.keys(p).sort(),['duration_ms','error_code','failure_stage','guide_path','transport_type']);assert.equal(JSON.stringify(p).includes('Private'),false);});
+
+test('selected city guide attribution records the path, never the entered address',()=>{
+  const r=runtime('/trains/fort-worth-tx/');
+  r.context.GuideJourney.mark();
+  r.context.GuideJourney.track('property_check_completed');
+  assert.equal(r.events.length, 2);
+  assert.equal(r.events[1][2].guide_path,'/trains/fort-worth-tx/');
+  assert.equal(runtime('/trains/laredo-tx/?address=private').events.length,0);
+});

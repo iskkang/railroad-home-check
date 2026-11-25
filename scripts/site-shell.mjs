@@ -2,6 +2,7 @@ import {readFile,writeFile,readdir} from 'node:fs/promises';
 import {resolve,dirname,relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
+const priorityCityEntries = { '/trains/fort-worth-tx/': 'Fort Worth', '/trains/laredo-tx/': 'Laredo' };
 const assetVersion='20261110-shell1';
 export function applySiteShell(html){
   if(!/<header\b/.test(html))return html;
@@ -15,7 +16,7 @@ export function applySiteShell(html){
   html=html.replace(/<link\b[^>]*href="\/site-shell\.css[^\"]*"[^>]*>\s*/g,'');
   html=html.replace('</head>',`<link rel="stylesheet" href="/site-shell.css?v=${assetVersion}"></head>`);
   const entryPaths = ['/', '/how-many-trains-pass-near-my-house/', '/blog/nashville-bna-flight-path-noise-2026/', '/trains/nashville-tn/', '/trains/grand-junction-co/'];
-  if (entryPaths.includes(path)) {
+  if (entryPaths.includes(path) || Object.hasOwn(priorityCityEntries, path)) {
     if (!html.includes('/mobile-entry.css')) html = html.replace('</head>', '<link rel="stylesheet" href="/mobile-entry.css?v=20261118-entry"><script src="/mobile-entry.js?v=20261118-entry" defer></script></head>');
     if (path === '/blog/nashville-bna-flight-path-noise-2026/' && !html.includes('entry-checker-wrap')) {
       const cta = html.match(/<div class="guide-cta">[\s\S]*?<\/form><\/div>/)?.[0];
@@ -38,6 +39,21 @@ export function applySiteShell(html){
   return finalizeEntry(html, path);
 }
 function finalizeEntry(html, path) {
+  const priorityCity = priorityCityEntries[path];
+  if (priorityCity) {
+    if (!html.includes('class="entry-checker city-quick-entry"')) {
+      const entry = `<section class="entry-checker-wrap"><div class="entry-checker city-quick-entry"><h2>Check a home in ${priorityCity}</h2><p>See nearby railroad crossings, reported night trains and road traffic for the address you’re considering.</p><form class="rc-search" action="/" role="search"><label for="addr-top">Full U.S. property address</label><input id="addr-top" type="text" autocomplete="street-address" maxlength="250" placeholder="Street address, city, state and ZIP" required><button type="submit">Check this address</button></form></div></section>`;
+      html = html.replace(/(<section[^>]*class="[^"]*rc-hero[^"]*"[^>]*>[\s\S]*?<\/section>)/, '$1' + entry);
+    }
+    if (!html.includes('class="city-check-jump"')) {
+      html = html.replace(/(<div class="rc-hero-main">[\s\S]*?<\/h1>)/, '$1<p><a class="city-check-jump" href="#addr-top" style="display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:8px;background:#fff;color:#163969;font-weight:800;text-decoration:underline">Check a property address ↓</a></p>');
+    }
+    if (!html.includes('/guide-analytics.js')) html = html.replace('</head>', '<script src="/guide-analytics.js?v=20261126-city-entry" defer></script></head>');
+    html = html.replace("      track();\n      location.href =", "      if (window.GuideJourney) window.GuideJourney.mark(); else track();\n      location.href =");
+    html = html.replace("  document.querySelectorAll('a.rc-cta-link').forEach(function(a){ a.addEventListener('click', track); });", "");
+    const shellCss = `<link rel="stylesheet" href="/site-shell.css?v=${assetVersion}">`;
+    html = html.replace(shellCss, '').replace('</head>', shellCss + '</head>');
+  }
   const cities = {'/trains/nashville-tn/':'Nashville', '/trains/grand-junction-co/':'Grand Junction'};
   const city = cities[path];
   if (city && !html.includes('entry-checker-wrap')) {
