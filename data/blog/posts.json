@@ -1,5 +1,70 @@
 [
  {
+  "title": "Holiday traffic goes home. Highway noise stays: where the most residents live with loud roads",
+  "seoTitle": "Road Noise by City 2026: Where the Most Residents Live With Loud Highway Traffic",
+  "description": "In South Gate, CA, 14.3% of residents live where road noise averages 55 dB or more, the highest of 299 U.S. cities. The median city: 1.6%. What to check.",
+  "tag": "ROAD NOISE",
+  "date": "2026-11-27",
+  "image": {
+   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/I-95_Noise_Wall_Pelham_Manor.jpg/960px-I-95_Noise_Wall_Pelham_Manor.jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/I-95_Noise_Wall_Pelham_Manor.jpg/330px-I-95_Noise_Wall_Pelham_Manor.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:I-95_Noise_Wall_Pelham_Manor.jpg",
+   "author": "Transpoman",
+   "license": "CC BY-SA 4.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+   "alt": "Concrete noise wall along I-95 at the end of a residential street in Pelham Manor, New York",
+   "pos": "center 40%"
+  },
+  "ctaTitle": "Check the road noise at one address",
+  "ctaText": "Enter the address to see the modeled road, rail and aircraft noise at the home, plus nearby road traffic and the closest rail crossing.",
+  "cities": [
+   "south-gate-ca",
+   "portland-me",
+   "kissimmee-fl",
+   "salem-or",
+   "hammond-in",
+   "seattle-wa",
+   "bend-or",
+   "milwaukee-wi",
+   "los-angeles-ca",
+   "new-york-ny",
+   "chicago-il",
+   "philadelphia-pa"
+  ],
+  "lead": "AAA expected 72.9 million people to drive for Thanksgiving this year. By Monday most of that traffic is gone, but for homes beside a freeway the noise is every day. We isolated the road layer of the federal transportation noise map for 299 cities to see where the most residents live with loud road traffic.",
+  "sources": [
+   [
+    "Fox Weather: AAA says over 81 million Americans expected to travel for Thanksgiving (Nov 17, 2026)",
+    "https://www.foxweather.com/lifestyle/more-than-81-million-americans-expected-travel-thanksgiving-despite-fewer-drivers-flyers"
+   ],
+   [
+    "USDOT Bureau of Transportation Statistics: National Transportation Noise Map",
+    "https://www.bts.gov/geospatial/national-transportation-noise-map"
+   ],
+   [
+    "BTS: Under a Quarter of Population Exposed to Office-Type Transportation Noise (Nov 18, 2020)",
+    "https://www.bts.gov/newsroom/under-quarter-population-exposed-office-type-transportation-noise"
+   ],
+   [
+    "23 CFR Part 772, Table 1: Noise Abatement Criteria (Cornell LII)",
+    "https://www.law.cornell.edu/cfr/text/23/appendix-Table_1_to_part_772"
+   ],
+   [
+    "23 CFR 772.5: Definitions (Cornell LII)",
+    "https://www.law.cornell.edu/cfr/text/23/772.5"
+   ],
+   [
+    "23 CFR 772.11: Analysis of traffic noise impacts (Cornell LII)",
+    "https://www.law.cornell.edu/cfr/text/23/772.11"
+   ],
+   [
+    "U.S. EPA: EPA Identifies Noise Levels Affecting Health and Welfare (April 2, 1974)",
+    "https://epa.gov/archive/epa/aboutepa/epa-identifies-noise-levels-affecting-health-and-welfare.html"
+   ]
+  ],
+  "slug": "highway-road-noise-us-cities-2026"
+ },
+ {
   "title": "A king tide and a Thanksgiving storm: how FEMA rates coastal flood risk from Charleston to New York",
   "seoTitle": "Coastal Flooding Risk 2026: FEMA Ratings for East Coast Cities, Charleston to New York",
   "description": "Only 10 of 299 U.S. cities we rate are Very High for coastal flooding, Charleston among them. What this week's storm means for homes from Savannah to New York.",
